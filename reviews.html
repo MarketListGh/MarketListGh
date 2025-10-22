@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reviews - MarketList</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="headerbar">
+  <div class="inner">
+    <div class="brand" onclick="location.href='index.html'">
+      <img src="logo.png" alt="logo">
+      <div class="title">MarketList</div>
+    </div>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="reviews.html">Reviews</a>
+      <a href="assistant.html">Assistant</a>
+    </nav>
+  </div>
+</div>
+
+<div class="container">
+  <section class="card fade-in">
+    <h1>Customer Reviews</h1>
+
+    <!-- Review Feed -->
+    <div id="reviewsFeed"></div>
+
+    <!-- Submit Review Form -->
+    <div class="review-form">
+      <h2>Submit Your Review</h2>
+
+      <label for="reviewName">Your Name</label>
+      <input type="text" id="reviewName" placeholder="Enter your name" required>
+
+      <label for="reviewLocation">Your Location</label>
+      <input type="text" id="reviewLocation" placeholder="e.g., Accra, Kasoa" required>
+
+      <label>Star Rating</label>
+      <div id="starContainer">
+        <span class="star" data-value="1">☆</span>
+        <span class="star" data-value="2">☆</span>
+        <span class="star" data-value="3">☆</span>
+        <span class="star" data-value="4">☆</span>
+        <span class="star" data-value="5">☆</span>
+      </div>
+
+      <label for="reviewText">Your Review</label>
+      <textarea id="reviewText" rows="4" placeholder="Write your review here..." required></textarea>
+
+      <button onclick="addOrUpdateReview()">Submit Review</button>
+    </div>
+  </section>
+</div>
+
+<footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
+
+<script>
+let currentStars = 5;
+let editIndex = null;
+const stars = document.querySelectorAll('#starContainer .star');
+
+function updateStarsDisplay(num){
+  stars.forEach((star, i) => {
+    if(i < num){
+      star.textContent = '★';
+      star.style.color = 'gold';
+    } else {
+      star.textContent = '☆';
+      star.style.color = 'white';
+    }
+  });
+}
+
+stars.forEach(star => {
+  star.addEventListener('click', () => {
+    currentStars = parseInt(star.getAttribute('data-value'));
+    updateStarsDisplay(currentStars);
+  });
+});
+
+updateStarsDisplay(currentStars);
+
+function loadReviews() {
+  const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
+  const feed = document.getElementById('reviewsFeed');
+  feed.innerHTML = '';
+  reviews.forEach((r, index) => {
+    const article = document.createElement('article');
+    let starsHtml = '';
+    for(let i = 0; i < 5; i++){
+      starsHtml += i < r.stars ? '<span style="color: gold;">★</span>' : '<span style="color: white;">☆</span>';
+    }
+    article.innerHTML = `
+      <p><strong>${r.name} — ${r.location}</strong> ${starsHtml}</p>
+      <p>${r.text}</p>
+      <div class="review-actions">
+        <button onclick="editReview(${index})">Edit</button>
+        <button onclick="deleteReview(${index})">Delete</button>
+      </div>
+    `;
+    feed.prepend(article);
+  });
+}
+
+function addOrUpdateReview(){
+  const name = document.getElementById('reviewName').value.trim();
+  const location = document.getElementById('reviewLocation').value.trim();
+  const text = document.getElementById('reviewText').value.trim();
+
+  if(!name || !location || !text){ alert("Please fill all fields before submitting."); return; }
+
+  const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
+
+  if(editIndex !== null){
+    reviews[editIndex] = {name, location, text, stars: currentStars};
+    editIndex = null;
+  } else { reviews.push({name, location, text, stars: currentStars}); }
+
+  localStorage.setItem('marketReviews', JSON.stringify(reviews));
+
+  document.getElementById('reviewName').value = '';
+  document.getElementById('reviewLocation').value = '';
+  document.getElementById('reviewText').value = '';
+  currentStars = 5;
+  updateStarsDisplay(currentStars);
+
+  loadReviews();
+}
+
+function editReview(index){
+  const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
+  const r = reviews[index];
+  document.getElementById('reviewName').value = r.name;
+  document.getElementById('reviewLocation').value = r.location;
+  document.getElementById('reviewText').value = r.text;
+  currentStars = r.stars;
+  updateStarsDisplay(currentStars);
+  editIndex = index;
+}
+
+function deleteReview(index){
+  if(!confirm("Are you sure you want to delete this review?")) return;
+  const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
+  reviews.splice(index,1);
+  localStorage.setItem('marketReviews', JSON.stringify(reviews));
+  loadReviews();
+}
+
+loadReviews();
+</script>
+
+</body>
+</html>
