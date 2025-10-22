@@ -29,30 +29,31 @@
 
 /* Loader ring spinning */
 .loader-ring {
-  width:120px;
-  height:120px;
-  border:6px solid #ccc;
-  border-top-color:#00a859;
-  border-radius:50%;
-  animation: spin 1s linear infinite;
+  width: 120px;
+  height: 120px;
+  border: 6px solid #ccc;
+  border-top-color: #00a859;
+  border-radius: 50%;
+  animation: spin 1s linear infinite; /* ring spins */
   position: relative;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Logo in center with gentle scaling (pop effect) */
+/* Logo in center stays still */
 .loader-ring img {
-  width:60px;
-  height:60px;
-  position:absolute;
-  border-radius:50%;
+  width: 60px;
+  height: 60px;
+  position: absolute;
+  border-radius: 50%;
+  /* No animation here */
 }
 
 /* Ring spin animation */
 @keyframes spin {
-  0% { transform: rotate(0deg);}
-  100% { transform: rotate(360deg);}
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* Header, main, footer initially hidden */
@@ -308,5 +309,6 @@ function prepareAndOpenWhatsApp(e){
 </script>
 </body>
 </html>
+
 
 
