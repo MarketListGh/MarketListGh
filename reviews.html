@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reviews - MarketList</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #00a859, #ff8c00);
+  color: #fff;
+  margin: 0;
+  padding: 0;
+}
+.headerbar {
+  background: rgba(0,0,0,0.3);
+  color: #fff;
+  padding: 10px 20px;
+}
+.headerbar .inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.headerbar .brand {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.headerbar .brand img { width: 40px; margin-right: 10px; }
+.headerbar nav a { color: #fff; margin-left: 20px; text-decoration: none; font-weight: bold; }
+.container { max-width: 800px; margin: 40px auto; padding: 20px; }
+.card { background-color: rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+h1 { text-align:center; margin-bottom:25px; }
+article { background: rgba(255,255,255,0.2); padding: 15px 20px; border-radius: 15px; margin-bottom: 20px; position: relative; }
+article p { margin: 5px 0; }
+article strong { font-size: 1.1em; }
+.star {
+  font-size: 1.5em;
+  cursor: pointer;
+  margin-right: 5px;
+}
+.review-form { background: rgba(255,255,255,0.2); padding: 20px; border-radius: 15px; margin-top: 30px; }
+.review-form label { display: block; margin-top: 10px; font-weight: bold; }
+.review-form textarea, .review-form input {
+  width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: none; resize: vertical; font-size: 15px;
+}
+.review-form button {
+  margin-top: 15px; padding: 12px; width: 100%; background: #25D366; border: none; border-radius: 30px;
+  color: #fff; font-weight: bold; cursor: pointer; transition: background 0.3s ease;
+}
+.review-form button:hover { background: #1ebe5b; }
+#starContainer { margin-top: 10px; }
+.review-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.review-actions button {
+  margin-left: 5px;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 0.9em;
+}
+.review-actions button:hover { background: rgba(255,255,255,0.4); }
+footer.footer { text-align:center; padding:15px; background: rgba(0,0,0,0.2); margin-top:40px; }
+</style>
+</head>
+<body>
+
+<div class="headerbar">
+  <div class="inner">
+    <div class="brand" onclick="location.href='index.html'">
+      <img src="logo.png" alt="logo">
+      <div class="title">MarketList</div>
+    </div>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="reviews.html">Reviews</a>
+      <a href="assistant.html">Assistant</a>
+    </nav>
+  </div>
+</div>
+
+<div class="container">
+  <section class="card fade-in">
+    <h1>Customer Reviews</h1>
+
+    <!-- Review Feed -->
+    <div id="reviewsFeed"></div>
+
+    <!-- Submit Review Form -->
+    <div class="review-form">
+      <h2>Submit Your Review</h2>
+
+      <label for="reviewName">Your Name</label>
+      <input type="text" id="reviewName" placeholder="Enter your name" required>
+
+      <label for="reviewLocation">Your Location</label>
+      <input type="text" id="reviewLocation" placeholder="e.g., Accra, Kasoa" required>
+
+      <label>Star Rating</label>
+      <div id="starContainer">
+        <span class="star" data-value="1">☆</span>
+        <span class="star" data-value="2">☆</span>
+        <span class="star" data-value="3">☆</span>
+        <span class="star" data-value="4">☆</span>
+        <span class="star" data-value="5">☆</span>
+      </div>
+
+      <label for="reviewText">Your Review</label>
+      <textarea id="reviewText" rows="4" placeholder="Write your review here..." required></textarea>
+
+      <button onclick="addOrUpdateReview()">Submit Review</button>
+    </div>
+  </section>
+</div>
+
+<footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
+
+<script>
+let currentStars = 5;
+let editIndex = null; // track which review is being edited
+const stars = document.querySelectorAll('#starContainer .star');
+
+// Update stars visually in the form
+function updateStarsDisplay(num){
+  stars.forEach((star, i) => {
+    if(i < num){
+      star.textContent = '★';
+      star.style.color = 'gold';
+    } else {
+      star.textContent = '☆';
+      star.style.color = 'white';
+    }
+  });
+}
+
+// Star click in the form
+stars.forEach(star => {
+  star.addEventListener('click', () => {
+    currentStars = parseInt(star.getAttribute('data-value'));
+    updateStarsDisplay(currentStars);
+  });
+});
+
+// Initialize
+updateStarsDisplay(currentStars);
+
+// Load reviews from localStorage
+function loadReviews() {
+  const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
+  const feed = document.getElementById('reviewsFeed');
+  feed.innerHTML = '';
+  reviews.forEach((r, index) => {
+    const article = document.createElement('article');
+
+    // Create stars for feed with yellow for selected and white for remaining
+    let starsHtml = '';
+    for(let i = 0; i < 5; i++){
+      if(i < r.stars){
+        starsHtml += '<span style="color: gold;">★</span>';
+      } else {
+        starsHtml += '<span style="color: white;">☆</span>';
+      }
+    }
+
+    article.innerHTML = `
+      <p><strong>${r.name} — ${r.location}</strong> ${starsHtml}</p>
+      <p>${r.text}</p>
+      <div class="review-actions">
+        <button onclick="editReview(${index})">Edit</button>
+        <button onclick="deleteReview(${index})">Delete</button>
+      </div>
+    `;
+    feed.prepend(article); // newest first
+  });
+}
+
+// Add or update review
+function addOrUpdateReview(){
+  const name = document.getElementById('reviewName').value.trim();
+  const location = document.getElementById('reviewLocation').value.trim();
+  const text = document.getElementById('reviewText').value.trim();
+
+  if(!name || !location || !text){
+    alert("Please fill all fields before submitting.");
+    return;
+  }
+
+  const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
+
+  if(editIndex !== null){
+    // Update existing review
+    reviews[editIndex] = {name, location, text, stars: currentStars};
+    editIndex = null;
+  } else {
+    // Add new review
+    reviews.push({name, location, text, stars: currentStars});
+  }
+
+  localStorage.setItem('marketReviews', JSON.stringify(reviews));
+
+  // Reset form
+  document.getElementById('reviewName').value = '';
+  document.getElementById('reviewLocation').value = '';
+  document.getElementById('reviewText').value = '';
+  currentStars = 5;
+  updateStarsDisplay(currentStars);
+
+  loadReviews();
+}
+
+// Edit review
+function editReview(index){
+  const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
+  const r = reviews[index];
+  document.getElementById('reviewName').value = r.name;
+  document.getElementById('reviewLocation').value = r.location;
+  document.getElementById('reviewText').value = r.text;
+  currentStars = r.stars;
+  updateStarsDisplay(currentStars);
+  editIndex = index;
+}
+
+// Delete review
+function deleteReview(index){
+  if(!confirm("Are you sure you want to delete this review?")) return;
+  const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
+  reviews.splice(index,1);
+  localStorage.setItem('marketReviews', JSON.stringify(reviews));
+  loadReviews();
+}
+
+// Initial load
+loadReviews();
+</script>
+
+</body>
+</html>
