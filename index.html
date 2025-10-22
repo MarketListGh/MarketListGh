@@ -27,27 +27,35 @@
   pointer-events:none;
 }
 
-/* Loader ring spinning */
+/* Loader ring container */
 .loader-ring {
   width: 120px;
   height: 120px;
-  border: 6px solid #ccc;
-  border-top-color: #00a859;
-  border-radius: 50%;
-  animation: spin 1s linear infinite; /* ring spins */
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Logo in center stays still */
+/* Spinning ring only */
+.loader-ring .ring {
+  width: 120px;
+  height: 120px;
+  border: 6px solid #ccc;
+  border-top-color: #00a859;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Logo stays still */
 .loader-ring img {
   width: 60px;
   height: 60px;
-  position: absolute;
   border-radius: 50%;
-  /* No animation here */
+  position: relative; /* stays centered */
 }
 
 /* Ring spin animation */
@@ -140,7 +148,8 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
 <!-- Preloader -->
 <div id="preloader">
   <div class="loader-ring">
-    <img src="logo.png" alt="MarketList Logo">
+    <div class="ring"></div> <!-- spinning ring -->
+    <img src="logo.png" alt="MarketList Logo"> <!-- logo stays still -->
   </div>
 </div>
 
@@ -309,6 +318,3 @@ function prepareAndOpenWhatsApp(e){
 </script>
 </body>
 </html>
-
-
-
