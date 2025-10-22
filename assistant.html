@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Assistant - MarketList</title><link rel="stylesheet" href="style.css"></head><body>
+<div class="headerbar"><div class="inner"><div class="brand" onclick="location.href='index.html'"><img src="logo.png" alt="logo"><div class="title">MarketList</div></div><nav class="nav"><a href="index.html">Home</a><a href="about.html">About</a><a href="reviews.html">Reviews</a><a href="assistant.html">Assistant</a></nav></div></div>
+<div class="container"><section class="card fade-in"><h1>Market Assistant</h1><p>Ask for product suggestions, budgeting tips, or where to find the best deals.</p><label>Your question</label><input id="q" placeholder="e.g., Where can I buy cheap rice in Accra?"><button class="button" onclick="askAssistant()">Ask</button><div id="answer" style="margin-top:12px;display:none;padding:12px;background:#f7fff7;border-radius:8px"></div></section></div>
+<footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
+<script>
+function askAssistant(){ var q=document.getElementById('q').value.toLowerCase(); var ans='We recommend visiting Makola for variety and Kasoa for bulk prices.'; if(q.includes('rice')) ans='For cheaper rice, check Kasoa and Makola markets — buy in bulk for discounts.'; if(q.includes('vegetables')) ans='For fresh vegetables, visit Nima or Kaneshie early in the morning.'; if(q.includes('budget')) ans='Try setting a strict grocery list and comparing prices across two markets before purchasing.'; var el=document.getElementById('answer'); el.style.display='block'; el.textContent=ans; }
+</script>
+</body></html>

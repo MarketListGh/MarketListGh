@@ -1,0 +1,42 @@
+
+:root{
+  --green:#0b7a3f;
+  --orange:#ff8c00;
+  --accent:#25D366;
+  --max-width:980px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter, Arial, sans-serif;-webkit-font-smoothing:antialiased}
+body{background:linear-gradient(135deg,#eafaf0,#fff4e6);color:#111}
+.headerbar{position:fixed;top:0;left:0;right:0;height:74px;display:flex;align-items:center;justify-content:center;z-index:1000}
+.headerbar .inner{max-width:var(--max-width);width:100%;display:flex;align-items:center;gap:14px;padding:8px}
+.brand{display:flex;align-items:center;gap:10px;cursor:pointer}
+.brand img{width:56px;height:56px;object-fit:contain;border-radius:10px}
+.brand .title{font-weight:800;color:var(--green);font-size:20px}
+.nav{margin-left:auto;display:flex;gap:10px}
+.nav a{color:#111;text-decoration:none;padding:8px 10px;border-radius:8px;font-weight:700}
+.container{max-width:var(--max-width);margin:110px auto 40px;padding:20px}
+.card{background:linear-gradient(180deg,#fff,#fcfcfc);border-radius:12px;padding:22px;box-shadow:0 12px 30px rgba(10,10,10,0.06)}
+.header-main{display:flex;align-items:center;gap:18px}
+.header-main img{width:86px;height:86px}
+.header-main h1{margin:0;color:var(--green);font-size:32px}
+.slogan{color:var(--orange);font-size:18px;margin-top:6px}
+label{display:block;margin-top:12px;font-weight:700;color:#222}
+input,select,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #e6e6e6;margin-top:8px;font-size:15px}
+textarea{min-height:120px;resize:vertical}
+.row{display:flex;gap:12px}
+.col{flex:1}
+.button{background:var(--green);color:#fff;padding:12px 16px;border-radius:10px;border:none;font-weight:800;cursor:pointer;margin-top:14px}
+.note{background:#fff7e6;border-left:4px solid var(--orange);padding:12px;border-radius:8px;margin-top:12px;color:#333}
+.summary{background:#f8fff8;border:1px solid #e6f6ec;padding:12px;border-radius:8px;margin-top:12px;font-weight:700}
+.footer{text-align:center;padding:24px;color:#666;margin-top:30px}
+.send-whatsapp{display:block;text-align:center;background:var(--accent);color:white;padding:12px;border-radius:10px;text-decoration:none;font-weight:800;margin-top:12px}
+@media(max-width:760px){.row{flex-direction:column}.nav{display:none}.header-main{flex-direction:column;align-items:flex-start}}
+/* loader */
+#preloader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--green),var(--orange));z-index:3000}
+.loader-ring{width:140px;height:140px;border-radius:50%;border:8px solid rgba(255,255,255,0.25);border-top-color:#fff;border-left-color:transparent;display:flex;align-items:center;justify-content:center;animation:spin 1.6s linear infinite}
+.loader-ring img{width:86px;height:86px}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.hidden{display:none}
+.fade-in{opacity:0;transform:translateY(8px);animation:fadeIn 0.6s forwards;animation-delay:0.2s}
+@keyframes fadeIn{to{opacity:1;transform:translateY(0)}}
