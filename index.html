@@ -4,7 +4,142 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MarketList — Home</title>
-<link rel="stylesheet" href="style.css">
+<style>
+/* Reset */
+* { margin:0; padding:0; box-sizing:border-box; }
+
+/* Preloader overlay */
+#preloader {
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  transition: opacity 0.5s ease;
+}
+
+/* Hide preloader */
+#preloader.hidden {
+  opacity:0;
+  pointer-events:none;
+}
+
+/* Loader ring spinning */
+.loader-ring {
+  width:120px;
+  height:120px;
+  border:6px solid #ccc;
+  border-top-color:#00a859;
+  border-radius:50%;
+  animation: spin 1s linear infinite;
+  position: relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* Logo in center with gentle scaling (pop effect) */
+.loader-ring img {
+  width:60px;
+  height:60px;
+  position:absolute;
+  border-radius:50%;
+  animation: logo-pop 1.5s ease-in-out infinite alternate;
+}
+
+/* Ring spin animation */
+@keyframes spin {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}
+
+/* Logo scaling animation */
+@keyframes logo-pop {
+  0% { transform: scale(1);}
+  100% { transform: scale(1.15);}
+}
+
+/* Header, main, footer initially hidden */
+header, main, footer {
+  opacity:0;
+  transition: opacity 1s ease;
+}
+
+/* Show content */
+.visible {
+  opacity:1;
+}
+
+/* Header */
+.headerbar {
+  background:#00a859;
+  color:#fff;
+  padding:10px 20px;
+}
+.headerbar .inner {
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+}
+.headerbar .brand {
+  display:flex;
+  align-items:center;
+  cursor:pointer;
+}
+.headerbar .brand img { width:40px; margin-right:10px; }
+.headerbar nav a { color:#fff; margin-left:20px; text-decoration:none; font-weight:bold; }
+
+/* Main content */
+main.container {
+  max-width:700px;
+  margin:40px auto;
+  padding:20px;
+}
+
+.card {
+  background: linear-gradient(135deg, #00a859, #ff8c00);
+  color: #fff;
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.2);
+}
+
+.header-main { display:flex; align-items:center; margin-bottom:20px; }
+.header-main img { width:60px; margin-right:15px; }
+.header-main h1 { margin:0; }
+.slogan { font-style:italic; font-size:0.9em; }
+
+form label { display:block; margin-top:15px; font-weight:bold; }
+form input, form select, form textarea {
+  width:100%; padding:10px; margin-top:5px; border:none; border-radius:8px; font-size:15px;
+}
+textarea { height:80px; resize:vertical; }
+
+.row { display:flex; gap:10px; }
+.row .col { flex:1; }
+
+.summary { margin-top:15px; font-weight:bold; }
+
+.send-whatsapp {
+  display:block;
+  width:100%;
+  text-align:center;
+  background-color:#25D366;
+  color:white;
+  font-weight:bold;
+  padding:15px;
+  margin-top:25px;
+  border-radius:30px;
+  text-decoration:none;
+  transition: background-color 0.3s ease;
+}
+.send-whatsapp:hover { background-color:#1ebe5b; }
+
+footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40px; }
+</style>
 </head>
 <body>
 
@@ -114,14 +249,15 @@
 <footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
 
 <script>
-// Splash screen fadeout
+// Splash screen fadeout after 3 seconds
 window.addEventListener('load', function(){
   setTimeout(function(){
-    document.getElementById('preloader').classList.add('hidden');
-    document.querySelector('main').classList.add('fade-in');
-    document.querySelector('.headerbar').classList.add('fade-in');
-    document.querySelector('footer').classList.add('fade-in');
-  }, 3000);
+    const preloader = document.getElementById('preloader');
+    preloader.classList.add('hidden');
+    document.querySelector('main').classList.add('visible');
+    document.querySelector('.headerbar').classList.add('visible');
+    document.querySelector('footer').classList.add('visible');
+  }, 3000); // 3 seconds
 });
 
 // Service fee calculation
@@ -134,7 +270,7 @@ function updateTotals(){
   serviceEl.textContent = s.toFixed(2);
   totalEl.textContent = (b + s).toFixed(2);
 }
-if(budgetEl) budgetEl.addEventListener('input', updateTotals);
+if (budgetEl) budgetEl.addEventListener('input', updateTotals);
 
 // WhatsApp sending
 function prepareAndOpenWhatsApp(e){
@@ -173,9 +309,9 @@ function prepareAndOpenWhatsApp(e){
     'Reference: ' + name
   ];
   var msg = encodeURIComponent(lines.join('\n'));
-  window.open('https://wa.me/2330537351866?text=' + msg, '_blank');
+  var url = 'https://wa.me/2330537351866?text=' + msg;
+  window.open(url, '_blank');
 }
 </script>
 </body>
-
 </html>
