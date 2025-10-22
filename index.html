@@ -1,16 +1,142 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MarketList — Home</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MarketList — Home</title>
+<style>
+  /* Reset */
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  /* Preloader styles */
+  #preloader {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:#fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+    transition: opacity 0.5s ease;
+  }
+
+  #preloader.hidden {
+    opacity:0;
+    pointer-events:none;
+  }
+
+  .loader-ring {
+    width:120px;
+    height:120px;
+    border:6px solid #ccc;
+    border-top-color:#00a859;
+    border-radius:50%;
+    animation: spin 1s linear infinite;
+    position: relative;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+
+  .loader-ring img {
+    width:60px;
+    height:60px;
+    position:absolute; /* logo stays static */
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+  }
+
+  /* Dashboard content initially hidden */
+  main, .headerbar, footer {
+    opacity:0;
+    transition: opacity 1s ease;
+  }
+
+  main.visible, .headerbar.visible, footer.visible {
+    opacity:1;
+  }
+
+  /* Header bar */
+  .headerbar {
+    background:#00a859;
+    color:#fff;
+    padding:10px 20px;
+  }
+  .headerbar .inner {
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+  }
+  .headerbar .brand { display:flex; align-items:center; cursor:pointer; }
+  .headerbar .brand img { width:40px; margin-right:10px; }
+  .headerbar nav a { color:#fff; margin-left:20px; text-decoration:none; font-weight:bold; }
+
+  /* Main container */
+  main.container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 20px;
+  }
+
+  .card {
+    background: linear-gradient(135deg, #00a859, #ff8c00);
+    color: #fff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+
+  .header-main { display:flex; align-items:center; margin-bottom:20px; }
+  .header-main img { width:60px; margin-right:15px; }
+  .header-main h1 { margin:0; }
+  .slogan { font-style:italic; font-size:0.9em; }
+
+  form label { display:block; margin-top:15px; font-weight:bold; }
+  form input, form select, form textarea {
+    width:100%; padding:10px; margin-top:5px; border:none; border-radius:8px; font-size:15px;
+  }
+  textarea { height:80px; resize:vertical; }
+
+  .row { display:flex; gap:10px; }
+  .row .col { flex:1; }
+
+  .summary { margin-top:15px; font-weight:bold; }
+
+  .send-whatsapp {
+    display:block;
+    width:100%;
+    text-align:center;
+    background-color:#25D366;
+    color:white;
+    font-weight:bold;
+    padding:15px;
+    margin-top:25px;
+    border-radius:30px;
+    text-decoration:none;
+    transition: background-color 0.3s ease;
+  }
+  .send-whatsapp:hover { background-color:#1ebe5b; }
+
+  footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40px; }
+
+</style>
 </head>
 <body>
+
+<!-- Preloader -->
 <div id="preloader">
   <div class="loader-ring" role="img" aria-label="Loading">
     <img src="logo.png" alt="MarketList logo">
   </div>
 </div>
 
+<!-- Header -->
 <div class="headerbar">
   <div class="inner">
     <div class="brand" onclick="location.href='index.html'">
@@ -27,7 +153,7 @@
 </div>
 
 <main class="container">
-  <section class="card fade-in">
+  <section class="card">
     <div class="header-main">
       <img src="logo.png" alt="logo">
       <div>
@@ -50,10 +176,11 @@
         <div class="col">
           <label for="market">Select Market</label>
           <select id="market">
-            <option>Nima Market</option>
+            <option value="">-- Select Market --</option>
             <option>Makola Market</option>
-            <option>Marina Mall</option>
+            <option>Nima Market</option>
             <option>Accra Mall</option>
+            <option>Marina Mall</option>
             <option>Lapaz Market</option>
             <option>Accra Market</option>
             <option>Kasoa Market</option>
@@ -62,6 +189,7 @@
         <div class="col">
           <label for="category">Category</label>
           <select id="category">
+            <option value="">-- Select Category --</option>
             <option>Groceries / Food Stuffs</option>
             <option>Home Appliances</option>
             <option>Electrical Appliances</option>
@@ -106,63 +234,70 @@
 <footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
 
 <script>
-window.addEventListener('load', function(){
-  setTimeout(function(){
-    document.getElementById('preloader').classList.add('hidden');
-    window.scrollTo(0,0);
-  }, 5000);
-});
+  // Splash screen fadeout after 5 seconds
+  window.addEventListener('load', function(){
+    setTimeout(function(){
+      const preloader = document.getElementById('preloader');
+      preloader.classList.add('hidden');
+      document.querySelector('main').classList.add('visible');
+      document.querySelector('.headerbar').classList.add('visible');
+      document.querySelector('footer').classList.add('visible');
+    }, 5000);
+  });
 
-var budgetEl = document.getElementById('budget');
-var serviceEl = document.getElementById('serviceFee');
-var totalEl = document.getElementById('totalAmount');
-function updateTotals(){
-  var b = parseFloat(budgetEl.value) || 0;
-  var s = b * 0.20;
-  serviceEl.textContent = s.toFixed(2);
-  totalEl.textContent = (b + s).toFixed(2);
-}
-if (budgetEl) budgetEl.addEventListener('input', updateTotals);
-
-function prepareAndOpenWhatsApp(e){
-  e.preventDefault();
-  var name = document.getElementById('name').value.trim();
-  var contact = document.getElementById('contact').value.trim();
-  var location = document.getElementById('location').value.trim();
-  var items = document.getElementById('items').value.trim();
-  var market = document.getElementById('market').value;
-  var category = document.getElementById('category').value;
-  var budget = parseFloat(document.getElementById('budget').value) || 0;
-  var service = (budget * 0.20).toFixed(2);
-  var total = (budget + parseFloat(service)).toFixed(2);
-  if(!name || !contact || !location || !items){
-    alert('Please fill Name, Contact, Location and Items before sending.');
-    return;
+  // Service fee calculation
+  var budgetEl = document.getElementById('budget');
+  var serviceEl = document.getElementById('serviceFee');
+  var totalEl = document.getElementById('totalAmount');
+  function updateTotals(){
+    var b = parseFloat(budgetEl.value) || 0;
+    var s = b * 0.20;
+    serviceEl.textContent = s.toFixed(2);
+    totalEl.textContent = (b + s).toFixed(2);
   }
-  var lines = [
-    '🛒 MARKET LIST ORDER',
-    '',
-    'Name: ' + name,
-    'Contact: ' + contact,
-    'Location: ' + location,
-    'Market: ' + market,
-    'Category: ' + category,
-    '',
-    'Items:',
-    items,
-    '',
-    'Budget: ₵' + budget.toFixed(2),
-    'Service Fee (20%): ₵' + service,
-    'Total: ₵' + total,
-    '',
-    'Make payment to:',
-    '0537351866 (Account Name: Michael Awintini Akurugu)',
-    'Reference: ' + name
-  ];
-  var msg = encodeURIComponent(lines.join('\n'));
-  var url = 'https://wa.me/2330537351866?text=' + msg;
-  window.open(url, '_blank');
-}
+  if (budgetEl) budgetEl.addEventListener('input', updateTotals);
+
+  // WhatsApp sending
+  function prepareAndOpenWhatsApp(e){
+    e.preventDefault();
+    var name = document.getElementById('name').value.trim();
+    var contact = document.getElementById('contact').value.trim();
+    var location = document.getElementById('location').value.trim();
+    var items = document.getElementById('items').value.trim();
+    var market = document.getElementById('market').value;
+    var category = document.getElementById('category').value;
+    var budget = parseFloat(document.getElementById('budget').value) || 0;
+    var service = (budget * 0.20).toFixed(2);
+    var total = (budget + parseFloat(service)).toFixed(2);
+    if(!name || !contact || !location || !items){
+      alert('Please fill Name, Contact, Location and Items before sending.');
+      return;
+    }
+    var lines = [
+      '🛒 MARKET LIST ORDER',
+      '',
+      'Name: ' + name,
+      'Contact: ' + contact,
+      'Location: ' + location,
+      'Market: ' + market,
+      'Category: ' + category,
+      '',
+      'Items:',
+      items,
+      '',
+      'Budget: ₵' + budget.toFixed(2),
+      'Service Fee (20%): ₵' + service,
+      'Total: ₵' + total,
+      '',
+      'Make payment to:',
+      '0537351866 (Account Name: Michael Awintini Akurugu)',
+      'Reference: ' + name
+    ];
+    var msg = encodeURIComponent(lines.join('\n'));
+    var url = 'https://wa.me/2330537351866?text=' + msg;
+    window.open(url, '_blank');
+  }
 </script>
+
 </body>
 </html>
