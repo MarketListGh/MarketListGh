@@ -170,8 +170,9 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
 .chat-input input {
   flex: 1;
   border: none;
-  padding: 10px;
+  padding: 14px;
   font-size: 14px;
+  outline: none;
 }
 .chat-input button {
   background: #00a859;
@@ -308,8 +309,9 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
 </div>
 
 <script>
-window.addEventListener('load', function(){
-  setTimeout(function(){
+window.addEventListener('load', () => {
+  sessionStorage.clear(); // clear chat on reload
+  setTimeout(() => {
     document.getElementById('preloader').classList.add('hidden');
     document.querySelector('main').classList.add('visible');
     document.querySelector('.headerbar').classList.add('visible');
@@ -317,51 +319,49 @@ window.addEventListener('load', function(){
   }, 3000);
 });
 
-var budgetEl = document.getElementById('budget');
-var serviceEl = document.getElementById('serviceFee');
-var totalEl = document.getElementById('totalAmount');
-function updateTotals(){
-  var b = parseFloat(budgetEl.value) || 0;
-  var s = b * 0.20;
+const budgetEl = document.getElementById('budget');
+const serviceEl = document.getElementById('serviceFee');
+const totalEl = document.getElementById('totalAmount');
+function updateTotals() {
+  const b = parseFloat(budgetEl.value) || 0;
+  const s = b * 0.20;
   serviceEl.textContent = s.toFixed(2);
   totalEl.textContent = (b + s).toFixed(2);
 }
-if (budgetEl) budgetEl.addEventListener('input', updateTotals);
+budgetEl?.addEventListener('input', updateTotals);
 
-function prepareAndOpenWhatsApp(e){
+function prepareAndOpenWhatsApp(e) {
   e.preventDefault();
-  var name = document.getElementById('name').value.trim();
-  var contact = document.getElementById('contact').value.trim();
-  var location = document.getElementById('location').value.trim();
-  var items = document.getElementById('items').value.trim();
-  var market = document.getElementById('market').value;
-  var category = document.getElementById('category').value;
-  var budget = parseFloat(document.getElementById('budget').value) || 0;
-  var service = (budget * 0.20).toFixed(2);
-  var total = (budget + parseFloat(service)).toFixed(2);
-  if(!name || !contact || !location || !items){
+  const name = document.getElementById('name').value.trim();
+  const contact = document.getElementById('contact').value.trim();
+  const location = document.getElementById('location').value.trim();
+  const items = document.getElementById('items').value.trim();
+  const market = document.getElementById('market').value;
+  const category = document.getElementById('category').value;
+  const budget = parseFloat(document.getElementById('budget').value) || 0;
+  const service = (budget * 0.20).toFixed(2);
+  const total = (budget + parseFloat(service)).toFixed(2);
+  if (!name || !contact || !location || !items) {
     alert('Please fill Name, Contact, Location and Items before sending.');
     return;
   }
-  var lines = [
+  const lines = [
     '🛒 MARKET LIST ORDER','',
-    'Name: ' + name,
-    'Contact: ' + contact,
-    'Location: ' + location,
-    'Market: ' + market,
-    'Category: ' + category,'',
-    'Items:',
-    items,'',
-    'Budget: ₵' + budget.toFixed(2),
-    'Service Fee (20%): ₵' + service,
-    'Total: ₵' + total,'',
+    `Name: ${name}`,
+    `Contact: ${contact}`,
+    `Location: ${location}`,
+    `Market: ${market}`,
+    `Category: ${category}`,'',
+    'Items:', items,'',
+    `Budget: ₵${budget.toFixed(2)}`,
+    `Service Fee (20%): ₵${service}`,
+    `Total: ₵${total}`,'',
     'Make payment to:',
     '0537351866 (Account Name: Michael Awintini Akurugu)',
-    'Reference: ' + name
+    `Reference: ${name}`
   ];
-  var msg = encodeURIComponent(lines.join('\n'));
-  var url = 'https://wa.me/2330537351866?text=' + msg;
-  window.open(url, '_blank');
+  const msg = encodeURIComponent(lines.join('\n'));
+  window.open('https://wa.me/2330537351866?text=' + msg, '_blank');
 }
 
 /* Chatbot functionality */
@@ -370,14 +370,20 @@ const chatBody = document.getElementById('chatBody');
 const input = document.getElementById('chatInput');
 
 function toggleChat() {
-  overlay.style.display = (overlay.style.display === 'flex') ? 'none' : 'flex';
+  overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
   overlay.style.flexDirection = 'column';
 }
+
+input.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    sendMessage();
+  }
+});
 
 function sendMessage() {
   const msg = input.value.trim();
   if (!msg) return;
-
   const userMsg = document.createElement('div');
   userMsg.className = 'chat-message user-msg';
   userMsg.textContent = msg;
@@ -391,18 +397,20 @@ function sendMessage() {
     botMsg.textContent = getBotResponse(msg);
     chatBody.appendChild(botMsg);
     chatBody.scrollTop = chatBody.scrollHeight;
-  }, 1000);
+  }, 700);
 }
 
-function getBotResponse(input) {
-  const q = input.toLowerCase();
-  if (q.includes('order delayed') || q.includes('delivery')) return 'Delivery usually takes 1–2 days depending on market location. If delayed, contact support at 0537351866.';
-  if (q.includes('pay') && q.includes('how')) return 'You can pay via Mobile Money or Cash on Delivery.';
-  if (q.includes('credit card')) return 'Currently, we only support Mobile Money and Cash on Delivery payments.';
-  if (q.includes('how does') && q.includes('work')) return 'MarketList connects you with trusted local shoppers who buy and deliver your requested items safely.';
-  if (q.includes('support') || q.includes('help')) return 'You can reach us anytime via WhatsApp or call 0537351866.';
-  if (q.includes('market') || q.includes('buy')) return 'You can find groceries, clothing, and electronics from local markets like Makola, Kaneshie, and Accra Mall.';
-  return 'Thanks for your question! I’ll gladly assist with anything related to MarketList, shopping, or delivery.';
+function getBotResponse(q) {
+  q = q.toLowerCase();
+  if (q.includes('hello') || q.includes('hi')) return 'Hello 👋! How can I assist you today?';
+  if (q.includes('how to order')) return 'Simply fill the form with your details and click “Send Your List Now.” We’ll process it via WhatsApp.';
+  if (q.includes('payment') || q.includes('pay')) return 'Make payment to 0537351866 (Account Name: Michael Awintini Akurugu). Use your name as reference.';
+  if (q.includes('delivery')) return 'Delivery usually takes 1–2 days depending on your market location.';
+  if (q.includes('contact')) return 'You can contact us at 0537351866 for assistance or updates.';
+  if (q.includes('location') || q.includes('address')) return 'We operate across Greater Accra and nearby markets like Makola, Lapaz, and Kasoa.';
+  if (q.includes('service fee')) return 'We charge a 20% service fee which covers shopping and handling.';
+  if (q.includes('category') || q.includes('items')) return 'We deliver groceries, clothes, home and electrical appliances.';
+  return 'Thank you for your message! I can assist with ordering, payments, delivery, or product information.';
 }
 </script>
 </body>
