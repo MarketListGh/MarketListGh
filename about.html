@@ -87,15 +87,18 @@
 .chat-input input {
   flex: 1;
   border: none;
-  padding: 10px;
+  padding: 14px;
   font-size: 14px;
+  outline: none;
+  border-radius: 0 0 0 10px;
 }
 .chat-input button {
   background: #00a859;
   color: #fff;
   border: none;
-  padding: 10px 15px;
+  padding: 0 18px;
   cursor: pointer;
+  border-radius: 0 0 10px 0;
 }
 .typing-dots {
   display: none;
@@ -167,8 +170,8 @@
     </div>
   </div>
   <div class="chat-input">
-    <input id="chatInput" placeholder="Type your message...">
-    <button onclick="sendMessage()">Send</button>
+    <input id="chatInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+    <button onclick="sendMessage()">➤</button>
   </div>
 </div>
 
@@ -182,6 +185,13 @@ function toggleChat() {
   overlay.style.flexDirection = 'column';
 }
 
+function handleKeyPress(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    sendMessage();
+  }
+}
+
 function sendMessage() {
   const msg = input.value.trim();
   if (!msg) return;
@@ -193,7 +203,15 @@ function sendMessage() {
   input.value = '';
   chatBody.scrollTop = chatBody.scrollHeight;
 
+  const typingDots = document.createElement('div');
+  typingDots.className = 'typing-dots';
+  typingDots.textContent = 'MarketList is typing...';
+  chatBody.appendChild(typingDots);
+  typingDots.style.display = 'block';
+  chatBody.scrollTop = chatBody.scrollHeight;
+
   setTimeout(() => {
+    typingDots.remove();
     const botMsg = document.createElement('div');
     botMsg.className = 'chat-message bot-msg';
     botMsg.textContent = getBotResponse(msg);
@@ -204,13 +222,36 @@ function sendMessage() {
 
 function getBotResponse(input) {
   const q = input.toLowerCase();
-  if (q.includes('order delayed') || q.includes('delivery')) return 'Delivery usually takes 1–2 days depending on market location. If delayed, contact support at 0537351866.';
-  if (q.includes('pay') && q.includes('how')) return 'You can pay via Mobile Money or Cash on Delivery.';
-  if (q.includes('credit card')) return 'Currently, we only support Mobile Money and Cash on Delivery payments.';
-  if (q.includes('how does') && q.includes('work')) return 'MarketList connects you with trusted local shoppers who buy and deliver your requested items safely.';
-  if (q.includes('support') || q.includes('help')) return 'You can reach us anytime via WhatsApp or call 0537351866.';
-  if (q.includes('market') || q.includes('buy')) return 'You can find groceries, clothing, and electronics from local markets like Makola, Kaneshie, and Accra Mall.';
-  return 'Thanks for your question! I’ll gladly assist with anything related to MarketList, shopping, or delivery.';
+
+  if (q.includes('how to pay') || q.includes('payment') || q.includes('pay')) {
+    return `You can make payments through Mobile Money.\n\nMake payment to:\n📞 0537351866\n👤 Account Name: Michael Awintini Akurugu\n🧾 Reference: (Your Full Name)\n\nPlease confirm payment with us after sending.`;
+  }
+
+  if (q.includes('credit card')) {
+    return 'Currently, we only accept Mobile Money payments. Credit card support will be available soon.';
+  }
+
+  if (q.includes('delivery') || q.includes('delay') || q.includes('order delayed')) {
+    return 'Deliveries usually take 1–2 days depending on the market and item. If delayed, kindly reach out to 0537351866 for assistance.';
+  }
+
+  if (q.includes('how does') && q.includes('work')) {
+    return 'MarketList connects you with verified local shoppers who purchase your requested items and deliver them to your doorstep quickly and safely.';
+  }
+
+  if (q.includes('support') || q.includes('help') || q.includes('contact')) {
+    return 'You can reach MarketList support anytime via call or WhatsApp at 0537351866.';
+  }
+
+  if (q.includes('market') || q.includes('buy')) {
+    return 'MarketList allows you to shop from trusted markets such as Makola, Kaneshie, and Accra Mall. Just choose your items, confirm details, and we’ll handle the rest!';
+  }
+
+  if (q.includes('steps') || q.includes('how to order') || q.includes('how do i')) {
+    return 'Here’s how MarketList works:\n1️⃣ Go to our main page.\n2️⃣ Fill out the order form with your items.\n3️⃣ Confirm your details.\n4️⃣ Make payment to 0537351866.\n5️⃣ Your items will be delivered safely to your location.';
+  }
+
+  return 'Thank you for your question! I’m here to help with anything related to MarketList — shopping, payments, or deliveries.';
 }
 </script>
 
