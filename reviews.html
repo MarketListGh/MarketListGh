@@ -5,6 +5,110 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Reviews - MarketList</title>
 <link rel="stylesheet" href="style.css">
+<style>
+/* Floating Chat Button */
+.chat-bubble {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: white;
+  color: #00a859;
+  border-radius: 50%;
+  width: 65px;
+  height: 65px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  cursor: pointer;
+  animation: bounce 2s infinite;
+  z-index: 9999;
+  transition: transform 0.2s ease;
+}
+.chat-bubble:hover {
+  transform: scale(1.1);
+}
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
+
+/* Chat Window Overlay */
+.chat-popup {
+  display: none;
+  position: fixed;
+  bottom: 100px;
+  right: 25px;
+  width: 320px;
+  max-height: 420px;
+  background: #f9f9f9;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  overflow: hidden;
+  z-index: 10000;
+  flex-direction: column;
+}
+
+.chat-header {
+  background: #00a859;
+  color: white;
+  padding: 10px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.chat-body {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-family: sans-serif;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-message {
+  max-width: 80%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  word-wrap: break-word;
+}
+
+.chat-message.user {
+  background: #e0e0e0;
+  color: black;
+  align-self: flex-end;
+}
+
+.chat-message.bot {
+  background: #d0ebff;
+  color: black;
+  align-self: flex-start;
+}
+
+.chat-input-area {
+  display: flex;
+  border-top: 1px solid #ccc;
+}
+
+.chat-input-area input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  outline: none;
+}
+
+.chat-input-area button {
+  background: #00a859;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+</style>
 </head>
 <body>
 
@@ -59,7 +163,24 @@
 
 <footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
 
+<!-- Floating Chat Button -->
+<div class="chat-bubble" onclick="toggleChat()">💬</div>
+
+<!-- Chat Popup -->
+<div class="chat-popup" id="chatPopup">
+  <div class="chat-header">Chat with MarketList 🤖</div>
+  <div class="chat-body" id="chatBody">
+    <div class="chat-message bot">👋 Hello! How can I help you today?</div>
+    <div class="chat-message bot">You can ask about payment methods, how the website works, or how to fill the pages.</div>
+  </div>
+  <div class="chat-input-area">
+    <input type="text" id="chatInput" placeholder="Type your message...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
 <script>
+// Review system (unchanged)
 let currentStars = 5;
 let editIndex = null;
 const stars = document.querySelectorAll('#starContainer .star');
@@ -152,6 +273,52 @@ function deleteReview(index){
 }
 
 loadReviews();
+
+// Floating Chat Assistant (added)
+function toggleChat(){
+  const popup = document.getElementById('chatPopup');
+  popup.style.display = (popup.style.display === 'flex') ? 'none' : 'flex';
+}
+
+function sendMessage(){
+  const input = document.getElementById('chatInput');
+  const body = document.getElementById('chatBody');
+  const msg = input.value.trim();
+  if(!msg) return;
+
+  // User message
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-message user';
+  userMsg.textContent = msg;
+  body.appendChild(userMsg);
+
+  // Bot reply
+  const botMsg = document.createElement('div');
+  botMsg.className = 'chat-message bot';
+  let reply = "Sorry, I don’t have that information yet.";
+
+  if(msg.toLowerCase().includes("payment")){
+    reply = "Payment can be made via mobile money to 0537351866 (Michael Awintini Akurugu). Use your name as reference.";
+  } else if(msg.toLowerCase().includes("how") && msg.toLowerCase().includes("work")){
+    reply = "MarketList connects you with trusted market shoppers. Just fill your order, send via WhatsApp, and we’ll deliver to your doorstep.";
+  } else if(msg.toLowerCase().includes("fill") || msg.toLowerCase().includes("form")){
+    reply = "To fill the form: Enter your name, contact, location, choose a market and category, list your items, then click 'Send Your List Now'.";
+  } else if(msg.toLowerCase().includes("hello") || msg.toLowerCase().includes("hi")){
+    reply = "Hello there! 👋 How can I help you today?";
+  }
+
+  botMsg.textContent = reply;
+  setTimeout(() => { body.appendChild(botMsg); body.scrollTop = body.scrollHeight; }, 500);
+  input.value = '';
+}
+
+// Clear chat when reloading
+window.addEventListener('load', () => {
+  document.getElementById('chatBody').innerHTML = `
+    <div class="chat-message bot">👋 Hello! How can I help you today?</div>
+    <div class="chat-message bot">You can ask about payment methods, how the website works, or how to fill the pages.</div>
+  `;
+});
 </script>
 
 </body>
