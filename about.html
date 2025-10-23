@@ -59,23 +59,26 @@
   overflow-y: auto;
   font-size: 14px;
   color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 .chat-message {
-  margin-bottom: 10px;
-  padding: 8px;
+  padding: 8px 10px;
   border-radius: 10px;
   max-width: 80%;
   word-wrap: break-word;
+  font-size: 14px;
 }
 .user-msg {
-  background: #00a859;
-  color: #fff;
+  background: #f2f2f2;
+  color: #000;
   align-self: flex-end;
-  margin-left: auto;
 }
 .bot-msg {
-  background: #f1f1f1;
-  color: #333;
+  background: #d8ecff;
+  color: #000;
+  align-self: flex-start;
 }
 .chat-input {
   display: flex;
@@ -86,7 +89,6 @@
   border: none;
   padding: 10px;
   font-size: 14px;
-  border-radius: 0;
 }
 .chat-input button {
   background: #00a859;
@@ -159,7 +161,10 @@
 <div class="chat-overlay" id="chatOverlay">
   <div class="chat-header">Chat with MarketList AI</div>
   <div class="chat-body" id="chatBody">
-    <div class="typing-dots" id="typingDots">MarketList is typing...</div>
+    <div class="chat-message bot-msg">
+      Hello there 👋, welcome to <strong>MarketList!</strong><br>
+      How can I assist you today?
+    </div>
   </div>
   <div class="chat-input">
     <input id="chatInput" placeholder="Type your message...">
@@ -170,36 +175,31 @@
 <script>
 const overlay = document.getElementById('chatOverlay');
 const chatBody = document.getElementById('chatBody');
-const typingDots = document.getElementById('typingDots');
 const input = document.getElementById('chatInput');
 
 function toggleChat() {
   overlay.style.display = (overlay.style.display === 'flex') ? 'none' : 'flex';
   overlay.style.flexDirection = 'column';
-  chatBody.innerHTML = '<div class="typing-dots" id="typingDots">MarketList is typing...</div>'; // Clear chat on reload/open
 }
 
 function sendMessage() {
   const msg = input.value.trim();
   if (!msg) return;
-  
+
   const userMsg = document.createElement('div');
   userMsg.className = 'chat-message user-msg';
   userMsg.textContent = msg;
   chatBody.appendChild(userMsg);
   input.value = '';
-
-  typingDots.style.display = 'block';
   chatBody.scrollTop = chatBody.scrollHeight;
 
   setTimeout(() => {
-    typingDots.style.display = 'none';
     const botMsg = document.createElement('div');
     botMsg.className = 'chat-message bot-msg';
     botMsg.textContent = getBotResponse(msg);
     chatBody.appendChild(botMsg);
     chatBody.scrollTop = chatBody.scrollHeight;
-  }, 1200);
+  }, 1000);
 }
 
 function getBotResponse(input) {
@@ -210,7 +210,7 @@ function getBotResponse(input) {
   if (q.includes('how does') && q.includes('work')) return 'MarketList connects you with trusted local shoppers who buy and deliver your requested items safely.';
   if (q.includes('support') || q.includes('help')) return 'You can reach us anytime via WhatsApp or call 0537351866.';
   if (q.includes('market') || q.includes('buy')) return 'You can find groceries, clothing, and electronics from local markets like Makola, Kaneshie, and Accra Mall.';
-  return 'Thanks for your question! Our team will assist with anything related to MarketList, shopping, or delivery.';
+  return 'Thanks for your question! I’ll gladly assist with anything related to MarketList, shopping, or delivery.';
 }
 </script>
 
