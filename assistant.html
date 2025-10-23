@@ -5,6 +5,72 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Assistant - MarketList</title>
 <link rel="stylesheet" href="style.css">
+<style>
+.chat-container {
+  max-width: 600px;
+  margin: 80px auto;
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  height: 70vh;
+  overflow: hidden;
+}
+.chat-box {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.message {
+  padding: 10px 14px;
+  border-radius: 15px;
+  max-width: 75%;
+  word-wrap: break-word;
+}
+.user-msg {
+  align-self: flex-end;
+  background: #e0e0e0;
+  color: #000;
+}
+.ai-msg {
+  align-self: flex-start;
+  background: #d2e7ff;
+  color: #000;
+}
+.typing {
+  align-self: flex-start;
+  background: #d2e7ff;
+  color: #000;
+  font-style: italic;
+}
+.input-area {
+  display: flex;
+  margin-top: 10px;
+}
+.input-area input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+.input-area button {
+  margin-left: 8px;
+  padding: 10px 15px;
+  border: none;
+  background: #007bff;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.input-area button:hover {
+  background: #0056b3;
+}
+</style>
 </head>
 <body>
 
@@ -23,54 +89,77 @@
   </div>
 </div>
 
-<div class="container">
-  <section class="card fade-in">
-    <h1>Market Assistant</h1>
-    <p>Ask anything about products, markets, budgeting, or delivery. Our assistant provides helpful suggestions and tips.</p>
+<div class="chat-container">
+  <div class="chat-box" id="chatBox">
+    <div class="message ai-msg">👋 Hello! I'm your MarketList Assistant. How can I help you today?</div>
+  </div>
 
-    <label for="q">Your Question</label>
-    <input id="q" placeholder="e.g., Where can I buy cheap rice in Accra?">
-    <button onclick="askAssistant()">Ask</button>
-
-    <div id="answer"></div>
-  </section>
+  <div class="input-area">
+    <input id="userInput" placeholder="Type your question here...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
 </div>
 
 <footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
 
 <script>
-function askAssistant(){
-  const q = document.getElementById('q').value.toLowerCase().trim();
-  const answerEl = document.getElementById('answer');
-  let ans = "Sorry, we couldn't find a specific answer. Please contact our support at 0537351866 for assistance.";
-
-  if(!q){
-    answerEl.style.display = 'block';
-    answerEl.textContent = "Please type a question so we can assist you.";
-    return;
-  }
-
-  if(q.includes('rice')){
-    ans = "For affordable rice:\n- Kasoa Market (bulk purchases)\n- Makola Market (variety and quality)\nTip: Compare prices and buy in bulk for discounts.";
-  } else if(q.includes('vegetables')){
-    ans = "Fresh vegetables suggestions:\n- Nima Market (early morning for best selection)\n- Kaneshie Market (variety at reasonable prices)";
-  } else if(q.includes('budget')){
-    ans = "Budgeting tips:\n- Make a shopping list and stick to it\n- Compare prices across 2-3 markets\n- Consider buying in bulk for items you frequently use";
-  } else if(q.includes('delivery')){
-    ans = "Delivery info:\n- Handled by trusted local shoppers\n- Delivery fees vary based on location and items\n- Estimated delivery time: 1-2 days depending on market";
-  } else if(q.includes('groceries')){
-    ans = "Groceries recommendations:\n- Makola Market for wide selection\n- Accra Mall for packaged products and convenience";
-  } else if(q.includes('clothes')){
-    ans = "Clothing suggestions:\n- Accra Mall or Marina Mall for quality brands\n- Makola Market for affordable local options";
-  } else if(q.includes('appliances') || q.includes('electrical')){
-    ans = "Home & Electrical Appliances:\n- Accra Mall for electronics\n- Marina Mall for appliances\nTip: Compare prices and check product warranty.";
-  } else if(q.includes('how') || q.includes('can i') || q.includes('where')){
-    ans = "We recommend visiting the nearest market depending on your need. For detailed help, call 0537351866 or check our FAQs.";
-  }
-
-  answerEl.style.display = 'block';
-  answerEl.textContent = ans;
+function scrollToBottom() {
+  const chatBox = document.getElementById('chatBox');
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
+
+function sendMessage() {
+  const input = document.getElementById('userInput');
+  const chatBox = document.getElementById('chatBox');
+  const userMsg = input.value.trim();
+  if (!userMsg) return;
+
+  const userDiv = document.createElement('div');
+  userDiv.className = 'message user-msg';
+  userDiv.textContent = userMsg;
+  chatBox.appendChild(userDiv);
+  input.value = '';
+  scrollToBottom();
+
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'message typing';
+  typingDiv.textContent = 'Typing...';
+  chatBox.appendChild(typingDiv);
+  scrollToBottom();
+
+  setTimeout(() => {
+    typingDiv.remove();
+    const aiDiv = document.createElement('div');
+    aiDiv.className = 'message ai-msg';
+    aiDiv.textContent = getAIResponse(userMsg);
+    chatBox.appendChild(aiDiv);
+    scrollToBottom();
+  }, 1500);
+}
+
+function getAIResponse(msg) {
+  const q = msg.toLowerCase();
+  let ans = "Sorry, I couldn’t find a direct answer. You can call support at 0537351866 for more help.";
+
+  if (q.includes('rice')) ans = "For affordable rice: check Kasoa Market for bulk or Makola Market for variety.";
+  else if (q.includes('vegetables')) ans = "Visit Nima or Kaneshie Market early for fresh vegetables.";
+  else if (q.includes('budget')) ans = "Make a list, compare prices in 2-3 markets, and buy in bulk where possible.";
+  else if (q.includes('delivery')) ans = "Deliveries are done by trusted shoppers within 1–2 days depending on your location.";
+  else if (q.includes('groceries')) ans = "Try Makola Market for variety or Accra Mall for packaged goods.";
+  else if (q.includes('clothes')) ans = "You can find affordable clothing at Makola or branded items at Accra Mall.";
+  else if (q.includes('appliances') || q.includes('electrical')) ans = "Check Accra Mall or Marina Mall for electronics with warranty.";
+  else if (q.includes('pay') || q.includes('payment')) ans = "We accept Mobile Money, Cash on Delivery, and Card Payments (Visa & MasterCard).";
+  else if (q.includes('order') || q.includes('delay')) ans = "If your order is delayed, please give it 1–2 days or contact support for updates.";
+  else if (q.includes('how does') || q.includes('work')) ans = "MarketList connects you with trusted local shoppers who buy and deliver items to your doorstep.";
+  else if (q.includes('fill') || q.includes('page')) ans = "To fill out forms, simply enter your details in each field and click 'Submit'.";
+
+  return ans;
+}
+
+window.onload = () => {
+  const chatBox = document.getElementById('chatBox');
+  chatBox.innerHTML = '<div class="message ai-msg">👋 Hello! I\'m your MarketList Assistant. How can I help you today?</div>';
+};
 </script>
 
 </body>
