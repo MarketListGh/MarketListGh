@@ -2,238 +2,128 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Assistant - MarketList</title>
   <link rel="stylesheet" href="style.css">
-
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #f9f9f9;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    header {
-      background: #4CAF50;
-      color: white;
-      text-align: center;
-      width: 100%;
-      padding: 1.5rem 0;
-      font-size: 1.8rem;
-      font-weight: 600;
-      margin-bottom: 20px;
-    }
-
-    .assistant-container {
-      width: 95%;
-      max-width: 700px;
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .chat-header {
-      background: #4CAF50;
-      color: white;
-      text-align: center;
-      padding: 15px;
-      font-weight: 600;
-      font-size: 16px;
-    }
-
-    .chat-body {
-      height: 500px;
-      overflow-y: auto;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .bot-msg, .user-msg {
-      padding: 10px 14px;
-      border-radius: 10px;
-      max-width: 80%;
-      word-wrap: break-word;
-      font-size: 15px;
-    }
-
-    .bot-msg {
-      background: #f1f1f1;
-      align-self: flex-start;
-    }
-
-    .user-msg {
-      background: #4CAF50;
-      color: white;
-      align-self: flex-end;
-    }
-
-    .chat-input {
-      display: flex;
-      border-top: 1px solid #ddd;
-      background: #fff;
-    }
-
-    .chat-input input {
-      flex: 1;
-      border: none;
-      padding: 12px 15px;
-      font-size: 15px;
-      outline: none;
-    }
-
-    .chat-input button {
-      width: 100px;
-      background: #4CAF50;
-      border: none;
-      color: white;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .chat-input button:hover {
-      background: #45a049;
-    }
-
-    footer {
-      text-align: center;
-      margin: 20px 0;
-      color: #777;
-      font-size: 14px;
-    }
-  </style>
 </head>
 <body>
-  <header>MarketList Assistant</header>
 
-  <div class="assistant-container">
-    <div class="chat-header">Your Smart Shopping Assistant</div>
-    <div class="chat-body" id="chatBody">
-      <div class="bot-msg">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>
+  <!-- ======= HEADER BAR ======= -->
+  <header class="headerbar">
+    <a href="index.html" class="brand">
+      <img src="images/logo.png" alt="MarketList Logo">
+      <span>MarketList</span>
+    </a>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="reviews.html">Reviews</a>
+      <a href="assistant.html" class="active">Assistant</a>
+    </nav>
+  </header>
+
+  <!-- ======= ASSISTANT CHAT AREA ======= -->
+  <section class="assistant-container">
+    <div class="assistant-header">MarketList Virtual Assistant</div>
+
+    <div class="assistant-body" id="assistantBody">
+      <div class="message bot">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>
     </div>
 
-    <div class="chat-input">
-      <input type="text" id="userInput" placeholder="Type your question here...">
-      <button onclick="sendMessage()">Send</button>
+    <div class="assistant-input">
+      <input type="text" id="assistantInput" placeholder="Type your question and press Enter..." />
+      <button id="assistantSend">➤</button>
     </div>
-  </div>
+  </section>
 
-  <footer>
+  <!-- ======= FOOTER ======= -->
+  <footer class="footer">
     &copy; 2025 MarketList. All rights reserved.
   </footer>
 
+  <!-- ======= SCRIPT ======= -->
   <script>
-    const chatBody = document.getElementById("chatBody");
-    const userInput = document.getElementById("userInput");
+    const input = document.getElementById('assistantInput');
+    const sendBtn = document.getElementById('assistantSend');
+    const chatBody = document.getElementById('assistantBody');
 
-    const qaList = {
+    const qaPairs = {
       "what is marketlist": "MarketList is an online service that helps you order items from your local markets and have them delivered to your doorstep.",
       "how does marketlist work": "You fill out your order form, select a market, and submit. Our team buys your items and delivers them to your location.",
-      "do you deliver to all areas": "Yes, we deliver across most parts of Greater Accra.",
-      "delivery fee": "Yes, delivery fees depend on your location and are separate from your market total.",
+      "do you deliver to all areas in accra": "Yes, we deliver across most parts of Greater Accra. You’ll see delivery options based on your location.",
+      "is there a delivery fee": "Yes, delivery fees depend on your location and are separate from your market total.",
       "how do i pay": "You can pay via Mobile Money or Paystack (secure online payment).",
       "do i pay before delivery": "Yes, all payments must be made before delivery.",
-      "cash on delivery": "Currently, no. We only accept online or mobile money payments.",
-      "delivery time": "Deliveries start at 8:00 AM and end at 6:00 PM, Monday to Saturday.",
-      "sunday delivery": "We only process urgent or pre-scheduled Sunday deliveries.",
-      "order at night": "Yes, but your order will be processed the next morning.",
+      "what time do deliveries start": "Deliveries start at 8:00 AM and end at 6:00 PM, Monday to Saturday.",
+      "do you deliver on sundays": "We only process urgent or pre-scheduled Sunday deliveries.",
+      "can i order at night": "Yes, but your order will be processed the next morning.",
       "how do i place an order": "Just fill the form on our website, add your items, and click Send Your List Now.",
-      "can i call": "Yes, you can reach our support line or WhatsApp number listed on the website.",
-      "order confirmation": "You’ll receive a confirmation message, then one of our market assistants will verify your order.",
-      "minimum order": "Yes, the minimum order is ₵50.",
-      "multiple markets": "Currently, no. Each order must come from one selected market.",
-      "bulk order": "Absolutely! We support bulk orders for homes, restaurants, and offices.",
-      "payment methods": "We accept Mobile Money, Paystack, and bank transfers.",
-      "service fee": "Yes, there’s a 20% service fee to cover shopping and handling.",
-      "total cost": "We add your budget + 20% service fee + delivery fee.",
-      "receipt": "Yes, you’ll receive a digital receipt via WhatsApp or email.",
-      "secure payment": "Yes, all transactions are encrypted and handled securely.",
-      "refunds": "Yes, if your order is canceled before shopping starts.",
-      "delivery duration": "Within 1–3 hours after confirmation, depending on location and traffic.",
-      "schedule delivery": "Yes, you can schedule a preferred delivery time.",
-      "who delivers": "Our trusted riders or logistics partners handle all deliveries.",
-      "track order": "Yes, tracking updates are sent via WhatsApp or SMS.",
-      "express delivery": "Yes, express delivery is available for an extra fee.",
-      "markets served": "We currently serve Nima, Madina, Makola, Kaneshie, and Agbogbloshie.",
-      "freshness": "We buy fresh items just before delivery to maintain quality.",
-      "unavailable item": "We’ll contact you for a substitute or refund.",
-      "fruits and vegetables": "Yes, we cover all groceries including fruits and vegetables.",
-      "support contact": "You can message us directly via WhatsApp or call our contact number.",
-      "whatsapp number": "You’ll find it at the bottom of our website.",
-      "working hours": "8:00 AM – 6:00 PM, Monday to Saturday.",
-      "holidays": "Only for pre-booked or urgent deliveries.",
-      "wrong item": "We’ll replace or refund the item depending on the issue.",
-      "refund time": "Refunds are processed within 24 hours.",
-      "review service": "Yes, please leave feedback on our Reviews page.",
-      "loyalty program": "Coming soon! We’re adding reward points for frequent users.",
-      "edit order": "Yes, if it hasn’t been processed yet.",
-      "order updates": "Yes, via WhatsApp or SMS.",
-      "invoice": "Yes, invoices are automatically generated.",
-      "account required": "No, but creating one makes future orders easier.",
-      "update address": "Yes, anytime before checkout.",
-      "multiple addresses": "Yes, if you have an account.",
-      "delete account": "Yes, contact support to delete it.",
-      "order for someone else": "Yes, just enter their name and delivery address.",
-      "privacy": "No, your details are private and protected.",
-      "monthly groceries": "Yes, we offer monthly packages.",
-      "wholesale shopping": "Yes, we handle bulk orders on request.",
-      "event shopping": "Yes, for parties, weddings, and catering needs.",
-      "cold items": "Yes, we use ice-packed bags for frozen goods.",
-      "supermarket delivery": "Yes, for stores partnered with MarketList.",
-      "compare prices": "Yes, our assistants can check the best market prices.",
-      "why site not loading": "Try refreshing or check your internet connection.",
-      "use on phone": "Yes, the site works perfectly on all phones.",
-      "install app": "Yes, click 'Add to Home Screen' in your browser.",
-      "payment failed": "Contact support to confirm and retry.",
-      "confirmation missing": "Check your spam or WhatsApp number entered.",
-      "print order": "Yes, use the print button on your order summary.",
-      "desktop version": "Yes, the website works on both desktop and mobile.",
-      "developer contact": "Through the feedback form or support channel.",
-      "feedback": "Yes, we value all customer feedback.",
-      "share with friends": "Yes! Share the website link or use the referral program once available."
+      "can i call to place an order": "Yes, you can reach our support line or WhatsApp number listed on the website.",
+      "what happens after i submit my order": "You’ll receive a confirmation message, then one of our market assistants will verify your order.",
+      "can i cancel my order": "Yes, but only before we start shopping for your items.",
+      "is there a minimum order amount": "Yes, the minimum order is ₵50.",
+      "can i order from multiple markets": "Currently, no. Each order must come from one selected market.",
+      "can i upload my shopping list as a file or photo": "Yes, you can upload a list or photo of your items on WhatsApp after submitting your form.",
+      "what payment methods do you accept": "We accept Mobile Money, Paystack, and bank transfers.",
+      "do you charge a service fee": "Yes, there’s a 20% service fee to cover shopping and handling.",
+      "how long does delivery take": "Within 1–3 hours after confirmation, depending on location and traffic.",
+      "who handles the delivery": "Our trusted riders or logistics partners handle all deliveries.",
+      "which markets do you serve": "We currently serve Nima, Madina, Makola, Kaneshie, and Agbogbloshie.",
+      "how can i contact support": "You can message us directly via WhatsApp or call our contact number.",
+      "what’s your whatsapp number": "You’ll find it at the bottom of our website.",
+      "do you reply on weekends": "Yes, though responses might be slower.",
+      "what if i get a wrong item": "We’ll replace or refund the item depending on the issue.",
+      "how long do refunds take": "Refunds are processed within 24 hours.",
+      "can i review your service": "Yes, please leave feedback on our Reviews page.",
+      "do you have a loyalty program": "Coming soon! We’re adding reward points for frequent users.",
+      "can i edit my order after sending it": "Yes, if it hasn’t been processed yet.",
+      "will i get order updates": "Yes, via WhatsApp or SMS.",
+      "can i reorder a previous list": "Yes, your previous list can be reused with one click.",
+      "do i need an account to order": "No, but creating one makes future orders easier.",
+      "can i update my address": "Yes, anytime before checkout.",
+      "can i save multiple addresses": "Yes, if you have an account.",
+      "do you store my payment info": "No, we don’t store any financial details.",
+      "can i delete my account": "Yes, contact support to delete it.",
+      "do you offer wholesale shopping": "Yes, we handle bulk orders on request.",
+      "do you deliver to other regions": "We’re expanding soon beyond Accra.",
+      "do you provide shopping receipts": "Yes, physical or digital upon request.",
+      "can you deliver cold items": "Yes, we use ice-packed bags for frozen goods.",
+      "why is the site not loading": "Try refreshing or check your internet connection.",
+      "can i use marketlist on my phone": "Yes, the site works perfectly on all phones.",
+      "can i install it as an app": "Yes, click 'Add to Home Screen' in your browser.",
+      "my payment didn’t go through": "Contact support to confirm and retry.",
+      "why didn’t i get a confirmation message": "Check your spam or WhatsApp number entered.",
+      "is there a desktop version": "Yes, the website works on both desktop and mobile.",
+      "how do i contact the developer": "Through the feedback form or support channel.",
+      "can i share marketlist with friends": "Yes! Share the website link or referral code."
     };
 
-    function sendMessage() {
-      const msg = userInput.value.trim();
-      if (msg === "") return;
-
-      const userMsg = document.createElement("div");
-      userMsg.className = "user-msg";
-      userMsg.textContent = msg;
-      chatBody.appendChild(userMsg);
+    function addMessage(text, sender) {
+      const msg = document.createElement("div");
+      msg.classList.add("message", sender);
+      msg.textContent = text;
+      chatBody.appendChild(msg);
       chatBody.scrollTop = chatBody.scrollHeight;
-      userInput.value = "";
+    }
+
+    function sendMessage() {
+      const userText = input.value.trim();
+      if (!userText) return;
+      addMessage(userText, "user");
+      input.value = "";
 
       setTimeout(() => {
-        const botMsg = document.createElement("div");
-        botMsg.className = "bot-msg";
-        botMsg.textContent = getBotResponse(msg);
-        chatBody.appendChild(botMsg);
-        chatBody.scrollTop = chatBody.scrollHeight;
-      }, 600);
+        const lower = userText.toLowerCase();
+        let response = qaPairs[lower] || "I’m not sure about that. Please try rephrasing or check our FAQ.";
+        addMessage(response, "bot");
+      }, 500);
     }
 
-    function getBotResponse(input) {
-      input = input.toLowerCase();
-      for (let key in qaList) {
-        if (input.includes(key)) return qaList[key];
-      }
-      return "I'm not sure about that yet 🤔. You can ask me about orders, delivery, payments, or support.";
-    }
-
-    userInput.addEventListener("keypress", function (e) {
+    sendBtn.onclick = sendMessage;
+    input.addEventListener("keypress", e => {
       if (e.key === "Enter") sendMessage();
     });
   </script>
+
 </body>
 </html>
