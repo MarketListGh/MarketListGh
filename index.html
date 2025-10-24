@@ -394,16 +394,14 @@ function sendMessage() {
   setTimeout(() => {
     const botMsg = document.createElement('div');
     botMsg.className = 'chat-message bot-msg';
-    botMsg.textContent = getBotResponse(msg);
+    botMsg.textContent = getAIResponse(msg);
     chatBody.appendChild(botMsg);
     chatBody.scrollTop = chatBody.scrollHeight;
   }, 700);
 }
 
-function getBotResponse(q) {
-  q = q.toLowerCase();
-  if (q.includes('hello') || q.includes('hi')) return 'Hello 👋! How can I assist you today?';
-  function getAIResponse(msg) {
+/* FULL 100 Q&A Chatbot */
+function getAIResponse(msg) {
   const q = msg.toLowerCase();
   let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
 
@@ -418,8 +416,7 @@ function getBotResponse(q) {
   else if (q.includes("delivery time") || q.includes("time do deliveries start")) ans = "Deliveries start at 8:00 AM and end at 6:00 PM, Monday to Saturday.";
   else if (q.includes("deliver on sunday")) ans = "We only process urgent or pre-scheduled Sunday deliveries.";
   else if (q.includes("order at night")) ans = "Yes, but your order will be processed the next morning.";
-
-  // 📦 ORDERING QUESTIONS
+   // 📦 ORDERING QUESTIONS
   else if (q.includes("place an order")) ans = "Fill out the form on our website, add your items, and click 'Send Your List Now'.";
   else if (q.includes("call to place an order")) ans = "Yes, you can reach our support line or WhatsApp number on the website.";
   else if (q.includes("after i submit my order")) ans = "You’ll receive a confirmation message, then one of our market assistants will verify your order.";
@@ -525,10 +522,8 @@ function getBotResponse(q) {
   else if (q.includes("contact developer")) ans = "Through the feedback form or support channel.";
   else if (q.includes("feedback")) ans = "Yes, we value all customer feedback.";
   else if (q.includes("share marketlist")) ans = "Yes! Share our website link or referral code.";
-
   return ans;
 }
 </script>
 </body>
 </html>
-
