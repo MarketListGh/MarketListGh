@@ -1,95 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MarketList — Home</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About - MarketList</title>
+<link rel="stylesheet" href="style.css">
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-
-/* Preloader overlay */
-#preloader {
-  position: fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-  transition: opacity 0.5s ease;
-}
-#preloader.hidden { opacity:0; pointer-events:none; }
-
-.loader-ring {
-  width: 120px; height: 120px;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.loader-ring .ring {
-  width: 120px; height: 120px;
-  border: 6px solid #ccc;
-  border-top-color: #00a859;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  position: absolute; top: 0; left: 0;
-}
-.loader-ring img {
-  width: 60px; height: 60px;
-  border-radius: 50%;
-  position: relative;
-}
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-header, main, footer { opacity:0; transition: opacity 1s ease; }
-.visible { opacity:1; }
-
-/* Header */
-.headerbar {
-  background:#00a859; color:#fff; padding:10px 20px;
-}
-.headerbar .inner {
-  display:flex; align-items:center; justify-content: space-between;
-}
-.headerbar .brand { display:flex; align-items:center; cursor:pointer; }
-.headerbar .brand img { width:40px; margin-right:10px; }
-.headerbar nav a { color:#fff; margin-left:20px; text-decoration:none; font-weight:bold; }
-
-/* Main content */
-main.container { max-width:700px; margin:40px auto; padding:20px; }
-.card {
-  background: linear-gradient(135deg, #00a859, #ff8c00);
-  color:#fff; padding:30px; border-radius:20px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.2);
-}
-.header-main { display:flex; align-items:center; margin-bottom:20px; }
-.header-main img { width:60px; margin-right:15px; }
-.header-main h1 { margin:0; }
-.slogan { font-style:italic; font-size:0.9em; }
-
-form label { display:block; margin-top:15px; font-weight:bold; }
-form input, form select, form textarea {
-  width:100%; padding:10px; margin-top:5px;
-  border:none; border-radius:8px; font-size:15px;
-}
-textarea { height:80px; resize:vertical; }
-
-.row { display:flex; gap:10px; }
-.row .col { flex:1; }
-.summary { margin-top:15px; font-weight:bold; }
-
-.send-whatsapp {
-  display:block; width:100%; text-align:center;
-  background-color:#25D366; color:white; font-weight:bold;
-  padding:15px; margin-top:25px; border-radius:30px;
-  text-decoration:none; transition: background-color 0.3s ease;
-}
-.send-whatsapp:hover { background-color:#1ebe5b; }
-footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40px; }
-
-/* Floating Chat Bot */
+/* Floating Chat Bot (index.html style) */
 .chatbot-btn {
   position: fixed;
   bottom: 25px;
@@ -185,19 +102,10 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
 </head>
 <body>
 
-<!-- Preloader -->
-<div id="preloader">
-  <div class="loader-ring">
-    <div class="ring"></div>
-    <img src="logo.png" alt="MarketList Logo">
-  </div>
-</div>
-
-<!-- Header -->
 <div class="headerbar">
   <div class="inner">
     <div class="brand" onclick="location.href='index.html'">
-      <img src="logo.png" alt="MarketList">
+      <img src="logo.png" alt="logo">
       <div class="title">MarketList</div>
     </div>
     <nav class="nav">
@@ -209,87 +117,38 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
   </div>
 </div>
 
-<!-- Main content -->
-<main class="container">
-  <section class="card">
-    <div class="header-main">
-      <img src="logo.png" alt="logo">
-      <div>
-        <h1>MarketList</h1>
-        <div class="slogan">Bringing Market to Your Doorstep</div>
-      </div>
-    </div>
+<div class="container">
+  <section class="card fade-in">
+    <h1>About MarketList</h1>
+    <p>At MarketList, we understand that shopping can be time-consuming, stressful, and sometimes inconvenient—especially for busy Ghanaians. That’s why we created MarketList: a trusted service that brings your favorite local markets straight to your doorstep.</p>
+    <p>Whether it’s fresh groceries from Makola Market, daily essentials from Accra Mall, or home and electrical appliances, MarketList connects you with reliable local shoppers who deliver your items safely and promptly.</p>
 
-    <form id="orderForm" onsubmit="return false;">
-      <label for="name">Full Name</label>
-      <input id="name" type="text" placeholder="Enter your full name" required>
+    <h3>Our Mission</h3>
+    <p>To make shopping effortless for every Ghanaian by providing seamless access to popular local markets, ensuring convenience, reliability, and satisfaction with every order.</p>
 
-      <label for="contact">Contact Number</label>
-      <input id="contact" type="tel" placeholder="055XXXXXXXX" required>
+    <h3>Our Vision</h3>
+    <p>To become the most trusted local shopping assistant across Ghana, empowering communities with easy access to quality products.</p>
 
-      <label for="location">Delivery Location</label>
-      <input id="location" type="text" placeholder="e.g., East Legon, Accra" required>
+    <h3>Why Choose MarketList?</h3>
+    <ul>
+      <li><strong>Convenience:</strong> Skip long lines and traffic; orders delivered to your home.</li>
+      <li><strong>Trusted Shoppers:</strong> Vetted shoppers handle your orders carefully.</li>
+      <li><strong>Wide Range of Products:</strong> From groceries to appliances, get what you need.</li>
+      <li><strong>Transparent Pricing:</strong> Know your budget, service fees, and total.</li>
+      <li><strong>Customer Support:</strong> Assistance with questions, orders, and smooth experience.</li>
+    </ul>
 
-      <div class="row">
-        <div class="col">
-          <label for="market">Select Market</label>
-          <select id="market">
-            <option value="">-- Select Market --</option>
-            <option>Makola Market</option>
-            <option>Nima Market</option>
-            <option>Accra Mall</option>
-            <option>Marina Mall</option>
-            <option>Lapaz Market</option>
-            <option>Accra Market</option>
-            <option>Kasoa Market</option>
-          </select>
-        </div>
-        <div class="col">
-          <label for="category">Category</label>
-          <select id="category">
-            <option value="">-- Select Category --</option>
-            <option>Groceries / Food Stuffs</option>
-            <option>Home Appliances</option>
-            <option>Electrical Appliances</option>
-            <option>Clothes</option>
-          </select>
-        </div>
-      </div>
-
-      <label for="items">Item List (name — quantity — price)</label>
-      <textarea id="items" placeholder="Rice — 2 — 120"></textarea>
-
-      <div class="row">
-        <div class="col">
-          <label for="budget">Budget (₵)</label>
-          <input id="budget" type="number" min="0" placeholder="Enter budget amount">
-        </div>
-        <div class="col">
-          <label for="count">Estimated item count</label>
-          <input id="count" type="number" min="0" placeholder="e.g., 3">
-        </div>
-      </div>
-
-      <div class="summary" aria-live="polite">
-        <div>Service Fee (20%): ₵<span id="serviceFee">0.00</span></div>
-        <div>Total (Budget + Service Fee): ₵<span id="totalAmount">0.00</span></div>
-      </div>
-
-      <div class="note">⚠️ Customers are responsible for delivery fees.</div>
-
-      <div style="margin-top:12px">
-        <strong>Make payment to:</strong>
-        <div>0537351866</div>
-        <div>Account Name: Michael Awintini Akurugu</div>
-        <div>Reference: (Customer Name)</div>
-      </div>
-
-      <a id="sendBtn" class="send-whatsapp" href="#" onclick="prepareAndOpenWhatsApp(event)">Send Your List Now</a>
-    </form>
+    <h3>Our Values</h3>
+    <ul>
+      <li><strong>Customer-Centric:</strong> Your satisfaction comes first.</li>
+      <li><strong>Reliability:</strong> Accurate orders and timely delivery every time.</li>
+      <li><strong>Trust:</strong> Only trusted shoppers handle orders.</li>
+      <li><strong>Innovation:</strong> Continuously improving for faster, easier experience.</li>
+    </ul>
   </section>
-</main>
+</div>
 
-<footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
+<footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
 
 <!-- Floating Chatbot -->
 <div class="chatbot-btn" onclick="toggleChat()">💬</div>
@@ -303,87 +162,32 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
     </div>
   </div>
   <div class="chat-input">
-    <input id="chatInput" placeholder="Type your message...">
+    <input id="chatInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
     <button onclick="sendMessage()">Send</button>
   </div>
 </div>
 
 <script>
-window.addEventListener('load', () => {
-  sessionStorage.clear(); // clear chat on reload
-  setTimeout(() => {
-    document.getElementById('preloader').classList.add('hidden');
-    document.querySelector('main').classList.add('visible');
-    document.querySelector('.headerbar').classList.add('visible');
-    document.querySelector('footer').classList.add('visible');
-  }, 3000);
-});
-
-const budgetEl = document.getElementById('budget');
-const serviceEl = document.getElementById('serviceFee');
-const totalEl = document.getElementById('totalAmount');
-function updateTotals() {
-  const b = parseFloat(budgetEl.value) || 0;
-  const s = b * 0.20;
-  serviceEl.textContent = s.toFixed(2);
-  totalEl.textContent = (b + s).toFixed(2);
-}
-budgetEl?.addEventListener('input', updateTotals);
-
-function prepareAndOpenWhatsApp(e) {
-  e.preventDefault();
-  const name = document.getElementById('name').value.trim();
-  const contact = document.getElementById('contact').value.trim();
-  const location = document.getElementById('location').value.trim();
-  const items = document.getElementById('items').value.trim();
-  const market = document.getElementById('market').value;
-  const category = document.getElementById('category').value;
-  const budget = parseFloat(document.getElementById('budget').value) || 0;
-  const service = (budget * 0.20).toFixed(2);
-  const total = (budget + parseFloat(service)).toFixed(2);
-  if (!name || !contact || !location || !items) {
-    alert('Please fill Name, Contact, Location and Items before sending.');
-    return;
-  }
-  const lines = [
-    '🛒 MARKET LIST ORDER','',
-    `Name: ${name}`,
-    `Contact: ${contact}`,
-    `Location: ${location}`,
-    `Market: ${market}`,
-    `Category: ${category}`,'',
-    'Items:', items,'',
-    `Budget: ₵${budget.toFixed(2)}`,
-    `Service Fee (20%): ₵${service}`,
-    `Total: ₵${total}`,'',
-    'Make payment to:',
-    '0537351866 (Account Name: Michael Awintini Akurugu)',
-    `Reference: ${name}`
-  ];
-  const msg = encodeURIComponent(lines.join('\n'));
-  window.open('https://wa.me/2330537351866?text=' + msg, '_blank');
-}
-
-/* Chatbot functionality */
 const overlay = document.getElementById('chatOverlay');
 const chatBody = document.getElementById('chatBody');
 const input = document.getElementById('chatInput');
 
 function toggleChat() {
-  overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
+  overlay.style.display = (overlay.style.display === 'flex') ? 'none' : 'flex';
   overlay.style.flexDirection = 'column';
 }
 
-input.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
+function handleKeyPress(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
     sendMessage();
   }
-});
+}
 
 function sendMessage() {
   const msg = input.value.trim();
   if (!msg) return;
+
   const userMsg = document.createElement('div');
   userMsg.className = 'chat-message user-msg';
   userMsg.textContent = msg;
@@ -400,7 +204,7 @@ function sendMessage() {
   }, 700);
 }
 
-/* FULL 100 Q&A Chatbot */
+/* Full 100 Q&A Chatbot */
 function getAIResponse(msg) {
   const q = msg.toLowerCase();
   let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
@@ -416,7 +220,8 @@ function getAIResponse(msg) {
   else if (q.includes("delivery time") || q.includes("time do deliveries start")) ans = "Deliveries start at 8:00 AM and end at 6:00 PM, Monday to Saturday.";
   else if (q.includes("deliver on sunday")) ans = "We only process urgent or pre-scheduled Sunday deliveries.";
   else if (q.includes("order at night")) ans = "Yes, but your order will be processed the next morning.";
-   // 📦 ORDERING QUESTIONS
+
+  // 📦 ORDERING QUESTIONS
   else if (q.includes("place an order")) ans = "Fill out the form on our website, add your items, and click 'Send Your List Now'.";
   else if (q.includes("call to place an order")) ans = "Yes, you can reach our support line or WhatsApp number on the website.";
   else if (q.includes("after i submit my order")) ans = "You’ll receive a confirmation message, then one of our market assistants will verify your order.";
@@ -522,8 +327,10 @@ function getAIResponse(msg) {
   else if (q.includes("contact developer")) ans = "Through the feedback form or support channel.";
   else if (q.includes("feedback")) ans = "Yes, we value all customer feedback.";
   else if (q.includes("share marketlist")) ans = "Yes! Share our website link or referral code.";
+
   return ans;
 }
 </script>
+
 </body>
 </html>
