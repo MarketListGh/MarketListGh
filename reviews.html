@@ -6,116 +6,108 @@
 <title>Reviews - MarketList</title>
 <link rel="stylesheet" href="style.css">
 <style>
-/* Floating Chat Button */
-.chat-bubble {
+/* Floating Chat Bot */
+.chatbot-btn {
   position: fixed;
   bottom: 25px;
   right: 25px;
-  background: white;
+  width: 60px;
+  height: 60px;
+  background: #fff;
   color: #00a859;
   border-radius: 50%;
-  width: 65px;
-  height: 65px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
+  font-size: 28px;
   cursor: pointer;
   animation: bounce 2s infinite;
-  z-index: 9999;
-  transition: transform 0.2s ease;
-}
-.chat-bubble:hover {
-  transform: scale(1.1);
+  z-index: 10000;
 }
 @keyframes bounce {
   0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-10px); }
-  60% { transform: translateY(-5px); }
+  40% { transform: translateY(-12px); }
+  60% { transform: translateY(-6px); }
 }
 
-/* Chat Window Overlay */
-.chat-popup {
+/* Chat Overlay */
+.chat-overlay {
   display: none;
   position: fixed;
   bottom: 100px;
-  right: 25px;
+  right: 30px;
   width: 320px;
-  max-height: 420px;
-  background: #f9f9f9;
+  height: 400px;
+  background: rgba(255,255,255,0.95);
   border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-  overflow: hidden;
-  z-index: 10000;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 10001;
   flex-direction: column;
+  overflow: hidden;
 }
-
 .chat-header {
   background: #00a859;
-  color: white;
+  color: #fff;
   padding: 10px;
-  font-weight: bold;
   text-align: center;
+  font-weight: bold;
 }
-
 .chat-body {
   flex: 1;
   padding: 10px;
   overflow-y: auto;
-  font-family: sans-serif;
   font-size: 14px;
+  color: #333;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-
 .chat-message {
-  max-width: 80%;
   padding: 8px 10px;
   border-radius: 10px;
+  max-width: 80%;
   word-wrap: break-word;
-}
-
-.chat-message.user {
-  background: #e0e0e0;
-  color: black;
-  align-self: flex-end;
-}
-
-.chat-message.bot {
-  background: #d0ebff;
-  color: black;
-  align-self: flex-start;
-}
-
-/* Chat Input Area */
-.chat-input-area {
-  display: flex;
-  align-items: center;
-  border-top: 1px solid #ccc;
-  padding: 5px;
-}
-
-.chat-input-area button {
-  background: #00a859;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-right: 6px;
-  flex-shrink: 0;
-}
-
-.chat-input-area input {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  outline: none;
-  border-radius: 8px;
   font-size: 14px;
 }
+.user-msg {
+  background: #f2f2f2;
+  color: #000;
+  align-self: flex-end;
+}
+.bot-msg {
+  background: #d8ecff;
+  color: #000;
+  align-self: flex-start;
+}
+.chat-input {
+  display: flex;
+  border-top: 1px solid #ddd;
+}
+.chat-input input {
+  flex: 1;
+  border: none;
+  padding: 14px;
+  font-size: 14px;
+  outline: none;
+}
+.chat-input button {
+  background: #00a859;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<!-- Preloader -->
+<div id="preloader">
+  <div class="loader-ring">
+    <div class="ring"></div>
+    <img src="logo.png" alt="MarketList Logo">
+  </div>
 </style>
 </head>
 <body>
@@ -455,4 +447,5 @@ window.addEventListener('load', () => {
 
 </body>
 </html>
+
 
