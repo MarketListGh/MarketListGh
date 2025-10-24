@@ -1,129 +1,172 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Assistant - MarketList</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Assistant - MarketList</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.chat-container {
+  max-width: 700px;
+  margin: 80px auto;
+  background: #f9f9f9;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+  overflow: hidden;
+}
+.chat-box {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 10px 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.message {
+  padding: 12px 16px;
+  border-radius: 15px;
+  max-width: 75%;
+  word-wrap: break-word;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.user-msg {
+  align-self: flex-end;
+  background: #e0e0e0;
+  color: #000;
+}
+.ai-msg {
+  align-self: flex-start;
+  background: #d2e7ff;
+  color: #000;
+}
+.typing {
+  align-self: flex-start;
+  background: #d2e7ff;
+  color: #000;
+  font-style: italic;
+}
+.input-area {
+  display: flex;
+  margin-top: 10px;
+  align-items: center;
+}
+.input-area input {
+  flex: 1;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  outline: none;
+}
+.input-area button {
+  margin-left: 8px;
+  padding: 12px 18px;
+  border: none;
+  background: #007bff;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+}
+.input-area button:hover {
+  background: #0056b3;
+}
+</style>
 </head>
 <body>
 
-  <!-- ======= HEADER BAR ======= -->
-  <header class="headerbar">
-    <a href="index.html" class="brand">
-      <img src="images/logo.png" alt="MarketList Logo">
-      <span>MarketList</span>
-    </a>
+<div class="headerbar">
+  <div class="inner">
+    <div class="brand" onclick="location.href='index.html'">
+      <img src="logo.png" alt="logo">
+      <div class="title">MarketList</div>
+    </div>
     <nav class="nav">
       <a href="index.html">Home</a>
       <a href="about.html">About</a>
       <a href="reviews.html">Reviews</a>
       <a href="assistant.html" class="active">Assistant</a>
     </nav>
-  </header>
+  </div>
+</div>
 
-  <!-- ======= ASSISTANT CHAT AREA ======= -->
-  <section class="assistant-container">
-    <div class="assistant-header">MarketList Virtual Assistant</div>
+<div class="chat-container">
+  <div class="chat-box" id="chatBox">
+    <div class="message ai-msg">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>
+  </div>
 
-    <div class="assistant-body" id="assistantBody">
-      <div class="message bot">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>
-    </div>
+  <div class="input-area">
+    <input id="userInput" placeholder="Type your question here..." onkeypress="if(event.key==='Enter')sendMessage()">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
 
-    <div class="assistant-input">
-      <input type="text" id="assistantInput" placeholder="Type your question and press Enter..." />
-      <button id="assistantSend">➤</button>
-    </div>
-  </section>
+<footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
 
-  <!-- ======= FOOTER ======= -->
-  <footer class="footer">
-    &copy; 2025 MarketList. All rights reserved.
-  </footer>
+<script>
+function scrollToBottom() {
+  const chatBox = document.getElementById('chatBox');
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
 
-  <!-- ======= SCRIPT ======= -->
-  <script>
-    const input = document.getElementById('assistantInput');
-    const sendBtn = document.getElementById('assistantSend');
-    const chatBody = document.getElementById('assistantBody');
+function sendMessage() {
+  const input = document.getElementById('userInput');
+  const chatBox = document.getElementById('chatBox');
+  const userMsg = input.value.trim();
+  if (!userMsg) return;
 
-    const qaPairs = {
-      "what is marketlist": "MarketList is an online service that helps you order items from your local markets and have them delivered to your doorstep.",
-      "how does marketlist work": "You fill out your order form, select a market, and submit. Our team buys your items and delivers them to your location.",
-      "do you deliver to all areas in accra": "Yes, we deliver across most parts of Greater Accra. You’ll see delivery options based on your location.",
-      "is there a delivery fee": "Yes, delivery fees depend on your location and are separate from your market total.",
-      "how do i pay": "You can pay via Mobile Money or Paystack (secure online payment).",
-      "do i pay before delivery": "Yes, all payments must be made before delivery.",
-      "what time do deliveries start": "Deliveries start at 8:00 AM and end at 6:00 PM, Monday to Saturday.",
-      "do you deliver on sundays": "We only process urgent or pre-scheduled Sunday deliveries.",
-      "can i order at night": "Yes, but your order will be processed the next morning.",
-      "how do i place an order": "Just fill the form on our website, add your items, and click Send Your List Now.",
-      "can i call to place an order": "Yes, you can reach our support line or WhatsApp number listed on the website.",
-      "what happens after i submit my order": "You’ll receive a confirmation message, then one of our market assistants will verify your order.",
-      "can i cancel my order": "Yes, but only before we start shopping for your items.",
-      "is there a minimum order amount": "Yes, the minimum order is ₵50.",
-      "can i order from multiple markets": "Currently, no. Each order must come from one selected market.",
-      "can i upload my shopping list as a file or photo": "Yes, you can upload a list or photo of your items on WhatsApp after submitting your form.",
-      "what payment methods do you accept": "We accept Mobile Money, Paystack, and bank transfers.",
-      "do you charge a service fee": "Yes, there’s a 20% service fee to cover shopping and handling.",
-      "how long does delivery take": "Within 1–3 hours after confirmation, depending on location and traffic.",
-      "who handles the delivery": "Our trusted riders or logistics partners handle all deliveries.",
-      "which markets do you serve": "We currently serve Nima, Madina, Makola, Kaneshie, and Agbogbloshie.",
-      "how can i contact support": "You can message us directly via WhatsApp or call our contact number.",
-      "what’s your whatsapp number": "You’ll find it at the bottom of our website.",
-      "do you reply on weekends": "Yes, though responses might be slower.",
-      "what if i get a wrong item": "We’ll replace or refund the item depending on the issue.",
-      "how long do refunds take": "Refunds are processed within 24 hours.",
-      "can i review your service": "Yes, please leave feedback on our Reviews page.",
-      "do you have a loyalty program": "Coming soon! We’re adding reward points for frequent users.",
-      "can i edit my order after sending it": "Yes, if it hasn’t been processed yet.",
-      "will i get order updates": "Yes, via WhatsApp or SMS.",
-      "can i reorder a previous list": "Yes, your previous list can be reused with one click.",
-      "do i need an account to order": "No, but creating one makes future orders easier.",
-      "can i update my address": "Yes, anytime before checkout.",
-      "can i save multiple addresses": "Yes, if you have an account.",
-      "do you store my payment info": "No, we don’t store any financial details.",
-      "can i delete my account": "Yes, contact support to delete it.",
-      "do you offer wholesale shopping": "Yes, we handle bulk orders on request.",
-      "do you deliver to other regions": "We’re expanding soon beyond Accra.",
-      "do you provide shopping receipts": "Yes, physical or digital upon request.",
-      "can you deliver cold items": "Yes, we use ice-packed bags for frozen goods.",
-      "why is the site not loading": "Try refreshing or check your internet connection.",
-      "can i use marketlist on my phone": "Yes, the site works perfectly on all phones.",
-      "can i install it as an app": "Yes, click 'Add to Home Screen' in your browser.",
-      "my payment didn’t go through": "Contact support to confirm and retry.",
-      "why didn’t i get a confirmation message": "Check your spam or WhatsApp number entered.",
-      "is there a desktop version": "Yes, the website works on both desktop and mobile.",
-      "how do i contact the developer": "Through the feedback form or support channel.",
-      "can i share marketlist with friends": "Yes! Share the website link or referral code."
-    };
+  const userDiv = document.createElement('div');
+  userDiv.className = 'message user-msg';
+  userDiv.textContent = userMsg;
+  chatBox.appendChild(userDiv);
+  input.value = '';
+  scrollToBottom();
 
-    function addMessage(text, sender) {
-      const msg = document.createElement("div");
-      msg.classList.add("message", sender);
-      msg.textContent = text;
-      chatBody.appendChild(msg);
-      chatBody.scrollTop = chatBody.scrollHeight;
-    }
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'message typing';
+  typingDiv.textContent = 'Typing...';
+  chatBox.appendChild(typingDiv);
+  scrollToBottom();
 
-    function sendMessage() {
-      const userText = input.value.trim();
-      if (!userText) return;
-      addMessage(userText, "user");
-      input.value = "";
+  setTimeout(() => {
+    typingDiv.remove();
+    const aiDiv = document.createElement('div');
+    aiDiv.className = 'message ai-msg';
+    aiDiv.textContent = getAIResponse(userMsg);
+    chatBox.appendChild(aiDiv);
+    scrollToBottom();
+  }, 1200);
+}
 
-      setTimeout(() => {
-        const lower = userText.toLowerCase();
-        let response = qaPairs[lower] || "I’m not sure about that. Please try rephrasing or check our FAQ.";
-        addMessage(response, "bot");
-      }, 500);
-    }
+function getAIResponse(msg) {
+  const q = msg.toLowerCase();
+  let ans = "Sorry, I couldn’t find a direct answer. You can reach us at 0537351866 (Michael Awintini Akurugu).";
 
-    sendBtn.onclick = sendMessage;
-    input.addEventListener("keypress", e => {
-      if (e.key === "Enter") sendMessage();
-    });
-  </script>
+  if (q.includes('rice')) ans = "For affordable rice, check Kasoa Market for bulk or Makola Market for variety.";
+  else if (q.includes('vegetables')) ans = "Visit Nima or Kaneshie Market early for fresh vegetables.";
+  else if (q.includes('budget')) ans = "Make a list, compare prices in 2-3 markets, and buy in bulk where possible.";
+  else if (q.includes('delivery')) ans = "Deliveries are done by trusted shoppers within 1–2 days depending on your location.";
+  else if (q.includes('groceries')) ans = "Try Makola Market for variety or Accra Mall for packaged goods.";
+  else if (q.includes('clothes')) ans = "You can find affordable clothing at Makola or branded items at Accra Mall.";
+  else if (q.includes('appliances') || q.includes('electrical')) ans = "Check Accra Mall or Marina Mall for electronics with warranty.";
+  else if (q.includes('pay') || q.includes('payment')) ans = "We currently accept only Mobile Money payments.\n\nMake payment to:\n0537351866\nAccount Name: Michael Awintini Akurugu\nReference: (Customer Name)";
+  else if (q.includes('order') || q.includes('delay')) ans = "If your order is delayed, please allow 1–2 days or contact support for updates.";
+  else if (q.includes('how does') || q.includes('work')) ans = "MarketList connects you with trusted local shoppers who buy and deliver items to your doorstep.";
+  else if (q.includes('fill') || q.includes('page')) ans = "To fill out forms, simply enter your details in each field and click 'Submit'.";
+
+  return ans;
+}
+
+window.onload = () => {
+  const chatBox = document.getElementById('chatBox');
+  chatBox.innerHTML = '<div class="message ai-msg">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>';
+};
+</script>
 
 </body>
 </html>
