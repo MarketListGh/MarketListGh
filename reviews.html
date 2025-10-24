@@ -5,135 +5,36 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Reviews - MarketList</title>
 <link rel="stylesheet" href="style.css">
-
-<style>
-/* Floating Chat Bot */
-.chatbot-btn {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  background-color: #00a859;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  font-size: 28px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  cursor: pointer;
-  z-index: 9999;
-  transition: transform 0.2s;
-}
-.chatbot-btn:hover { transform: scale(1.1); }
-
-.chat-container {
-  display: none;
-  flex-direction: column;
-  position: fixed;
-  bottom: 90px;
-  right: 25px;
-  width: 350px;
-  height: 450px;
-  background: #fff;
-  border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-  z-index: 9999;
-  overflow: hidden;
-}
-
-.chat-header {
-  background: #00a859;
-  color: white;
-  padding: 12px;
-  font-weight: bold;
-  text-align: center;
-}
-
-.chat-body {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-  font-size: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: #f9f9f9;
-}
-
-.chat-message {
-  padding: 8px 10px;
-  border-radius: 10px;
-  max-width: 80%;
-  word-wrap: break-word;
-}
-
-.chat-message.user {
-  background: #e0e0e0;
-  color: #000;
-  align-self: flex-end;
-}
-
-.chat-message.bot {
-  background: #d0ebff;
-  color: #000;
-  align-self: flex-start;
-}
-
-.chat-input-area {
-  display: flex;
-  align-items: center;
-  border-top: 1px solid #ccc;
-  padding: 8px;
-  background: #fff;
-}
-
-.chat-input-area input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  outline: none;
-  font-size: 14px;
-}
-
-.chat-input-area button {
-  margin-left: 6px;
-  background: #00a859;
-  color: white;
-  border: none;
-  padding: 10px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-</style>
 </head>
 <body>
 
+<!-- Header (logo + nav) -->
 <div class="headerbar">
   <div class="inner">
     <div class="brand" onclick="location.href='index.html'">
-      <img src="logo.png" alt="logo">
+      <img src="logo.png" alt="logo" style="width:40px; height:auto;">
       <div class="title">MarketList</div>
     </div>
     <nav class="nav">
       <a href="index.html">Home</a>
       <a href="about.html">About</a>
-      <a href="reviews.html">Reviews</a>
+      <a href="reviews.html" aria-current="page">Reviews</a>
       <a href="assistant.html">Assistant</a>
     </nav>
   </div>
 </div>
 
+<!-- Main container -->
 <div class="container">
   <section class="card fade-in">
     <h1>Customer Reviews</h1>
 
     <!-- Review Feed -->
-    <div id="reviewsFeed"></div>
+    <div id="reviewsFeed" aria-live="polite"></div>
 
     <!-- Submit Review Form -->
-    <div class="review-form">
-      <h2>Submit Your Review</h2>
+    <div class="review-form" aria-labelledby="reviewFormHeading">
+      <h2 id="reviewFormHeading">Submit Your Review</h2>
 
       <label for="reviewName">Your Name</label>
       <input type="text" id="reviewName" placeholder="Enter your name" required>
@@ -142,12 +43,12 @@
       <input type="text" id="reviewLocation" placeholder="e.g., Accra, Kasoa" required>
 
       <label>Star Rating</label>
-      <div id="starContainer">
-        <span class="star" data-value="1">☆</span>
-        <span class="star" data-value="2">☆</span>
-        <span class="star" data-value="3">☆</span>
-        <span class="star" data-value="4">☆</span>
-        <span class="star" data-value="5">☆</span>
+      <div id="starContainer" aria-label="Star rating">
+        <span class="star" data-value="1" role="button" tabindex="0">☆</span>
+        <span class="star" data-value="2" role="button" tabindex="0">☆</span>
+        <span class="star" data-value="3" role="button" tabindex="0">☆</span>
+        <span class="star" data-value="4" role="button" tabindex="0">☆</span>
+        <span class="star" data-value="5" role="button" tabindex="0">☆</span>
       </div>
 
       <label for="reviewText">Your Review</label>
@@ -158,60 +59,88 @@
   </section>
 </div>
 
-<footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
+<footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
 
-<!-- Floating Chatbot Button -->
-<button class="chatbot-btn" onclick="toggleChat()">💬</button>
+<!-- Floating Chat Bubble (matches index styling & behavior) -->
+<button class="chatbot-btn" id="chatToggle" aria-label="Open chat">💬</button>
 
-<!-- Chatbot Window -->
-<div class="chat-container" id="chatContainer">
-  <div class="chat-header">MarketList Assistant 🤖</div>
+<!-- Chat overlay (matches index: white background, same size) -->
+<div class="chat-overlay" id="chatOverlay" role="dialog" aria-labelledby="chatHeader" aria-hidden="true">
+  <div class="chat-header" id="chatHeader">Chat with MarketList AI</div>
+
   <div class="chat-body" id="chatBody">
-    <div class="chat-message bot">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>
+    <!-- initial messages will be injected on load -->
   </div>
-  <div class="chat-input-area">
-    <input type="text" id="chatInput" placeholder="Type your message and press Enter...">
-    <button onclick="sendMessage()">➤</button>
+
+  <div class="chat-input" role="group" aria-label="Chat input">
+    <input id="chatInput" placeholder="Type your message..." aria-label="Type a message">
+    <button id="chatSend" aria-label="Send message">Send</button>
   </div>
 </div>
 
 <script>
-/* Review System */
+/* ---------------------------
+   Reviews system (unchanged behavior)
+   - Edit/Delete buttons placed below review content
+   - Uses localStorage 'marketReviews'
+   --------------------------- */
 let currentStars = 5;
 let editIndex = null;
 const stars = document.querySelectorAll('#starContainer .star');
 
 function updateStarsDisplay(num){
   stars.forEach((star, i) => {
-    star.textContent = i < num ? '★' : '☆';
-    star.style.color = i < num ? 'gold' : 'gray';
+    if(i < num){
+      star.textContent = '★';
+      star.style.color = 'gold';
+    } else {
+      star.textContent = '☆';
+      star.style.color = 'white';
+    }
   });
 }
+
 stars.forEach(star => {
+  // click and keyboard friendly
   star.addEventListener('click', () => {
-    currentStars = parseInt(star.getAttribute('data-value'));
+    currentStars = parseInt(star.getAttribute('data-value'), 10);
     updateStarsDisplay(currentStars);
   });
+  star.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      currentStars = parseInt(star.getAttribute('data-value'), 10);
+      updateStarsDisplay(currentStars);
+    }
+  });
 });
+
 updateStarsDisplay(currentStars);
 
-function loadReviews(){
+function loadReviews() {
   const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
   const feed = document.getElementById('reviewsFeed');
   feed.innerHTML = '';
   reviews.forEach((r, index) => {
     const article = document.createElement('article');
+    article.style.padding = '12px 8px';
+    article.style.marginBottom = '12px';
+    article.style.background = 'rgba(0,0,0,0.05)';
+    article.style.borderRadius = '10px';
+    // build stars html
     let starsHtml = '';
-    for(let i=0; i<5; i++){
-      starsHtml += i < r.stars ? '<span style="color: gold;">★</span>' : '<span style="color: gray;">☆</span>';
+    for(let i = 0; i < 5; i++){
+      starsHtml += i < r.stars ? '<span style="color: gold;">★</span>' : '<span style="color: white;">☆</span>';
     }
     article.innerHTML = `
-      <p><strong>${r.name} — ${r.location}</strong> ${starsHtml}</p>
-      <p>${r.text}</p>
-      <div class="review-actions">
+      <p style="margin-bottom:8px"><strong>${escapeHtml(r.name)} — ${escapeHtml(r.location)}</strong> ${starsHtml}</p>
+      <p style="margin-bottom:10px">${escapeHtml(r.text)}</p>
+      <div class="review-actions" style="margin-top:0">
         <button onclick="editReview(${index})">Edit</button>
         <button onclick="deleteReview(${index})">Delete</button>
-      </div>`;
+      </div>
+    `;
+    // newest on top
     feed.prepend(article);
   });
 }
@@ -220,24 +149,33 @@ function addOrUpdateReview(){
   const name = document.getElementById('reviewName').value.trim();
   const location = document.getElementById('reviewLocation').value.trim();
   const text = document.getElementById('reviewText').value.trim();
+
   if(!name || !location || !text){ alert("Please fill all fields before submitting."); return; }
+
   const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
+
   if(editIndex !== null){
     reviews[editIndex] = {name, location, text, stars: currentStars};
     editIndex = null;
-  } else { reviews.push({name, location, text, stars: currentStars}); }
+  } else {
+    reviews.push({name, location, text, stars: currentStars});
+  }
+
   localStorage.setItem('marketReviews', JSON.stringify(reviews));
+
   document.getElementById('reviewName').value = '';
   document.getElementById('reviewLocation').value = '';
   document.getElementById('reviewText').value = '';
   currentStars = 5;
   updateStarsDisplay(currentStars);
+
   loadReviews();
 }
 
 function editReview(index){
   const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
   const r = reviews[index];
+  if(!r) return;
   document.getElementById('reviewName').value = r.name;
   document.getElementById('reviewLocation').value = r.location;
   document.getElementById('reviewText').value = r.text;
@@ -253,58 +191,133 @@ function deleteReview(index){
   localStorage.setItem('marketReviews', JSON.stringify(reviews));
   loadReviews();
 }
-loadReviews();
 
-/* Chatbot */
-const chatContainer = document.getElementById("chatContainer");
-const chatBody = document.getElementById("chatBody");
-const chatInput = document.getElementById("chatInput");
-
-function toggleChat() {
-  chatContainer.style.display = (chatContainer.style.display === "flex") ? "none" : "flex";
+// simple HTML escaping to avoid injection in reviews display
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
-chatInput.addEventListener("keypress", function(e){
-  if(e.key === "Enter"){ e.preventDefault(); sendMessage(); }
+loadReviews();
+
+/* ---------------------------
+   Chat assistant (matches Index behavior)
+   - Floating bubble with centered emoji
+   - Bounce animation (controlled by CSS)
+   - Overlay with same size/colors as index
+   - Enter to send + Send button
+   - Clears chat (resets) on page load
+   --------------------------- */
+
+const chatToggle = document.getElementById('chatToggle');
+const chatOverlay = document.getElementById('chatOverlay');
+const chatBody = document.getElementById('chatBody');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+
+function openChat(){
+  chatOverlay.style.display = 'flex';
+  chatOverlay.style.flexDirection = 'column';
+  chatOverlay.setAttribute('aria-hidden', 'false');
+}
+function closeChat(){
+  chatOverlay.style.display = 'none';
+  chatOverlay.setAttribute('aria-hidden', 'true');
+}
+
+chatToggle.addEventListener('click', () => {
+  const isOpen = chatOverlay.style.display === 'flex';
+  if(isOpen) closeChat(); else openChat();
 });
 
-const qaData = {
+// send on Enter
+chatInput.addEventListener('keypress', function(e){
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    sendChatMessage();
+  }
+});
+// send on button
+chatSend.addEventListener('click', sendChatMessage);
+
+// initial chat content (cleared on load then injected)
+function resetChatIntro(){
+  chatBody.innerHTML = '';
+  const intro1 = document.createElement('div');
+  intro1.className = 'chat-message bot-msg';
+  intro1.textContent = '👋 Hello there! Welcome to MarketList. How can I assist you today?';
+  const intro2 = document.createElement('div');
+  intro2.className = 'chat-message bot-msg';
+  intro2.textContent = 'You can ask about payment methods, how the website works, deliveries, or how to fill forms.';
+  chatBody.appendChild(intro1);
+  chatBody.appendChild(intro2);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+// basic Q/A mapping (you can expand later)
+const qaPairs = {
   "what is marketlist": "MarketList is an online service that helps you order items from your local markets and have them delivered to your doorstep.",
   "how does marketlist work": "You fill out your order form, select a market, and submit. Our team buys your items and delivers them to your location.",
-  "payment": "Make payment to 0537351866 (Michael Awintini Akurugu). Use your name as reference.",
-  "delivery": "Deliveries run from 8:00 AM to 6:00 PM, Monday to Saturday. Express delivery available for an extra fee.",
-  "contact": "You can reach support via WhatsApp or phone — details at the bottom of the site.",
-  "order": "Fill the form, add your items, and click Send Your List Now. You'll get a confirmation message shortly.",
-  "refund": "Refunds are processed within 24 hours if order is canceled before shopping.",
-  "markets": "We serve Nima, Madina, Makola, Kaneshie, and Agbogbloshie.",
-  "account": "No account needed, but creating one makes ordering easier.",
-  "help": "You can ask about orders, payments, delivery, or how to use the site."
-  // Additional 100+ QA content can continue here as in index.html
+  "payment": "Payment can be made via mobile money to 0537351866 (Michael Awintini Akurugu). Use your name as reference.",
+  "how do i pay": "You can pay via Mobile Money. Make payment to 0537351866 (Account Name: Michael Awintini Akurugu). Use your name as reference.",
+  "delivery": "Deliveries depend on location and are confirmed after payment. Typical delivery times vary by area.",
+  "support": "You can reach support through the WhatsApp button on the homepage or call 0537351866.",
+  "default": "Thanks for your question! Our team will help with anything related to MarketList, shopping, or delivery."
 };
 
-function sendMessage(){
+function findAnswer(text){
+  const lower = text.toLowerCase();
+  // exact keys first
+  for(const key in qaPairs){
+    if(key !== 'default' && lower.includes(key)) return qaPairs[key];
+  }
+  // fallback patterns
+  if(lower.includes('pay') && lower.includes('how')) return qaPairs['how do i pay'];
+  if(lower.includes('payment') || lower.includes('mobile money')) return qaPairs['payment'];
+  if(lower.includes('order') || lower.includes('submit')) return "After you submit your order you'll receive a confirmation; a shopper will verify and begin shopping.";
+  return qaPairs['default'];
+}
+
+function sendChatMessage(){
   const msg = chatInput.value.trim();
   if(!msg) return;
 
-  const userMsg = document.createElement("div");
-  userMsg.className = "chat-message user";
-  userMsg.textContent = msg;
-  chatBody.appendChild(userMsg);
+  // user message
+  const userDiv = document.createElement('div');
+  userDiv.className = 'chat-message user-msg';
+  userDiv.textContent = msg;
+  chatBody.appendChild(userDiv);
+  chatInput.value = '';
+  chatBody.scrollTop = chatBody.scrollHeight;
 
-  const botMsg = document.createElement("div");
-  botMsg.className = "chat-message bot";
+  // typing indicator (three dots)
+  const typing = document.createElement('div');
+  typing.className = 'chat-message bot-msg';
+  typing.textContent = 'MarketList is typing...';
+  chatBody.appendChild(typing);
+  chatBody.scrollTop = chatBody.scrollHeight;
 
-  const lower = msg.toLowerCase();
-  let reply = "I’m sorry, I don’t have information on that yet.";
-
-  for (const key in qaData) {
-    if (lower.includes(key)) { reply = qaData[key]; break; }
-  }
-
-  botMsg.textContent = reply;
-  setTimeout(() => { chatBody.appendChild(botMsg); chatBody.scrollTop = chatBody.scrollHeight; }, 400);
-  chatInput.value = "";
+  // simulate response delay
+  setTimeout(() => {
+    typing.remove();
+    const botDiv = document.createElement('div');
+    botDiv.className = 'chat-message bot-msg';
+    botDiv.textContent = findAnswer(msg);
+    chatBody.appendChild(botDiv);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }, 900);
 }
+
+// reset chat on page load to keep chat short
+window.addEventListener('load', () => {
+  resetChatIntro();
+  // ensure chat overlay is closed at start
+  closeChat();
+});
 </script>
 
 </body>
