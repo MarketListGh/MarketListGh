@@ -80,23 +80,34 @@
   color: #000;
   align-self: flex-start;
 }
+
+/* ✅ FIXED CHAT INPUT ALIGNMENT */
 .chat-input {
   display: flex;
+  align-items: center;
   border-top: 1px solid #ddd;
+  height: 50px;
 }
 .chat-input input {
   flex: 1;
   border: none;
-  padding: 14px;
+  padding: 10px;
   font-size: 14px;
+  height: 100%;
+  box-sizing: border-box;
   outline: none;
 }
 .chat-input button {
   background: #00a859;
   color: #fff;
   border: none;
-  padding: 10px 15px;
+  padding: 0 20px;
+  height: 100%;
   cursor: pointer;
+  flex-shrink: 0;
+}
+.chat-input button:hover {
+  background: #008f4e;
 }
 </style>
 </head>
@@ -327,7 +338,7 @@ function getAIResponse(msg) {
   else if (q.includes("contact developer")) ans = "Through the feedback form or support channel.";
   else if (q.includes("feedback")) ans = "Yes, we value all customer feedback.";
   else if (q.includes("share marketlist")) ans = "Yes! Share our website link or referral code.";
-
+  
   return ans;
 }
 </script>
