@@ -1,305 +1,239 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Assistant - MarketList</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Assistant - MarketList</title>
+  <link rel="stylesheet" href="style.css">
 
-<style>
-.chat-container {
-  max-width: 600px;
-  margin: 80px auto;
-  background: #f9f9f9;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  height: 70vh;
-  overflow: hidden;
-}
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-/* Chat box */
-.chat-box {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding-right: 5px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+    header {
+      background: #4CAF50;
+      color: white;
+      text-align: center;
+      width: 100%;
+      padding: 1.5rem 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
 
-/* Message styles */
-.message {
-  padding: 10px 14px;
-  border-radius: 15px;
-  max-width: 75%;
-  word-wrap: break-word;
-  font-size: 14px;
-}
+    .assistant-container {
+      width: 95%;
+      max-width: 700px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-.user-msg {
-  align-self: flex-end;
-  background: #e0e0e0;
-  color: #000;
-}
+    .chat-header {
+      background: #4CAF50;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-weight: 600;
+      font-size: 16px;
+    }
 
-.ai-msg {
-  align-self: flex-start;
-  background: #d2e7ff;
-  color: #000;
-}
+    .chat-body {
+      height: 500px;
+      overflow-y: auto;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-.typing {
-  align-self: flex-start;
-  background: #d2e7ff;
-  color: #000;
-  font-style: italic;
-}
+    .bot-msg, .user-msg {
+      padding: 10px 14px;
+      border-radius: 10px;
+      max-width: 80%;
+      word-wrap: break-word;
+      font-size: 15px;
+    }
 
-/* Fixed input area */
-.input-area {
-  display: flex;
-  align-items: center;
-  padding: 8px;
-  background: #fff;
-  border-top: 1px solid #ddd;
-  border-radius: 0 0 10px 10px;
-}
+    .bot-msg {
+      background: #f1f1f1;
+      align-self: flex-start;
+    }
 
-.input-area input {
-  flex: 1;
-  border: 1px solid #ccc;
-  border-radius: 25px;
-  padding: 10px 15px;
-  font-size: 14px;
-  outline: none;
-  height: 40px;
-}
+    .user-msg {
+      background: #4CAF50;
+      color: white;
+      align-self: flex-end;
+    }
 
-.input-area button {
-  background: #00a859;
-  color: #fff;
-  border: none;
-  border-radius: 25px;
-  padding: 10px 20px;
-  margin-left: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  height: 40px;
-  transition: background 0.3s ease;
-}
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+      background: #fff;
+    }
 
-.input-area button:hover {
-  background: #008f4a;
-}
-</style>
+    .chat-input input {
+      flex: 1;
+      border: none;
+      padding: 12px 15px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .chat-input button {
+      width: 100px;
+      background: #4CAF50;
+      border: none;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .chat-input button:hover {
+      background: #45a049;
+    }
+
+    footer {
+      text-align: center;
+      margin: 20px 0;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
+  <header>MarketList Assistant</header>
 
-<div class="headerbar">
-  <div class="inner">
-    <div class="brand" onclick="location.href='index.html'">
-      <img src="logo.png" alt="logo">
-      <div class="title">MarketList</div>
+  <div class="assistant-container">
+    <div class="chat-header">Your Smart Shopping Assistant</div>
+    <div class="chat-body" id="chatBody">
+      <div class="bot-msg">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>
     </div>
-    <nav class="nav">
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="reviews.html">Reviews</a>
-      <a href="assistant.html">Assistant</a>
-    </nav>
-  </div>
-</div>
 
-<div class="chat-container">
-  <div class="chat-box" id="chatBox">
-    <div class="message ai-msg">
-      👋 Hello there, welcome to <strong>MarketList!</strong><br>
-      How can I assist you today?
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Type your question here...">
+      <button onclick="sendMessage()">Send</button>
     </div>
   </div>
 
-  <div class="input-area">
-    <input id="userInput" placeholder="Type your message...">
-    <button onclick="sendMessage()">Send</button>
-  </div>
-</div>
+  <footer>
+    &copy; 2025 MarketList. All rights reserved.
+  </footer>
 
-<footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
+  <script>
+    const chatBody = document.getElementById("chatBody");
+    const userInput = document.getElementById("userInput");
 
-<script>
-function scrollToBottom() {
-  const chatBox = document.getElementById('chatBox');
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
+    const qaList = {
+      "what is marketlist": "MarketList is an online service that helps you order items from your local markets and have them delivered to your doorstep.",
+      "how does marketlist work": "You fill out your order form, select a market, and submit. Our team buys your items and delivers them to your location.",
+      "do you deliver to all areas": "Yes, we deliver across most parts of Greater Accra.",
+      "delivery fee": "Yes, delivery fees depend on your location and are separate from your market total.",
+      "how do i pay": "You can pay via Mobile Money or Paystack (secure online payment).",
+      "do i pay before delivery": "Yes, all payments must be made before delivery.",
+      "cash on delivery": "Currently, no. We only accept online or mobile money payments.",
+      "delivery time": "Deliveries start at 8:00 AM and end at 6:00 PM, Monday to Saturday.",
+      "sunday delivery": "We only process urgent or pre-scheduled Sunday deliveries.",
+      "order at night": "Yes, but your order will be processed the next morning.",
+      "how do i place an order": "Just fill the form on our website, add your items, and click Send Your List Now.",
+      "can i call": "Yes, you can reach our support line or WhatsApp number listed on the website.",
+      "order confirmation": "You’ll receive a confirmation message, then one of our market assistants will verify your order.",
+      "minimum order": "Yes, the minimum order is ₵50.",
+      "multiple markets": "Currently, no. Each order must come from one selected market.",
+      "bulk order": "Absolutely! We support bulk orders for homes, restaurants, and offices.",
+      "payment methods": "We accept Mobile Money, Paystack, and bank transfers.",
+      "service fee": "Yes, there’s a 20% service fee to cover shopping and handling.",
+      "total cost": "We add your budget + 20% service fee + delivery fee.",
+      "receipt": "Yes, you’ll receive a digital receipt via WhatsApp or email.",
+      "secure payment": "Yes, all transactions are encrypted and handled securely.",
+      "refunds": "Yes, if your order is canceled before shopping starts.",
+      "delivery duration": "Within 1–3 hours after confirmation, depending on location and traffic.",
+      "schedule delivery": "Yes, you can schedule a preferred delivery time.",
+      "who delivers": "Our trusted riders or logistics partners handle all deliveries.",
+      "track order": "Yes, tracking updates are sent via WhatsApp or SMS.",
+      "express delivery": "Yes, express delivery is available for an extra fee.",
+      "markets served": "We currently serve Nima, Madina, Makola, Kaneshie, and Agbogbloshie.",
+      "freshness": "We buy fresh items just before delivery to maintain quality.",
+      "unavailable item": "We’ll contact you for a substitute or refund.",
+      "fruits and vegetables": "Yes, we cover all groceries including fruits and vegetables.",
+      "support contact": "You can message us directly via WhatsApp or call our contact number.",
+      "whatsapp number": "You’ll find it at the bottom of our website.",
+      "working hours": "8:00 AM – 6:00 PM, Monday to Saturday.",
+      "holidays": "Only for pre-booked or urgent deliveries.",
+      "wrong item": "We’ll replace or refund the item depending on the issue.",
+      "refund time": "Refunds are processed within 24 hours.",
+      "review service": "Yes, please leave feedback on our Reviews page.",
+      "loyalty program": "Coming soon! We’re adding reward points for frequent users.",
+      "edit order": "Yes, if it hasn’t been processed yet.",
+      "order updates": "Yes, via WhatsApp or SMS.",
+      "invoice": "Yes, invoices are automatically generated.",
+      "account required": "No, but creating one makes future orders easier.",
+      "update address": "Yes, anytime before checkout.",
+      "multiple addresses": "Yes, if you have an account.",
+      "delete account": "Yes, contact support to delete it.",
+      "order for someone else": "Yes, just enter their name and delivery address.",
+      "privacy": "No, your details are private and protected.",
+      "monthly groceries": "Yes, we offer monthly packages.",
+      "wholesale shopping": "Yes, we handle bulk orders on request.",
+      "event shopping": "Yes, for parties, weddings, and catering needs.",
+      "cold items": "Yes, we use ice-packed bags for frozen goods.",
+      "supermarket delivery": "Yes, for stores partnered with MarketList.",
+      "compare prices": "Yes, our assistants can check the best market prices.",
+      "why site not loading": "Try refreshing or check your internet connection.",
+      "use on phone": "Yes, the site works perfectly on all phones.",
+      "install app": "Yes, click 'Add to Home Screen' in your browser.",
+      "payment failed": "Contact support to confirm and retry.",
+      "confirmation missing": "Check your spam or WhatsApp number entered.",
+      "print order": "Yes, use the print button on your order summary.",
+      "desktop version": "Yes, the website works on both desktop and mobile.",
+      "developer contact": "Through the feedback form or support channel.",
+      "feedback": "Yes, we value all customer feedback.",
+      "share with friends": "Yes! Share the website link or use the referral program once available."
+    };
 
-function sendMessage() {
-  const input = document.getElementById('userInput');
-  const chatBox = document.getElementById('chatBox');
-  const userMsg = input.value.trim();
-  if (!userMsg) return;
+    function sendMessage() {
+      const msg = userInput.value.trim();
+      if (msg === "") return;
 
-  const userDiv = document.createElement('div');
-  userDiv.className = 'message user-msg';
-  userDiv.textContent = userMsg;
-  chatBox.appendChild(userDiv);
-  input.value = '';
-  scrollToBottom();
+      const userMsg = document.createElement("div");
+      userMsg.className = "user-msg";
+      userMsg.textContent = msg;
+      chatBody.appendChild(userMsg);
+      chatBody.scrollTop = chatBody.scrollHeight;
+      userInput.value = "";
 
-  const typingDiv = document.createElement('div');
-  typingDiv.className = 'message typing';
-  typingDiv.textContent = 'Typing...';
-  chatBox.appendChild(typingDiv);
-  scrollToBottom();
+      setTimeout(() => {
+        const botMsg = document.createElement("div");
+        botMsg.className = "bot-msg";
+        botMsg.textContent = getBotResponse(msg);
+        chatBody.appendChild(botMsg);
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }, 600);
+    }
 
-  setTimeout(() => {
-    typingDiv.remove();
-    const aiDiv = document.createElement('div');
-    aiDiv.className = 'message ai-msg';
-    aiDiv.textContent = getAIResponse(userMsg);
-    chatBox.appendChild(aiDiv);
-    scrollToBottom();
-  }, 1200);
-}
+    function getBotResponse(input) {
+      input = input.toLowerCase();
+      for (let key in qaList) {
+        if (input.includes(key)) return qaList[key];
+      }
+      return "I'm not sure about that yet 🤔. You can ask me about orders, delivery, payments, or support.";
+    }
 
-function getAIResponse(msg) {
-  const q = msg.toLowerCase();
-  let ans = "Sorry, I couldn’t find a direct answer. You can call support at 0537351866 for more help.";
-
-   // 🛒 GENERAL QUESTIONS
-  if (q.includes("what is marketlist")) ans = "MarketList is an online service that helps you order items from local markets and have them delivered to your doorstep.";
-  else if (q.includes("how does marketlist work")) ans = "You fill out your order form, select a market, and submit. Our team buys your items and delivers them to your location.";
-  else if (q.includes("deliver to all areas")) ans = "Yes, we deliver across most parts of Greater Accra. Delivery options appear based on your location.";
-  else if (q.includes("delivery fee")) ans = "Yes, delivery fees depend on your location and are separate from your market total.";
-  else if (q.includes("how do i pay") || q.includes("payment")) ans = "You can pay via Mobile Money or Paystack (secure online payment).";
-  else if (q.includes("pay before delivery")) ans = "Yes, all payments must be made before delivery.";
-  else if (q.includes("cash on delivery")) ans = "Currently, no. We only accept online or mobile money payments.";
-  else if (q.includes("delivery time") || q.includes("time do deliveries start")) ans = "Deliveries start at 8:00 AM and end at 6:00 PM, Monday to Saturday.";
-  else if (q.includes("deliver on sunday")) ans = "We only process urgent or pre-scheduled Sunday deliveries.";
-  else if (q.includes("order at night")) ans = "Yes, but your order will be processed the next morning.";
-    
-   // 📦 ORDERING QUESTIONS
-  else if (q.includes("place an order")) ans = "Fill out the form on our website, add your items, and click 'Send Your List Now'.";
-  else if (q.includes("call to place an order")) ans = "Yes, you can reach our support line or WhatsApp number on the website.";
-  else if (q.includes("after i submit my order")) ans = "You’ll receive a confirmation message, then one of our market assistants will verify your order.";
-  else if (q.includes("order confirmed")) ans = "You’ll get a WhatsApp or SMS confirmation with your order details.";
-  else if (q.includes("add items")) ans = "Yes, reply to your confirmation message with the extra items before payment.";
-  else if (q.includes("cancel my order")) ans = "Yes, but only before we start shopping for your items.";
-  else if (q.includes("minimum order")) ans = "The minimum order amount is ₵50.";
-  else if (q.includes("multiple markets")) ans = "Currently, no. Each order must come from one selected market.";
-  else if (q.includes("upload my shopping list")) ans = "Yes, upload a list or photo of your items on WhatsApp after submitting your form.";
-  else if (q.includes("order in bulk")) ans = "Absolutely! We support bulk orders for homes, restaurants, and offices.";
-
-  // 💰 PAYMENT QUESTIONS
-  else if (q.includes("payment method")) ans = "We accept Mobile Money, Paystack, and bank transfers.";
-  else if (q.includes("service fee")) ans = "Yes, there’s a 20% service fee covering shopping and handling.";
-  else if (q.includes("total cost")) ans = "We add your budget + 20% service fee + delivery fee.";
-  else if (q.includes("receipt")) ans = "Yes, you’ll receive a digital receipt via WhatsApp or email.";
-  else if (q.includes("payment secure")) ans = "Yes, all transactions are encrypted and handled securely.";
-  else if (q.includes("overpay")) ans = "We’ll refund the excess amount to your wallet or MoMo number.";
-  else if (q.includes("refund")) ans = "Yes, if your order is canceled before shopping starts.";
-  else if (q.includes("paypal")) ans = "Not yet, but we’re working on adding that soon.";
-  else if (q.includes("split payment")) ans = "Yes, just contact support to confirm.";
-
-  // 🚚 DELIVERY QUESTIONS
-  else if (q.includes("delivery take")) ans = "Delivery takes 1–3 hours after confirmation, depending on your location.";
-  else if (q.includes("choose delivery time")) ans = "Yes, you can schedule your preferred delivery time.";
-  else if (q.includes("who handles delivery")) ans = "Our trusted riders or logistics partners handle all deliveries.";
-  else if (q.includes("order on the way")) ans = "Yes, the rider will contact you before arrival.";
-  else if (q.includes("not home")) ans = "You can reschedule or choose a nearby pickup point.";
-  else if (q.includes("someone else receive")) ans = "Yes, just provide their name and number in the form.";
-  else if (q.includes("deliver to office")) ans = "Yes, we deliver to homes, offices, and shops.";
-  else if (q.includes("track my delivery")) ans = "Yes, tracking updates are sent via WhatsApp or SMS.";
-  else if (q.includes("order delayed")) ans = "We’ll notify you immediately and update the expected delivery time.";
-  else if (q.includes("express delivery")) ans = "Yes, express delivery is available for an extra fee.";
-
-  // 🥬 ITEMS & MARKETS
-  else if (q.includes("markets do you serve")) ans = "We serve Nima, Madina, Makola, Kaneshie, and Agbogbloshie markets.";
-  else if (q.includes("imported goods")) ans = "Yes, if available in your chosen market.";
-  else if (q.includes("cooked food")) ans = "No, only raw and packaged groceries for now.";
-  else if (q.includes("specific brand")) ans = "Yes, include brand names in your item list.";
-  else if (q.includes("meat") || q.includes("fish")) ans = "Yes, we ensure proper packaging and hygiene for all perishables.";
-  else if (q.includes("item freshness")) ans = "We buy fresh items just before delivery.";
-  else if (q.includes("item unavailable")) ans = "We’ll contact you for a substitute or refund.";
-  else if (q.includes("market prices")) ans = "Estimated prices are available on request.";
-  else if (q.includes("non-food items")) ans = "Yes, like detergents, soaps, or household items.";
-  else if (q.includes("fruits and vegetables")) ans = "Yes, we cover all groceries including fruits and vegetables.";
-
-  // 📞 SUPPORT QUESTIONS
-  else if (q.includes("contact support")) ans = "Message us on WhatsApp or call 0537351866 for quick support.";
-  else if (q.includes("whatsapp number")) ans = "You’ll find it at the bottom of our website.";
-  else if (q.includes("working hours")) ans = "8:00 AM – 6:00 PM, Monday to Saturday.";
-  else if (q.includes("reply on weekends")) ans = "Yes, though responses might be slower.";
-  else if (q.includes("holidays")) ans = "Support is available only for pre-booked or urgent deliveries.";
-  else if (q.includes("real person")) ans = "Yes, we have live chat and WhatsApp support.";
-  else if (q.includes("wrong item")) ans = "We’ll replace or refund the item depending on the issue.";
-  else if (q.includes("refund take")) ans = "Refunds are processed within 24 hours.";
-  else if (q.includes("review your service")) ans = "Yes, you can leave feedback on our Reviews page.";
-  else if (q.includes("loyalty program")) ans = "Coming soon! Reward points for frequent users.";
-
-  // 🧾 ORDER UPDATES
-  else if (q.includes("edit my order")) ans = "Yes, if it hasn’t been processed yet.";
-  else if (q.includes("order updates")) ans = "Yes, updates are sent via WhatsApp or SMS.";
-  else if (q.includes("copy of my order")) ans = "Yes, your order summary will be sent to you.";
-  else if (q.includes("out of stock")) ans = "Yes, we notify you before processing your payment.";
-  else if (q.includes("reorder")) ans = "Yes, you can reuse your previous list with one click.";
-  else if (q.includes("weekly orders")) ans = "Yes, contact support to set up automatic weekly orders.";
-  else if (q.includes("favorite items")) ans = "Feature coming soon!";
-  else if (q.includes("remind me of my next order")) ans = "Yes, we can send weekly reminders.";
-  else if (q.includes("total spending")) ans = "Yes, view your monthly spending on the order history page.";
-  else if (q.includes("invoice")) ans = "Yes, invoices are automatically generated.";
-
-  // 🌍 ACCOUNT & PROFILE
-  else if (q.includes("need an account")) ans = "No, but creating one makes future orders easier.";
-  else if (q.includes("update my address")) ans = "Yes, anytime before checkout.";
-  else if (q.includes("multiple addresses")) ans = "Yes, if you have an account.";
-  else if (q.includes("store payment info")) ans = "No, we don’t store financial details.";
-  else if (q.includes("delete my account")) ans = "Yes, contact support to delete it.";
-  else if (q.includes("order for someone else")) ans = "Yes, enter their name and delivery address.";
-  else if (q.includes("change my phone number")) ans = "Yes, in your account settings or during checkout.";
-  else if (q.includes("track without account")) ans = "Yes, through the link sent via SMS.";
-  else if (q.includes("share customer information")) ans = "No, your details are private and protected.";
-  else if (q.includes("promotions by sms")) ans = "Yes, if you opt in for notifications.";
-
-  // 🌟 SPECIAL SERVICES
-  else if (q.includes("wholesale")) ans = "Yes, we handle bulk and wholesale shopping requests.";
-  else if (q.includes("event shopping")) ans = "Yes, for parties, weddings, and catering needs.";
-  else if (q.includes("urgent delivery")) ans = "Yes, contact support for express delivery.";
-  else if (q.includes("other regions")) ans = "We’re expanding soon beyond Accra.";
-  else if (q.includes("shopping receipts")) ans = "Yes, physical or digital receipts available upon request.";
-  else if (q.includes("supermarket")) ans = "Yes, for partnered stores.";
-  else if (q.includes("compare prices")) ans = "Yes, our assistants can check the best market prices.";
-  else if (q.includes("cold") || q.includes("frozen")) ans = "Yes, we use ice-packed bags for frozen goods.";
-  else if (q.includes("monthly groceries")) ans = "Yes, we offer monthly grocery subscriptions.";
-  else if (q.includes("merchandise")) ans = "Soon! Stay tuned for branded eco-bags.";
-
-  // 💬 TECHNICAL QUESTIONS
-  else if (q.includes("site not loading")) ans = "Try refreshing or check your internet connection.";
-  else if (q.includes("use on phone")) ans = "Yes, the website works perfectly on phones.";
-  else if (q.includes("install app")) ans = "Yes, click 'Add to Home Screen' in your browser.";
-  else if (q.includes("payment didn’t go through")) ans = "Contact support to confirm and retry.";
-  else if (q.includes("no confirmation message")) ans = "Check your spam folder or the WhatsApp number entered.";
-  else if (q.includes("print my order")) ans = "Yes, click the print button on your order summary.";
-  else if (q.includes("desktop version")) ans = "Yes, works on both desktop and mobile.";
-  else if (q.includes("contact developer")) ans = "Through the feedback form or support channel.";
-  else if (q.includes("feedback")) ans = "Yes, we value all customer feedback.";
-  else if (q.includes("share marketlist")) ans = "Yes! Share our website link or referral code.";
-  
-  return ans;
-}
-
-window.onload = () => {
-  const chatBox = document.getElementById('chatBox');
-  chatBox.innerHTML = `
-    <div class="message ai-msg">
-      👋 Hello there, welcome to <strong>MarketList!</strong><br>
-      How can I assist you today?
-    </div>`;
-};
-</script>
-
+    userInput.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
 </body>
 </html>
-
