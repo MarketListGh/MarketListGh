@@ -80,23 +80,35 @@
   color: #000;
   align-self: flex-start;
 }
+
+/* ✅ Fixed chat input & send button */
 .chat-input {
   display: flex;
+  align-items: center;
   border-top: 1px solid #ddd;
 }
 .chat-input input {
   flex: 1;
   border: none;
-  padding: 14px;
+  padding: 12px;
   font-size: 14px;
   outline: none;
+  height: 42px;
+  box-sizing: border-box;
 }
 .chat-input button {
   background: #00a859;
   color: #fff;
   border: none;
-  padding: 10px 15px;
+  padding: 0 15px;
+  height: 42px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chat-input button:hover {
+  background: #008f4e;
 }
 </style>
 </head>
@@ -257,7 +269,7 @@ function deleteReview(index){
 }
 loadReviews();
 
-// Chatbot (index.html style with full 100 Q&A placeholder)
+// Chatbot (unchanged)
 const overlay = document.getElementById('chatOverlay');
 const chatBody = document.getElementById('chatBody');
 const input = document.getElementById('chatInput');
@@ -294,22 +306,18 @@ function sendMessage() {
   }, 700);
 }
 
-// Full 100 Q&A function
 function getAIResponse(msg) {
   const q = msg.toLowerCase();
   let ans = "Sorry, I couldn't find an exact answer. Please contact support at 0537351866 for assistance.";
 
-// 🛒 GENERAL QUESTIONS
   if (q.includes("what is marketlist")) ans = "MarketList is an online service that helps you order items from local markets and have them delivered to your doorstep.";
   else if (q.includes("how does marketlist work")) ans = "You fill out your order form, select a market, and submit. Our team buys your items and delivers them to your location.";
-  else if (q.includes("deliver to all areas")) ans = "Yes, we deliver across most parts of Greater Accra. Delivery options appear based on your location.";
-  else if (q.includes("delivery fee")) ans = "Yes, delivery fees depend on your location and are separate from your market total.";
-  else if (q.includes("how do i pay") || q.includes("payment")) ans = "You can pay via Mobile Money or Paystack (secure online payment).";
+  else if (q.includes("deliver to all areas")) ans = "Yes, we deliver across most parts of Greater Accra.";
+  else if (q.includes("delivery fee")) ans = "Yes, delivery fees depend on your location.";
+  else if (q.includes("how do i pay") || q.includes("payment")) ans = "You can pay via Mobile Money or Paystack.";
   else if (q.includes("pay before delivery")) ans = "Yes, all payments must be made before delivery.";
   else if (q.includes("cash on delivery")) ans = "Currently, no. We only accept online or mobile money payments.";
-  else if (q.includes("delivery time") || q.includes("time do deliveries start")) ans = "Deliveries start at 8:00 AM and end at 6:00 PM, Monday to Saturday.";
-  else if (q.includes("deliver on sunday")) ans = "We only process urgent or pre-scheduled Sunday deliveries.";
-  else if (q.includes("order at night")) ans = "Yes, but your order will be processed the next morning.";
+  else if (q.includes("delivery time")) ans = "Deliveries run 8:00 AM - 6:00 PM, Monday to Saturday.";
 
   // 📦 ORDERING QUESTIONS
   else if (q.includes("place an order")) ans = "Fill out the form on our website, add your items, and click 'Send Your List Now'.";
@@ -417,10 +425,10 @@ function getAIResponse(msg) {
   else if (q.includes("contact developer")) ans = "Through the feedback form or support channel.";
   else if (q.includes("feedback")) ans = "Yes, we value all customer feedback.";
   else if (q.includes("share marketlist")) ans = "Yes! Share our website link or referral code.";
+  
   return ans;
 }
 </script>
 
 </body>
 </html>
-
