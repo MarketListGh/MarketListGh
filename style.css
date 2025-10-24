@@ -1,179 +1,100 @@
-/* Global Styles */
-body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #00a859, #ff8c00);
-  color: #fff;
-  margin: 0;
-  padding: 0;
-}
-
-/* Preloader overlay */
-#preloader {
+/* Chat overlay (modern rounded style) */
+.chat-overlay {
+  display: none;
   position: fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-  transition: opacity 0.5s ease;
-}
-
-/* Hide preloader */
-#preloader.hidden {
-  opacity:0;
-  pointer-events:none;
-}
-
-/* Loader ring container */
-.loader-ring {
-  width: 120px;
-  height: 120px;
-  position: relative;
+  bottom: 100px;
+  right: 30px;
+  width: 330px;
+  height: 440px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 10001;
+  overflow: hidden;
   display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Spinning ring only */
-.loader-ring .ring {
-  width: 120px;
-  height: 120px;
-  border: 6px solid #ccc;
-  border-top-color: #00a859;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-/* Logo stays still */
-.loader-ring img {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  position: relative; /* stays centered */
-}
-
-/* Ring spin animation */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  flex-direction: column;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 /* Header */
-.headerbar {
-  background: rgba(0,0,0,0.3);
+.chat-header {
+  background: #00a859;
   color: #fff;
-  padding: 10px 20px;
-}
-.headerbar .inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.headerbar .brand {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-.headerbar .brand img { width: 40px; margin-right: 10px; }
-.headerbar nav a { color: #fff; margin-left: 20px; text-decoration: none; font-weight: bold; }
-
-/* Container & Card */
-.container {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 20px;
-}
-.card {
-  background-color: rgba(255,255,255,0.1);
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-h1, h2, h3, p, ul { margin-bottom: 15px; }
-h1 { font-size: 2em; text-align: center; }
-h2 { font-size: 1.5em; }
-h3 { font-size: 1.2em; }
-ul { padding-left: 20px; }
-li { margin-bottom: 10px; }
-
-input, textarea, select, button {
-  font-family: Arial, sans-serif;
-}
-
-input, textarea, select {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border-radius: 8px;
-  border: none;
-}
-
-textarea { resize: vertical; }
-
-button {
-  margin-top: 15px;
   padding: 12px;
-  width: 100%;
-  background: #25D366;
-  border: none;
-  border-radius: 30px;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-button:hover { background: #1ebe5b; }
-
-footer.footer {
   text-align: center;
-  padding: 15px;
-  background: rgba(0,0,0,0.2);
-  margin-top: 40px;
+  font-weight: 600;
+  font-size: 15px;
 }
 
-/* Stars */
-.star {
-  font-size: 1.5em;
-  cursor: pointer;
-  margin-right: 5px;
-}
-
-/* Review Form */
-.review-form {
-  background: rgba(255,255,255,0.2);
-  padding: 20px;
-  border-radius: 15px;
-  margin-top: 30px;
-}
-#starContainer { margin-top: 10px; }
-
-/* Review Actions - Fixed buttons below each review */
-.review-actions {
-  position: static;
-  margin-top: 10px;
+/* Messages area */
+.chat-body {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  background: #f9f9f9;
   display: flex;
-  justify-content: flex-end;
-}
-.review-actions button {
-  margin-left: 5px;
-  background: rgba(255,255,255,0.2);
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 5px;
-  font-size: 0.9em;
-}
-.review-actions button:hover { 
-  background: rgba(255,255,255,0.4); 
+  flex-direction: column;
+  gap: 8px;
 }
 
-/* Floating Chat Bot */
+/* Message bubbles */
+.chat-message {
+  padding: 10px 14px;
+  border-radius: 15px;
+  max-width: 80%;
+  line-height: 1.4;
+  font-size: 14px;
+  word-wrap: break-word;
+}
+
+.bot-msg {
+  background: #d8ecff;
+  align-self: flex-start;
+  color: #000;
+}
+
+.user-msg {
+  background: #e0e0e0;
+  align-self: flex-end;
+  color: #000;
+}
+
+/* Input section styled like screenshot */
+.chat-input {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid #ddd;
+  padding: 8px;
+  background: #fff;
+}
+
+.chat-input input {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  padding: 10px 15px;
+  font-size: 14px;
+  outline: none;
+  height: 40px;
+}
+
+.chat-input button {
+  background: #00a859;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 20px;
+  margin-left: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  height: 40px;
+}
+
+.chat-input button:hover {
+  background: #008f4a;
+}
+
+/* Floating button */
 .chatbot-btn {
   position: fixed;
   bottom: 25px;
@@ -183,7 +104,7 @@ footer.footer {
   background: #fff;
   color: #00a859;
   border-radius: 50%;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -196,72 +117,4 @@ footer.footer {
   0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
   40% { transform: translateY(-12px); }
   60% { transform: translateY(-6px); }
-}
-
-/* Chat Overlay */
-.chat-overlay {
-  display: none;
-  position: fixed;
-  bottom: 100px;
-  right: 30px;
-  width: 320px;
-  height: 400px;
-  background: rgba(255,255,255,0.95);
-  border-radius: 15px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  z-index: 10001;
-  flex-direction: column;
-  overflow: hidden;
-}
-.chat-header {
-  background: #00a859;
-  color: #fff;
-  padding: 10px;
-  text-align: center;
-  font-weight: bold;
-}
-.chat-body {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-  font-size: 14px;
-  color: #333;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.chat-message {
-  padding: 8px 10px;
-  border-radius: 10px;
-  max-width: 80%;
-  word-wrap: break-word;
-  font-size: 14px;
-}
-.user-msg {
-  background: #f2f2f2;
-  color: #000;
-  align-self: flex-end;
-}
-.bot-msg {
-  background: #d8ecff;
-  color: #000;
-  align-self: flex-start;
-}
-.chat-input {
-  display: flex;
-  border-top: 1px solid #ddd;
-}
-.chat-input input {
-  flex: 1;
-  border: none;
-  padding: 14px;
-  font-size: 14px;
-  outline: none;
-}
-.chat-input button {
-  background: #00a859;
-  color: #fff;
-  border: none;
-  padding: 10px 15px;
-  cursor: pointer;
 }
