@@ -1,117 +1,250 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>About - MarketList</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About - MarketList</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+/* Floating Chat Bot */
+.chatbot-btn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: #ffffff;
+  color: #00a859;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 26px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  animation: bounce 2s infinite;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
+
+/* Chat overlay */
+.chat-overlay {
+  position: fixed;
+  bottom: 90px;
+  right: 25px;
+  width: 320px;
+  max-height: 420px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1000;
+  animation: fadeInUp 0.4s ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Chat header */
+.chat-header {
+  background: linear-gradient(135deg, #00a859, #ff8c00);
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  font-weight: bold;
+}
+
+/* Chat body */
+.chat-body {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 14px;
+  color: #000;
+}
+
+/* Chat input area */
+.chat-input {
+  display: flex;
+  border-top: 1px solid #ccc;
+}
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  outline: none;
+  border-radius: 0;
+}
+.chat-input button {
+  background: #00a859;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+/* Messages */
+.message {
+  margin: 8px 0;
+  line-height: 1.4;
+}
+.message.user {
+  text-align: right;
+  color: #00a859;
+}
+.message.bot {
+  text-align: left;
+  color: #000;
+}
+</style>
 </head>
+
 <body>
 
-  <!-- ======= HEADER BAR ======= -->
-  <header class="headerbar">
-    <a href="index.html" class="brand">
-      <img src="images/logo.png" alt="MarketList Logo">
-      <span>MarketList</span>
-    </a>
+<div class="headerbar">
+  <div class="inner">
+    <div class="brand" onclick="location.href='index.html'">
+      <img src="logo.png" alt="logo">
+      <div class="title">MarketList</div>
+    </div>
     <nav class="nav">
       <a href="index.html">Home</a>
-      <a href="about.html" class="active">About</a>
+      <a href="about.html">About</a>
       <a href="reviews.html">Reviews</a>
       <a href="assistant.html">Assistant</a>
     </nav>
-  </header>
-
-  <!-- ======= ABOUT SECTION ======= -->
-  <section class="container">
-    <h1>About MarketList</h1>
-    <p>Welcome to <strong>MarketList</strong> — your one-stop online platform for easy grocery shopping and smart price comparison.</p>
-
-    <p>We are committed to making shopping effortless by providing up-to-date product listings, competitive prices, and fast checkout. Whether you’re buying in bulk or just restocking your essentials, MarketList ensures convenience and savings.</p>
-
-    <h2>Our Mission</h2>
-    <p>To simplify shopping for everyone through innovative technology, affordability, and trusted partnerships.</p>
-
-    <h2>Our Vision</h2>
-    <p>To become Ghana’s most reliable online market where customers shop confidently and conveniently every day.</p>
-  </section>
-
-  <!-- ======= FOOTER ======= -->
-  <footer class="footer">
-    &copy; 2025 MarketList. All rights reserved.
-  </footer>
-
-  <!-- ======= FLOATING CHATBOT BUTTON ======= -->
-  <button id="chatToggle" class="chat-btn">💬</button>
-
-  <!-- ======= CHAT OVERLAY ======= -->
-  <div id="chatOverlay" class="chat-overlay">
-    <div class="chat-header">MarketList Assistant</div>
-    <div class="chat-body" id="chatBody">
-      <div class="message bot">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>
-    </div>
-    <div class="chat-input">
-      <input type="text" id="userInput" placeholder="Type your message..." />
-      <button id="sendBtn">➤</button>
-    </div>
   </div>
+</div>
 
-  <!-- ======= CHATBOT SCRIPT ======= -->
-  <script>
-    const chatToggle = document.getElementById('chatToggle');
-    const chatOverlay = document.getElementById('chatOverlay');
-    const chatBody = document.getElementById('chatBody');
-    const userInput = document.getElementById('userInput');
-    const sendBtn = document.getElementById('sendBtn');
+<div class="container">
+  <section class="card fade-in">
+    <h1>About MarketList</h1>
+    <p>At MarketList, we understand that shopping can be time-consuming, stressful, and sometimes inconvenient—especially for busy Ghanaians. That’s why we created MarketList: a trusted service that brings your favorite local markets straight to your doorstep.</p>
+    <p>Whether it’s fresh groceries from Makola Market, daily essentials from Accra Mall, or home and electrical appliances, MarketList connects you with reliable local shoppers who deliver your items safely and promptly.</p>
 
-    // Toggle chat visibility
-    chatToggle.onclick = () => {
-      chatOverlay.style.display = (chatOverlay.style.display === 'flex') ? 'none' : 'flex';
-    };
+    <h3>Our Mission</h3>
+    <p>To make shopping effortless for every Ghanaian by providing seamless access to popular local markets, ensuring convenience, reliability, and satisfaction with every order.</p>
 
-    // Clear chat on reload
-    window.onload = () => { chatBody.innerHTML = '<div class="message bot">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>'; };
+    <h3>Our Vision</h3>
+    <p>To become the most trusted local shopping assistant across Ghana, empowering communities with easy access to quality products.</p>
 
-    // Handle user message
-    function sendMessage() {
-      const text = userInput.value.trim();
-      if (text === '') return;
+    <h3>Why Choose MarketList?</h3>
+    <ul>
+      <li><strong>Convenience:</strong> Skip long lines and traffic; orders delivered to your home.</li>
+      <li><strong>Trusted Shoppers:</strong> Vetted shoppers handle your orders carefully.</li>
+      <li><strong>Wide Range of Products:</strong> From groceries to appliances, get what you need.</li>
+      <li><strong>Transparent Pricing:</strong> Know your budget, service fees, and total.</li>
+      <li><strong>Customer Support:</strong> Assistance with questions, orders, and smooth experience.</li>
+    </ul>
 
-      const userMsg = document.createElement('div');
-      userMsg.classList.add('message', 'user');
-      userMsg.textContent = text;
-      chatBody.appendChild(userMsg);
+    <h3>Our Values</h3>
+    <ul>
+      <li><strong>Customer-Centric:</strong> Your satisfaction comes first.</li>
+      <li><strong>Reliability:</strong> Accurate orders and timely delivery every time.</li>
+      <li><strong>Trust:</strong> Only trusted shoppers handle orders.</li>
+      <li><strong>Innovation:</strong> Continuously improving for faster, easier experience.</li>
+    </ul>
+  </section>
+</div>
 
-      userInput.value = '';
+<footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
 
-      setTimeout(() => {
-        const botMsg = document.createElement('div');
-        botMsg.classList.add('message', 'bot');
-        botMsg.textContent = getBotResponse(text);
-        chatBody.appendChild(botMsg);
-        chatBody.scrollTop = chatBody.scrollHeight;
-      }, 600);
-    }
+<!-- Floating Chatbot -->
+<button class="chatbot-btn" onclick="toggleChat()">💬</button>
 
-    // Press Enter to send
-    userInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') sendMessage();
-    });
+<div class="chat-overlay" id="chatOverlay">
+  <div class="chat-header">Chat with MarketList AI</div>
+  <div class="chat-body" id="chatBody">
+    <div class="message bot">👋 Hello there! Welcome to <strong>MarketList.</strong><br>How can I assist you today?</div>
+  </div>
+  <div class="chat-input">
+    <input id="chatInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+    <button onclick="sendMessage()">➤</button>
+  </div>
+</div>
 
-    sendBtn.onclick = sendMessage;
+<script>
+const chatOverlay = document.getElementById('chatOverlay');
+const chatBody = document.getElementById('chatBody');
+const chatInput = document.getElementById('chatInput');
 
-    // Simple Q&A responses
-    function getBotResponse(input) {
-      input = input.toLowerCase();
+function toggleChat() {
+  chatOverlay.style.display = (chatOverlay.style.display === 'flex') ? 'none' : 'flex';
+  chatOverlay.style.flexDirection = 'column';
+}
 
-      if (input.includes('hello') || input.includes('hi')) return 'Hello! 👋 How can I help you today?';
-      if (input.includes('payment')) return 'You can make payment to: 0537351866 (Michael Awintini Akurugu). Reference: Your Name.';
-      if (input.includes('location')) return 'We are based in Accra, Ghana, and deliver across the region.';
-      if (input.includes('delivery')) return 'Deliveries are made within 24 to 48 hours after order confirmation.';
-      if (input.includes('hours') || input.includes('time')) return 'We are open 24/7 online!';
-      if (input.includes('thank')) return 'You’re welcome! 😊';
-      return 'I’m here to help! Could you please rephrase that?';
-    }
-  </script>
+function handleKeyPress(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    sendMessage();
+  }
+}
+
+function sendMessage() {
+  const msg = chatInput.value.trim();
+  if (!msg) return;
+
+  const userMsg = document.createElement('div');
+  userMsg.className = 'message user';
+  userMsg.textContent = msg;
+  chatBody.appendChild(userMsg);
+  chatInput.value = '';
+  chatBody.scrollTop = chatBody.scrollHeight;
+
+  setTimeout(() => {
+    const botMsg = document.createElement('div');
+    botMsg.className = 'message bot';
+    botMsg.textContent = getBotResponse(msg);
+    chatBody.appendChild(botMsg);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }, 800);
+}
+
+function getBotResponse(input) {
+  const q = input.toLowerCase();
+
+  if (q.includes('how to pay') || q.includes('payment') || q.includes('pay')) {
+    return `You can make payments through Mobile Money.\n\nMake payment to:\n📞 0537351866\n👤 Account Name: Michael Awintini Akurugu\n🧾 Reference: (Your Full Name)\n\nPlease confirm payment with us after sending.`;
+  }
+
+  if (q.includes('credit card')) {
+    return 'Currently, we only accept Mobile Money payments. Credit card support will be available soon.';
+  }
+
+  if (q.includes('delivery') || q.includes('delay') || q.includes('order delayed')) {
+    return 'Deliveries usually take 1–2 days depending on the market and item. If delayed, kindly reach out to 0537351866 for assistance.';
+  }
+
+  if (q.includes('how does') && q.includes('work')) {
+    return 'MarketList connects you with verified local shoppers who purchase your requested items and deliver them to your doorstep quickly and safely.';
+  }
+
+  if (q.includes('support') || q.includes('help') || q.includes('contact')) {
+    return 'You can reach MarketList support anytime via call or WhatsApp at 0537351866.';
+  }
+
+  if (q.includes('market') || q.includes('buy')) {
+    return 'MarketList allows you to shop from trusted markets such as Makola, Kaneshie, and Accra Mall. Just choose your items, confirm details, and we’ll handle the rest!';
+  }
+
+  if (q.includes('steps') || q.includes('how to order') || q.includes('how do i')) {
+    return 'Here’s how MarketList works:\n1️⃣ Go to our main page.\n2️⃣ Fill out the order form with your items.\n3️⃣ Confirm your details.\n4️⃣ Make payment to 0537351866.\n5️⃣ Your items will be delivered safely to your location.';
+  }
+
+  return 'Thank you for your question! I’m here to help with anything related to MarketList — shopping, payments, or deliveries.';
+}
+</script>
+
 </body>
 </html>
