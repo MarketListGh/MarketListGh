@@ -313,21 +313,131 @@ function sendMessage(){
   else if(lower.includes("payment") || lower.includes("pay")){
     reply = "You can make payment via mobile money:\n📱 0537351866\n👤 Michael Awintini Akurugu\n📝 Use your name as the payment reference.";
   } 
-  else if(lower.includes("how") && lower.includes("work")){
-    reply = "MarketList connects you with trusted market shoppers who get your groceries and deliver them to your doorstep safely and on time.";
-  }
-  else if(lower.includes("fill") || lower.includes("form")){
-    reply = "To fill your shopping form: enter your name, contact, and location. Choose your market and category, list your items, then click 'Send Your List Now'.";
-  }
-  else if(lower.includes("delivery")){
-    reply = "We deliver right to your doorstep once your list and payment are confirmed ✅. Delivery time depends on your location.";
-  }
-  else if(lower.includes("contact") || lower.includes("help")){
-    reply = "You can reach us through the WhatsApp button on the homepage or send a message here for assistance.";
-  }
-  else if(lower.includes("marketlist") || lower.includes("what is")){
-    reply = "MarketList is an online grocery service designed to make shopping simple. You order, we buy and deliver — easy, fast, and reliable.";
-  }
+ function getAIResponse(msg) {
+  const q = msg.toLowerCase();
+  let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
+
+  // 🛒 GENERAL QUESTIONS
+  if (q.includes("what is marketlist")) ans = "MarketList is an online service that helps you order items from local markets and have them delivered to your doorstep.";
+  else if (q.includes("how does marketlist work")) ans = "You fill out your order form, select a market, and submit. Our team buys your items and delivers them to your location.";
+  else if (q.includes("deliver to all areas")) ans = "Yes, we deliver across most parts of Greater Accra. Delivery options appear based on your location.";
+  else if (q.includes("delivery fee")) ans = "Yes, delivery fees depend on your location and are separate from your market total.";
+  else if (q.includes("how do i pay") || q.includes("payment")) ans = "You can pay via Mobile Money or Paystack (secure online payment).";
+  else if (q.includes("pay before delivery")) ans = "Yes, all payments must be made before delivery.";
+  else if (q.includes("cash on delivery")) ans = "Currently, no. We only accept online or mobile money payments.";
+  else if (q.includes("delivery time") || q.includes("time do deliveries start")) ans = "Deliveries start at 8:00 AM and end at 6:00 PM, Monday to Saturday.";
+  else if (q.includes("deliver on sunday")) ans = "We only process urgent or pre-scheduled Sunday deliveries.";
+  else if (q.includes("order at night")) ans = "Yes, but your order will be processed the next morning.";
+
+  // 📦 ORDERING QUESTIONS
+  else if (q.includes("place an order")) ans = "Fill out the form on our website, add your items, and click 'Send Your List Now'.";
+  else if (q.includes("call to place an order")) ans = "Yes, you can reach our support line or WhatsApp number on the website.";
+  else if (q.includes("after i submit my order")) ans = "You’ll receive a confirmation message, then one of our market assistants will verify your order.";
+  else if (q.includes("order confirmed")) ans = "You’ll get a WhatsApp or SMS confirmation with your order details.";
+  else if (q.includes("add items")) ans = "Yes, reply to your confirmation message with the extra items before payment.";
+  else if (q.includes("cancel my order")) ans = "Yes, but only before we start shopping for your items.";
+  else if (q.includes("minimum order")) ans = "The minimum order amount is ₵50.";
+  else if (q.includes("multiple markets")) ans = "Currently, no. Each order must come from one selected market.";
+  else if (q.includes("upload my shopping list")) ans = "Yes, upload a list or photo of your items on WhatsApp after submitting your form.";
+  else if (q.includes("order in bulk")) ans = "Absolutely! We support bulk orders for homes, restaurants, and offices.";
+
+  // 💰 PAYMENT QUESTIONS
+  else if (q.includes("payment method")) ans = "We accept Mobile Money, Paystack, and bank transfers.";
+  else if (q.includes("service fee")) ans = "Yes, there’s a 20% service fee covering shopping and handling.";
+  else if (q.includes("total cost")) ans = "We add your budget + 20% service fee + delivery fee.";
+  else if (q.includes("receipt")) ans = "Yes, you’ll receive a digital receipt via WhatsApp or email.";
+  else if (q.includes("payment secure")) ans = "Yes, all transactions are encrypted and handled securely.";
+  else if (q.includes("overpay")) ans = "We’ll refund the excess amount to your wallet or MoMo number.";
+  else if (q.includes("refund")) ans = "Yes, if your order is canceled before shopping starts.";
+  else if (q.includes("paypal")) ans = "Not yet, but we’re working on adding that soon.";
+  else if (q.includes("split payment")) ans = "Yes, just contact support to confirm.";
+
+  // 🚚 DELIVERY QUESTIONS
+  else if (q.includes("delivery take")) ans = "Delivery takes 1–3 hours after confirmation, depending on your location.";
+  else if (q.includes("choose delivery time")) ans = "Yes, you can schedule your preferred delivery time.";
+  else if (q.includes("who handles delivery")) ans = "Our trusted riders or logistics partners handle all deliveries.";
+  else if (q.includes("order on the way")) ans = "Yes, the rider will contact you before arrival.";
+  else if (q.includes("not home")) ans = "You can reschedule or choose a nearby pickup point.";
+  else if (q.includes("someone else receive")) ans = "Yes, just provide their name and number in the form.";
+  else if (q.includes("deliver to office")) ans = "Yes, we deliver to homes, offices, and shops.";
+  else if (q.includes("track my delivery")) ans = "Yes, tracking updates are sent via WhatsApp or SMS.";
+  else if (q.includes("order delayed")) ans = "We’ll notify you immediately and update the expected delivery time.";
+  else if (q.includes("express delivery")) ans = "Yes, express delivery is available for an extra fee.";
+
+  // 🥬 ITEMS & MARKETS
+  else if (q.includes("markets do you serve")) ans = "We serve Nima, Madina, Makola, Kaneshie, and Agbogbloshie markets.";
+  else if (q.includes("imported goods")) ans = "Yes, if available in your chosen market.";
+  else if (q.includes("cooked food")) ans = "No, only raw and packaged groceries for now.";
+  else if (q.includes("specific brand")) ans = "Yes, include brand names in your item list.";
+  else if (q.includes("meat") || q.includes("fish")) ans = "Yes, we ensure proper packaging and hygiene for all perishables.";
+  else if (q.includes("item freshness")) ans = "We buy fresh items just before delivery.";
+  else if (q.includes("item unavailable")) ans = "We’ll contact you for a substitute or refund.";
+  else if (q.includes("market prices")) ans = "Estimated prices are available on request.";
+  else if (q.includes("non-food items")) ans = "Yes, like detergents, soaps, or household items.";
+  else if (q.includes("fruits and vegetables")) ans = "Yes, we cover all groceries including fruits and vegetables.";
+
+  // 📞 SUPPORT QUESTIONS
+  else if (q.includes("contact support")) ans = "Message us on WhatsApp or call 0537351866 for quick support.";
+  else if (q.includes("whatsapp number")) ans = "You’ll find it at the bottom of our website.";
+  else if (q.includes("working hours")) ans = "8:00 AM – 6:00 PM, Monday to Saturday.";
+  else if (q.includes("reply on weekends")) ans = "Yes, though responses might be slower.";
+  else if (q.includes("holidays")) ans = "Support is available only for pre-booked or urgent deliveries.";
+  else if (q.includes("real person")) ans = "Yes, we have live chat and WhatsApp support.";
+  else if (q.includes("wrong item")) ans = "We’ll replace or refund the item depending on the issue.";
+  else if (q.includes("refund take")) ans = "Refunds are processed within 24 hours.";
+  else if (q.includes("review your service")) ans = "Yes, you can leave feedback on our Reviews page.";
+  else if (q.includes("loyalty program")) ans = "Coming soon! Reward points for frequent users.";
+
+  // 🧾 ORDER UPDATES
+  else if (q.includes("edit my order")) ans = "Yes, if it hasn’t been processed yet.";
+  else if (q.includes("order updates")) ans = "Yes, updates are sent via WhatsApp or SMS.";
+  else if (q.includes("copy of my order")) ans = "Yes, your order summary will be sent to you.";
+  else if (q.includes("out of stock")) ans = "Yes, we notify you before processing your payment.";
+  else if (q.includes("reorder")) ans = "Yes, you can reuse your previous list with one click.";
+  else if (q.includes("weekly orders")) ans = "Yes, contact support to set up automatic weekly orders.";
+  else if (q.includes("favorite items")) ans = "Feature coming soon!";
+  else if (q.includes("remind me of my next order")) ans = "Yes, we can send weekly reminders.";
+  else if (q.includes("total spending")) ans = "Yes, view your monthly spending on the order history page.";
+  else if (q.includes("invoice")) ans = "Yes, invoices are automatically generated.";
+
+  // 🌍 ACCOUNT & PROFILE
+  else if (q.includes("need an account")) ans = "No, but creating one makes future orders easier.";
+  else if (q.includes("update my address")) ans = "Yes, anytime before checkout.";
+  else if (q.includes("multiple addresses")) ans = "Yes, if you have an account.";
+  else if (q.includes("store payment info")) ans = "No, we don’t store financial details.";
+  else if (q.includes("delete my account")) ans = "Yes, contact support to delete it.";
+  else if (q.includes("order for someone else")) ans = "Yes, enter their name and delivery address.";
+  else if (q.includes("change my phone number")) ans = "Yes, in your account settings or during checkout.";
+  else if (q.includes("track without account")) ans = "Yes, through the link sent via SMS.";
+  else if (q.includes("share customer information")) ans = "No, your details are private and protected.";
+  else if (q.includes("promotions by sms")) ans = "Yes, if you opt in for notifications.";
+
+  // 🌟 SPECIAL SERVICES
+  else if (q.includes("wholesale")) ans = "Yes, we handle bulk and wholesale shopping requests.";
+  else if (q.includes("event shopping")) ans = "Yes, for parties, weddings, and catering needs.";
+  else if (q.includes("urgent delivery")) ans = "Yes, contact support for express delivery.";
+  else if (q.includes("other regions")) ans = "We’re expanding soon beyond Accra.";
+  else if (q.includes("shopping receipts")) ans = "Yes, physical or digital receipts available upon request.";
+  else if (q.includes("supermarket")) ans = "Yes, for partnered stores.";
+  else if (q.includes("compare prices")) ans = "Yes, our assistants can check the best market prices.";
+  else if (q.includes("cold") || q.includes("frozen")) ans = "Yes, we use ice-packed bags for frozen goods.";
+  else if (q.includes("monthly groceries")) ans = "Yes, we offer monthly grocery subscriptions.";
+  else if (q.includes("merchandise")) ans = "Soon! Stay tuned for branded eco-bags.";
+
+  // 💬 TECHNICAL QUESTIONS
+  else if (q.includes("site not loading")) ans = "Try refreshing or check your internet connection.";
+  else if (q.includes("use on phone")) ans = "Yes, the website works perfectly on phones.";
+  else if (q.includes("install app")) ans = "Yes, click 'Add to Home Screen' in your browser.";
+  else if (q.includes("payment didn’t go through")) ans = "Contact support to confirm and retry.";
+  else if (q.includes("no confirmation message")) ans = "Check your spam folder or the WhatsApp number entered.";
+  else if (q.includes("print my order")) ans = "Yes, click the print button on your order summary.";
+  else if (q.includes("desktop version")) ans = "Yes, works on both desktop and mobile.";
+  else if (q.includes("contact developer")) ans = "Through the feedback form or support channel.";
+  else if (q.includes("feedback")) ans = "Yes, we value all customer feedback.";
+  else if (q.includes("share marketlist")) ans = "Yes! Share our website link or referral code.";
+
+  return ans;
+}
 
   botMsg.textContent = reply;
   setTimeout(() => { body.appendChild(botMsg); body.scrollTop = body.scrollHeight; }, 500);
@@ -345,3 +455,4 @@ window.addEventListener('load', () => {
 
 </body>
 </html>
+
