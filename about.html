@@ -6,7 +6,7 @@
 <title>About - MarketList</title>
 <link rel="stylesheet" href="style.css">
 <style>
-/* Floating Chat Bot */
+/* Floating Chat Bot (index.html style) */
 .chatbot-btn {
   position: fixed;
   bottom: 25px;
@@ -102,16 +102,6 @@
 </head>
 <body>
 
-<!-- Preloader -->
-<div id="preloader">
-  <div class="loader-ring">
-    <div class="ring"></div>
-    <img src="logo.png" alt="MarketList Logo">
-  </div>
-</style>
-</head>
-<body>
-
 <div class="headerbar">
   <div class="inner">
     <div class="brand" onclick="location.href='index.html'">
@@ -173,7 +163,7 @@
   </div>
   <div class="chat-input">
     <input id="chatInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
-    <button onclick="sendMessage()">➤</button>
+    <button onclick="sendMessage()">Send</button>
   </div>
 </div>
 
@@ -205,31 +195,17 @@ function sendMessage() {
   input.value = '';
   chatBody.scrollTop = chatBody.scrollHeight;
 
-  const typingDots = document.createElement('div');
-  typingDots.className = 'typing-dots';
-  typingDots.textContent = 'MarketList is typing...';
-  chatBody.appendChild(typingDots);
-  typingDots.style.display = 'block';
-  chatBody.scrollTop = chatBody.scrollHeight;
-
   setTimeout(() => {
-    typingDots.remove();
     const botMsg = document.createElement('div');
     botMsg.className = 'chat-message bot-msg';
-    botMsg.textContent = getBotResponse(msg);
+    botMsg.textContent = getAIResponse(msg);
     chatBody.appendChild(botMsg);
     chatBody.scrollTop = chatBody.scrollHeight;
-  }, 1000);
+  }, 700);
 }
 
-function getBotResponse(input) {
-  const q = input.toLowerCase();
-
-  if (q.includes('how to pay') || q.includes('payment') || q.includes('pay')) {
-    return `You can make payments through Mobile Money.\n\nMake payment to:\n📞 0537351866\n👤 Account Name: Michael Awintini Akurugu\n🧾 Reference: (Your Full Name)\n\nPlease confirm payment with us after sending.`;
-  }
-
- function getAIResponse(msg) {
+/* Full 100 Q&A Chatbot */
+function getAIResponse(msg) {
   const q = msg.toLowerCase();
   let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
 
@@ -358,5 +334,3 @@ function getBotResponse(input) {
 
 </body>
 </html>
-
-
