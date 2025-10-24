@@ -48,24 +48,32 @@
   color: #000;
   font-style: italic;
 }
+
+/* ✅ Fixed input + button alignment */
 .input-area {
   display: flex;
   margin-top: 10px;
+  height: 45px; /* same height for input and button */
 }
 .input-area input {
   flex: 1;
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
+  font-size: 14px;
+  height: 100%;
+  box-sizing: border-box;
 }
 .input-area button {
   margin-left: 8px;
-  padding: 10px 15px;
+  padding: 0 15px;
   border: none;
   background: #007bff;
   color: #fff;
   border-radius: 8px;
   cursor: pointer;
+  height: 100%;
+  font-size: 14px;
 }
 .input-area button:hover {
   background: #0056b3;
