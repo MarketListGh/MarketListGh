@@ -6,44 +6,45 @@
 <title>Reviews - MarketList</title>
 <link rel="stylesheet" href="style.css">
 <style>
-/* === Header (exactly as in index.html / about.html) === */
+/* === HEADER (Exact Copy of About.html / Index.html) === */
 .headerbar {
-  background:#00a859;
-  color:#fff;
-  padding:10px 20px;
+  background: #00a859;
+  color: #fff;
+  padding: 10px 20px;
 }
 .headerbar .inner {
-  display:flex;
-  align-items:center;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
 }
 .headerbar .brand {
-  display:flex;
-  align-items:center;
-  cursor:pointer;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
 }
 .headerbar .brand img {
-  width:40px;
-  margin-right:10px;
+  width: 40px;
+  margin-right: 10px;
 }
 .headerbar .brand .title {
+  font-family: Arial, sans-serif;
   font-size: 20px;
   font-weight: bold;
   color: #fff;
 }
-/* nav links: same as index/about (no font-family or font-size override) */
 .headerbar nav a {
-  color:#fff;
-  margin-left:20px;
-  text-decoration:none;
-  font-weight:bold;
+  color: #fff;
+  margin-left: 20px;
+  text-decoration: none;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  font-weight: normal;
 }
-/* remove underline or other hover style (match index/about) */
 .headerbar nav a:hover {
   text-decoration: none;
 }
 
-/* === Chatbot styles (kept as before) === */
+/* === Chatbot Styles (unchanged) === */
 .chatbot-btn {
   position: fixed;
   bottom: 25px;
@@ -115,7 +116,7 @@
 .chat-input button { background: #00a859; color: #fff; border: none; padding: 10px 15px; cursor: pointer; }
 .chat-input button:hover { background: #007b3e; }
 
-/* === Review Card === */
+/* === Reviews Section === */
 .container { max-width:700px; margin:40px auto; padding:0 20px; }
 .card { background:#fff; color:#000; padding:30px; border-radius:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2); }
 .card h1 { margin-bottom:20px; }
@@ -125,24 +126,31 @@
 .review-form button:hover { background:#007b3e; }
 #starContainer span { cursor:pointer; font-size:20px; margin-right:4px; }
 
-/* Footer same as index/about */
-.footer { text-align:center; padding:15px; background:#eee; margin-top:40px; color:#333; font-size:14px; }
+/* === Footer (same as about/index) === */
+.footer {
+  text-align:center;
+  padding:15px;
+  background:#eee;
+  margin-top:40px;
+  color:#333;
+  font-size:14px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- Header (exact same structure as index/about) -->
+<!-- Header (copied exactly from About.html) -->
 <div class="headerbar">
   <div class="inner">
     <div class="brand" onclick="location.href='index.html'">
       <img src="logo.png" alt="MarketList">
       <div class="title">MarketList</div>
     </div>
-    <nav class="nav">
+    <nav>
       <a href="index.html">Home</a>
       <a href="about.html">About</a>
-      <a href="reviews.html" class="active">Reviews</a>
+      <a href="reviews.html">Reviews</a>
       <a href="assistant.html">Assistant</a>
     </nav>
   </div>
@@ -179,7 +187,7 @@
 
 <footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
 
-<!-- Floating Chatbot (kept) -->
+<!-- Floating Chatbot -->
 <div class="chatbot-btn" onclick="toggleChat()">💬</div>
 
 <div class="chat-overlay" id="chatOverlay">
@@ -194,7 +202,7 @@
 </div>
 
 <script>
-/* Chatbot functions (unchanged) */
+/* === Chatbot Functions === */
 const chatOverlay = document.getElementById('chatOverlay');
 const chatBody = document.getElementById('chatBody');
 const chatInput = document.getElementById('chatInput');
@@ -216,7 +224,6 @@ function sendMessage() {
     chatBody.appendChild(botMsg); chatBody.scrollTop=chatBody.scrollHeight;
   },700);
 }
-
 function getAIResponse(msg){
   const q = msg.toLowerCase();
   let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
@@ -226,7 +233,7 @@ function getAIResponse(msg){
   return ans;
 }
 
-/* Review system (unchanged) */
+/* === Review System === */
 let currentStars = 5;
 let editIndex = null;
 const stars = document.querySelectorAll('#starContainer .star');
