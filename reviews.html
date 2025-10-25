@@ -3,26 +3,53 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Assistant - MarketList</title>
-<link rel="stylesheet" href="style.css">
+<title>Reviews - MarketList</title>
 <style>
-<!-- Header -->
-<div class="headerbar">
-  <div class="inner">
-    <div class="brand" onclick="location.href='index.html'">
-      <img src="logo.png" alt="MarketList">
-      <div class="title">MarketList</div>
-    </div>
-    <nav class="nav">
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="reviews.html" class="active">Reviews</a>
-      <a href="assistant.html">Assistant</a>
-    </nav>
-  </div>
-</div>
+/* === General === */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+}
 
-/* === Chat container (left unchanged except layout) === */
+/* === Header (copied exactly from index/about) === */
+.headerbar {
+  background: #00a859;
+  color: #fff;
+  padding: 10px 20px;
+}
+.headerbar .inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.headerbar .brand {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.headerbar .brand img {
+  width: 40px;
+  margin-right: 10px;
+}
+.headerbar .brand .title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+}
+.headerbar nav a {
+  color: #fff;
+  margin-left: 20px;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: normal;
+}
+.headerbar nav a:hover {
+  text-decoration: underline;
+}
+
+/* === Chat container === */
 .chat-container {
   max-width: 700px;
   margin: 40px auto;
@@ -54,33 +81,64 @@
 .user-msg { align-self: flex-end; background: #e0e0e0; color: #000; }
 .ai-msg { align-self: flex-start; background: #d2e7ff; color: #000; }
 .typing { align-self: flex-start; background: #d2e7ff; color: #000; font-style: italic; }
-.input-area { display: flex; margin-top: 10px; align-items: center; }
-.input-area input { flex: 1; padding: 14px; border-radius: 8px; border: 1px solid #ccc; font-size: 15px; outline: none; }
-.input-area button { margin-left: 8px; padding: 12px 18px; border: none; background: #00a859; color: #fff; border-radius: 8px; cursor: pointer; font-size: 15px; }
-.input-area button:hover { background: #007b3e; }
 
-/* Footer same as index/about */
-.footer { text-align:center; padding:15px; background:#eee; margin-top:40px; color:#333; font-size:14px; }
+.input-area {
+  display: flex;
+  margin-top: 10px;
+  align-items: center;
+}
+.input-area input {
+  flex: 1;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  outline: none;
+}
+.input-area button {
+  margin-left: 8px;
+  padding: 12px 18px;
+  border: none;
+  background: #00a859;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+}
+.input-area button:hover {
+  background: #007b3e;
+}
+
+/* === Footer === */
+.footer {
+  text-align: center;
+  padding: 15px;
+  background: #eee;
+  margin-top: 40px;
+  color: #333;
+  font-size: 14px;
+}
 </style>
 </head>
 <body>
 
-<!-- Header (exact copy) -->
+<!-- === Header (exact same as index/about) === -->
 <div class="headerbar">
   <div class="inner">
     <div class="brand" onclick="location.href='index.html'">
       <img src="logo.png" alt="MarketList">
       <div class="title">MarketList</div>
     </div>
-    <nav class="nav">
+    <nav>
       <a href="index.html">Home</a>
       <a href="about.html">About</a>
-      <a href="reviews.html">Reviews</a>
-      <a href="assistant.html" class="active">Assistant</a>
+      <a href="reviews.html" class="active">Reviews</a>
+      <a href="assistant.html">Assistant</a>
     </nav>
   </div>
 </div>
 
+<!-- === Chat Section === -->
 <div class="chat-container">
   <div class="chat-box" id="chatBox">
     <div class="message ai-msg">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>
@@ -92,10 +150,11 @@
   </div>
 </div>
 
+<!-- === Footer === -->
 <footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
 
 <script>
-/* Chat behavior kept exactly as in your assistant file */
+/* === Chat Script === */
 function scrollToBottom() {
   const chatBox = document.getElementById('chatBox');
   chatBox.scrollTop = chatBox.scrollHeight;
@@ -147,4 +206,3 @@ window.onload = () => {
 
 </body>
 </html>
-
