@@ -5,47 +5,61 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Assistant - MarketList</title>
 <link rel="stylesheet" href="style.css">
+
 <style>
 /* =======================
-   Menu Bar (matches Index.html)
+   HEADER AND MENU (Matches Index & About)
 ======================= */
 .headerbar {
-  background:#00a859; 
-  color:#fff; 
-  padding:10px 20px;
-}
-.headerbar .inner {
-  display:flex; 
-  align-items:center; 
+  background: #00a859;
+  color: white;
+  padding: 12px 25px;
+  display: flex;
   justify-content: space-between;
+  align-items: center;
 }
-.headerbar .brand { 
-  display:flex; 
-  align-items:center; 
-  cursor:pointer; 
+
+.headerbar .brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
 }
-.headerbar .brand img { width:40px; margin-right:10px; }
-.headerbar .brand .title { 
-  font-family: 'Arial', sans-serif; 
-  font-size:20px; 
-  font-weight:bold; 
-  color:#fff; 
+
+.headerbar .brand img {
+  height: 45px;
+  margin-right: 10px;
 }
-.headerbar nav a { 
-  font-family: 'Arial', sans-serif; 
-  font-size:16px; 
-  color:#fff; 
-  margin-left:20px; 
-  text-decoration:none; 
-  font-weight:bold; 
+
+.headerbar .brand span {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: white;
+  font-family: 'Poppins', sans-serif;
 }
-.headerbar nav a:hover,
-.headerbar nav a.active { 
-  color:#ffeb3b; 
+
+.nav {
+  display: flex;
+  align-items: center;
+}
+
+.nav a {
+  color: white;
+  text-decoration: none;
+  margin-left: 18px;
+  font-weight: 500;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  transition: 0.3s;
+}
+
+.nav a:hover,
+.nav a.active {
+  text-decoration: underline;
+  color: #ffeb3b;
 }
 
 /* =======================
-   Chat Container
+   CHAT STYLES (unchanged)
 ======================= */
 .chat-container {
   max-width: 700px;
@@ -123,20 +137,19 @@
 
 <!-- Header -->
 <div class="headerbar">
-  <div class="inner">
-    <div class="brand" onclick="location.href='index.html'">
-      <img src="logo.png" alt="MarketList">
-      <div class="title">MarketList</div>
-    </div>
-    <nav class="nav">
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="reviews.html">Reviews</a>
-      <a href="assistant.html" class="active">Assistant</a>
-    </nav>
+  <a href="index.html" class="brand">
+    <img src="logo.png" alt="MarketList Logo">
+    <span>MarketList</span>
+  </a>
+  <div class="nav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="reviews.html">Reviews</a>
+    <a href="assistant.html" class="active">Assistant</a>
   </div>
 </div>
 
+<!-- Chat Container -->
 <div class="chat-container">
   <div class="chat-box" id="chatBox">
     <div class="message ai-msg">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>
