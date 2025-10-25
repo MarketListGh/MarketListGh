@@ -6,56 +6,16 @@
 <title>Assistant - MarketList</title>
 <link rel="stylesheet" href="style.css">
 
-<style>
-/* =======================
-   HEADER AND MENU (Matches Index & About)
-======================= */
+/* Header styles (copied from index.html) */
 .headerbar {
-  background: #00a859;
-  color: white;
-  padding: 12px 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  background:#00a859; color:#fff; padding:10px 20px;
 }
-
-.headerbar .brand {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
+.headerbar .inner {
+  display:flex; align-items:center; justify-content: space-between;
 }
-
-.headerbar .brand img {
-  height: 45px;
-  margin-right: 10px;
-}
-
-.headerbar .brand span {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: white;
-  font-family: 'Poppins', sans-serif;
-}
-
-.nav {
-  display: flex;
-  align-items: center;
-}
-
-.nav a {
-  color: white;
-  text-decoration: none;
-  margin-left: 18px;
-  font-weight: 500;
-  font-family: 'Poppins', sans-serif;
-  font-size: 1rem;
-  transition: 0.3s;
-}
-
-.nav a:hover,
-.nav a.active {
-  text-decoration: underline;
-  color: #ffeb3b;
+.headerbar .brand { display:flex; align-items:center; cursor:pointer; }
+.headerbar .brand img { width:40px; margin-right:10px; }
+.headerbar nav a { color:#fff; margin-left:20px; text-decoration:none; font-weight:bold; }
 }
 
 /* =======================
@@ -223,3 +183,4 @@ window.onload = () => {
 
 </body>
 </html>
+
