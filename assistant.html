@@ -6,43 +6,21 @@
 <title>Assistant - MarketList</title>
 <link rel="stylesheet" href="style.css">
 <style>
-/* Header styles (copied from index.html) */
-.headerbar {
-  background: #00a859;
-  color: #fff;
-  padding: 10px 20px;
-}
-.headerbar .inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.headerbar .brand {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  text-decoration: none;
-}
-.headerbar .brand img {
-  width: 40px;
-  margin-right: 10px;
-}
-.headerbar .brand span {
-  font-weight: bold;
-  font-size: 1.2rem;
-  color: #fff;
-}
-.headerbar nav a {
-  color: #fff;
-  margin-left: 20px;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 15px;
-}
-.headerbar nav a:hover {
-  text-decoration: underline;
-  color: #ffeb3b;
-}
+<!-- Header -->
+<div class="headerbar">
+  <div class="inner">
+    <div class="brand" onclick="location.href='index.html'">
+      <img src="logo.png" alt="MarketList">
+      <div class="title">MarketList</div>
+    </div>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="reviews.html">Reviews</a>
+      <a href="assistant.html" class="active">Assistant</a>
+    </nav>
+  </div>
+</div>
 
 /* Chat container styles */
 .chat-container {
@@ -194,3 +172,4 @@
   </script>
 </body>
 </html>
+
