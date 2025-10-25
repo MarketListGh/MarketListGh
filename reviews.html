@@ -5,6 +5,111 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Reviews - MarketList</title>
 <link rel="stylesheet" href="style.css">
+<style>
+/* =======================
+   Menu Bar (matches Index.html)
+======================= */
+.headerbar {
+  background:#00a859; 
+  color:#fff; 
+  padding:10px 20px;
+}
+.headerbar .inner {
+  display:flex; 
+  align-items:center; 
+  justify-content: space-between;
+}
+.headerbar .brand { 
+  display:flex; 
+  align-items:center; 
+  cursor:pointer; 
+}
+.headerbar .brand img { width:40px; margin-right:10px; }
+.headerbar nav a { 
+  color:#fff; 
+  margin-left:20px; 
+  text-decoration:none; 
+  font-weight:bold; 
+}
+.headerbar nav a:hover,
+.headerbar nav a.active { 
+  color:#ffeb3b; 
+}
+
+/* =======================
+   Floating Chatbot (matches Index.html)
+======================= */
+.chatbot-btn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 60px;
+  height: 60px;
+  background: #fff;
+  color: #00a859;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  cursor: pointer;
+  animation: bounce 2s infinite;
+  z-index: 10000;
+}
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-12px); }
+  60% { transform: translateY(-6px); }
+}
+.chat-overlay {
+  display: none;
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 320px;
+  height: 400px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 10001;
+  flex-direction: column;
+  overflow: hidden;
+}
+.chat-header {
+  background: #00a859;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+.chat-body {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chat-message, .message.bot, .message.user {
+  padding: 8px 10px;
+  border-radius: 10px;
+  max-width: 80%;
+  word-wrap: break-word;
+  font-size: 14px;
+}
+.user { background: #f2f2f2; color: #000; align-self: flex-end; }
+.bot { background: #d8ecff; color: #000; align-self: flex-start; }
+.chat-input {
+  display: flex;
+  border-top: 1px solid #ddd;
+}
+.chat-input input { flex: 1; border: none; padding: 14px; font-size: 14px; outline: none; }
+.chat-input button { background: #00a859; color: #fff; border: none; padding: 10px 15px; cursor: pointer; }
+.chat-input button:hover { background: #007b3e; }
+</style>
 </head>
 
 <body>
@@ -57,21 +162,21 @@
 <footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
 
 <!-- Floating Chatbot -->
-<button class="chatbot-btn" onclick="toggleChat()">💬</button>
+<div class="chatbot-btn" onclick="toggleChat()">💬</div>
 <div class="chat-overlay" id="chatOverlay">
   <div class="chat-header">Chat with MarketList AI</div>
   <div class="chat-body" id="chatBody">
-    <div class="message bot">👋 Hello there! Welcome to <strong>MarketList.</strong><br>How can I assist you today?</div>
+    <div class="bot">👋 Hello there! Welcome to <strong>MarketList!</strong><br>How can I assist you today?</div>
   </div>
   <div class="chat-input">
     <input id="chatInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
-    <button onclick="sendMessage()">➤</button>
+    <button onclick="sendMessage()">Send</button>
   </div>
 </div>
 
 <script>
 /* =======================
-   Chatbot Functions
+   Chatbot Functions (Index style)
 ======================= */
 const chatOverlay = document.getElementById('chatOverlay');
 const chatBody = document.getElementById('chatBody');
@@ -90,7 +195,7 @@ function sendMessage() {
   const msg = chatInput.value.trim();
   if(!msg) return;
   const userMsg = document.createElement('div');
-  userMsg.className='message user';
+  userMsg.className='user';
   userMsg.textContent=msg;
   chatBody.appendChild(userMsg);
   chatInput.value='';
@@ -98,11 +203,11 @@ function sendMessage() {
 
   setTimeout(()=>{
     const botMsg = document.createElement('div');
-    botMsg.className='message bot';
+    botMsg.className='bot';
     botMsg.textContent=getAIResponse(msg);
     chatBody.appendChild(botMsg);
     chatBody.scrollTop=chatBody.scrollHeight;
-  },800);
+  },700);
 }
 
 function getAIResponse(msg){
@@ -110,7 +215,12 @@ function getAIResponse(msg){
   let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
   if(q.includes("what is marketlist")) ans="MarketList is an online service that lets you order groceries and other items from local markets, then delivers them straight to your door.";
   else if(q.includes("how does marketlist work")) ans="You just fill out your shopping list, pick a market, and submit it. Our team will buy your items and deliver them to you.";
-  // Add all other Q&A here as in your main script...
+  else if(q.includes("do you deliver everywhere")) ans="We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
+  else if(q.includes("how much is delivery")) ans="Delivery fees depend on your location and are added on top of your market total.";
+  else if(q.includes("how do i pay") || q.includes("payment options")) ans="You can pay using Mobile Money or Paystack, which is a safe online payment platform.";
+  else if(q.includes("do i pay before delivery")) ans="Yes, all payments must be made before we deliver your items.";
+  else if(q.includes("can i pay cash on delivery")) ans="Not at the moment. We only accept online or mobile money payments.";
+  else if(q.includes("what time do you deliver")) ans="Deliveries run from 8:00 AM to 6:00 PM, Monday to Saturday.";
   return ans;
 }
 
