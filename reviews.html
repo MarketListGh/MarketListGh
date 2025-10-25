@@ -6,7 +6,7 @@
 <title>Reviews - MarketList</title>
 <link rel="stylesheet" href="style.css">
 <style>
-/* ===== HEADER: identical to index/about but no underlines ===== */
+/* ===== EXACT HEADER STYLE FROM ABOUT.HTML ===== */
 .headerbar {
   background: #00a859;
   color: #fff;
@@ -257,11 +257,10 @@
 </div>
 
 <script>
-/* ===== CHATBOT SCRIPT ===== */
+/* === SAME SCRIPT LOGIC AS BEFORE === */
 const chatOverlay = document.getElementById('chatOverlay');
 const chatBody = document.getElementById('chatBody');
 const chatInput = document.getElementById('chatInput');
-
 function toggleChat() {
   chatOverlay.style.display = (chatOverlay.style.display === 'flex') ? 'none' : 'flex';
   chatOverlay.style.flexDirection = 'column';
@@ -289,14 +288,11 @@ function getAIResponse(msg){
   return ans;
 }
 
-/* ===== REVIEW SYSTEM ===== */
+/* === REVIEWS SYSTEM === */
 let currentStars = 5;
 let editIndex = null;
 const stars = document.querySelectorAll('#starContainer .star');
-
-function updateStarsDisplay(num){
-  stars.forEach((s,i)=>{ s.textContent = i<num ? '★' : '☆'; s.classList.toggle('active', i<num); });
-}
+function updateStarsDisplay(num){ stars.forEach((s,i)=>{ s.textContent = i<num ? '★' : '☆'; }); }
 stars.forEach(s=>{ s.addEventListener('click', ()=>{ currentStars = parseInt(s.getAttribute('data-value')); updateStarsDisplay(currentStars); }); });
 updateStarsDisplay(currentStars);
 
@@ -307,30 +303,23 @@ function loadReviews(){
     const article = document.createElement('article');
     let starsHtml='';
     for(let i=0;i<5;i++){ starsHtml += i<r.stars ? '<span style="color: gold;">★</span>' : '<span style="color: #ccc;">☆</span>'; }
-    article.innerHTML = `<p><strong>${r.name} — ${r.location}</strong> ${starsHtml}</p><p>${r.text}</p>
-      <div class="review-actions"><button onclick="editReview(${index})">Edit</button><button onclick="deleteReview(${index})">Delete</button></div>`;
+    article.innerHTML = `<p><strong>${r.name} — ${r.location}</strong> ${starsHtml}</p><p>${r.text}</p>`;
     feed.prepend(article);
   });
 }
 function addOrUpdateReview(){
-  const name = document.getElementById('reviewName').value.trim();
-  const location = document.getElementById('reviewLocation').value.trim();
-  const text = document.getElementById('reviewText').value.trim();
+  const name=document.getElementById('reviewName').value.trim();
+  const location=document.getElementById('reviewLocation').value.trim();
+  const text=document.getElementById('reviewText').value.trim();
   if(!name||!location||!text){ alert('Please fill all fields.'); return; }
-  const reviews = JSON.parse(localStorage.getItem('marketReviews'))||[];
-  if(editIndex!==null){ reviews[editIndex]={name,location,text,stars:currentStars}; editIndex=null; } else { reviews.push({name,location,text,stars:currentStars}); }
+  const reviews=JSON.parse(localStorage.getItem('marketReviews'))||[];
+  if(editIndex!==null){ reviews[editIndex]={name,location,text,stars:currentStars}; editIndex=null; }
+  else{ reviews.push({name,location,text,stars:currentStars}); }
   localStorage.setItem('marketReviews', JSON.stringify(reviews));
-  document.getElementById('reviewName').value=''; document.getElementById('reviewLocation').value=''; document.getElementById('reviewText').value='';
+  document.getElementById('reviewName').value='';
+  document.getElementById('reviewLocation').value='';
+  document.getElementById('reviewText').value='';
   currentStars=5; updateStarsDisplay(currentStars); loadReviews();
-}
-function editReview(index){
-  const reviews = JSON.parse(localStorage.getItem('marketReviews'))||[]; const r = reviews[index];
-  document.getElementById('reviewName').value = r.name; document.getElementById('reviewLocation').value = r.location; document.getElementById('reviewText').value = r.text;
-  currentStars = r.stars; updateStarsDisplay(currentStars); editIndex = index;
-}
-function deleteReview(index){
-  if(!confirm('Are you sure you want to delete this review?')) return;
-  const reviews = JSON.parse(localStorage.getItem('marketReviews'))||[]; reviews.splice(index,1); localStorage.setItem('marketReviews',JSON.stringify(reviews)); loadReviews();
 }
 loadReviews();
 </script>
