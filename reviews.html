@@ -5,176 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Reviews - MarketList</title>
 <link rel="stylesheet" href="style.css">
-<style>
-/* Header Menu Bar */
-.headerbar .inner {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-}
-.headerbar .brand {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-.headerbar .brand img {
-  height: 40px;
-  margin-right: 10px;
-}
-.headerbar .brand .title {
-  font-size: 20px;
-  font-weight: bold;
-  color: #00a859;
-}
-.headerbar .nav a {
-  margin-left: 20px;
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-}
-.headerbar .nav a:hover,
-.headerbar .nav a.active {
-  color: #00a859;
-}
-
-/* Floating Chat Bot */
-.chatbot-btn {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  background: #ffffff;
-  color: #00a859;
-  border: none;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  font-size: 26px;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  animation: bounce 2s infinite;
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-@keyframes bounce {
-  0%,20%,50%,80%,100% { transform: translateY(0); }
-  40% { transform: translateY(-10px); }
-  60% { transform: translateY(-5px); }
-}
-
-/* Chat overlay */
-.chat-overlay {
-  position: fixed;
-  bottom: 90px;
-  right: 25px;
-  width: 320px;
-  max-height: 420px;
-  background: rgba(255,255,255,0.95);
-  border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 1000;
-  animation: fadeInUp 0.4s ease;
-}
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Chat header */
-.chat-header {
-  background: linear-gradient(135deg, #00a859, #ff8c00);
-  color: #fff;
-  text-align: center;
-  padding: 10px;
-  font-weight: bold;
-}
-
-/* Chat body */
-.chat-body {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-  font-size: 14px;
-  color: #000;
-}
-
-/* Chat input area */
-.chat-input {
-  display: flex;
-  border-top: 1px solid #ccc;
-}
-.chat-input input {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  outline: none;
-}
-.chat-input button {
-  background: #00a859;
-  color: #fff;
-  border: none;
-  padding: 10px 15px;
-  cursor: pointer;
-}
-
-/* Messages */
-.message {
-  margin: 8px 0;
-  line-height: 1.4;
-}
-.message.user {
-  text-align: right;
-  color: #00a859;
-}
-.message.bot {
-  text-align: left;
-  color: #000;
-}
-
-/* Review system */
-.review-form {
-  background: #f9f9f9;
-  padding: 20px;
-  border-radius: 12px;
-  margin-top: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-.review-form input, .review-form textarea {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-.review-form button {
-  background: #00a859;
-  color: #fff;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-}
-.review-form button:hover {
-  background: #008f4f;
-}
-#starContainer {
-  margin: 10px 0;
-}
-.star {
-  font-size: 22px;
-  color: #ccc;
-  cursor: pointer;
-}
-.star.active {
-  color: gold;
-}
-</style>
 </head>
 
 <body>
@@ -240,7 +70,9 @@
 </div>
 
 <script>
-/* Chatbot */
+/* =======================
+   Chatbot Functions
+======================= */
 const chatOverlay = document.getElementById('chatOverlay');
 const chatBody = document.getElementById('chatBody');
 const chatInput = document.getElementById('chatInput');
@@ -249,77 +81,112 @@ function toggleChat() {
   chatOverlay.style.display = (chatOverlay.style.display === 'flex') ? 'none' : 'flex';
   chatOverlay.style.flexDirection = 'column';
 }
-function handleKeyPress(e) { if (e.key==='Enter'){ e.preventDefault(); sendMessage(); } }
+
+function handleKeyPress(e) {
+  if(e.key === 'Enter'){ e.preventDefault(); sendMessage(); }
+}
+
 function sendMessage() {
   const msg = chatInput.value.trim();
   if(!msg) return;
-  const userMsg = document.createElement('div'); userMsg.className='message user'; userMsg.textContent=msg;
-  chatBody.appendChild(userMsg); chatInput.value=''; chatBody.scrollTop=chatBody.scrollHeight;
+  const userMsg = document.createElement('div');
+  userMsg.className='message user';
+  userMsg.textContent=msg;
+  chatBody.appendChild(userMsg);
+  chatInput.value='';
+  chatBody.scrollTop=chatBody.scrollHeight;
 
   setTimeout(()=>{
-    const botMsg = document.createElement('div'); botMsg.className='message bot';
+    const botMsg = document.createElement('div');
+    botMsg.className='message bot';
     botMsg.textContent=getAIResponse(msg);
-    chatBody.appendChild(botMsg); chatBody.scrollTop=chatBody.scrollHeight;
+    chatBody.appendChild(botMsg);
+    chatBody.scrollTop=chatBody.scrollHeight;
   },800);
 }
 
-/* FULL 100 Q&A Chatbot */
 function getAIResponse(msg){
-  const q=msg.toLowerCase(); let ans="Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
+  const q = msg.toLowerCase();
+  let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
   if(q.includes("what is marketlist")) ans="MarketList is an online service that lets you order groceries and other items from local markets, then delivers them straight to your door.";
   else if(q.includes("how does marketlist work")) ans="You just fill out your shopping list, pick a market, and submit it. Our team will buy your items and deliver them to you.";
-  // …include all other Q&A as in your existing script...
+  // Add all other Q&A here as in your main script...
   return ans;
 }
 
-/* Review system */
-let currentStars=5; let editIndex=null;
-const stars=document.querySelectorAll('#starContainer .star');
-function updateStarsDisplay(num){ stars.forEach((s,i)=>{ s.textContent=i<num?'★':'☆'; s.classList.toggle('active',i<num); }); }
-stars.forEach(s=>{ s.addEventListener('click',()=>{ currentStars=parseInt(s.getAttribute('data-value')); updateStarsDisplay(currentStars); }); });
+/* =======================
+   Review System
+======================= */
+let currentStars = 5;
+let editIndex = null;
+const stars = document.querySelectorAll('#starContainer .star');
+
+function updateStarsDisplay(num){
+  stars.forEach((s,i)=>{
+    s.textContent = i<num?'★':'☆';
+    s.classList.toggle('active', i<num);
+  });
+}
+
+stars.forEach(s=>{
+  s.addEventListener('click', ()=>{
+    currentStars = parseInt(s.getAttribute('data-value'));
+    updateStarsDisplay(currentStars);
+  });
+});
 updateStarsDisplay(currentStars);
 
 function loadReviews(){
-  const reviews=JSON.parse(localStorage.getItem('marketReviews'))||[];
-  const feed=document.getElementById('reviewsFeed'); feed.innerHTML='';
+  const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
+  const feed = document.getElementById('reviewsFeed'); feed.innerHTML='';
   reviews.forEach((r,index)=>{
-    const article=document.createElement('article');
-    let starsHtml=''; for(let i=0;i<5;i++){ starsHtml+=i<r.stars?'<span style="color: gold;">★</span>':'<span style="color: #ccc;">☆</span>'; }
-    article.innerHTML=`<p><strong>${r.name} — ${r.location}</strong> ${starsHtml}</p><p>${r.text}</p>
-      <div class="review-actions"><button onclick="editReview(${index})">Edit</button><button onclick="deleteReview(${index})">Delete</button></div>`;
+    const article = document.createElement('article');
+    let starsHtml='';
+    for(let i=0;i<5;i++){ starsHtml += i<r.stars ? '<span style="color: gold;">★</span>' : '<span style="color: #ccc;">☆</span>'; }
+    article.innerHTML = `<p><strong>${r.name} — ${r.location}</strong> ${starsHtml}</p>
+      <p>${r.text}</p>
+      <div class="review-actions">
+        <button onclick="editReview(${index})">Edit</button>
+        <button onclick="deleteReview(${index})">Delete</button>
+      </div>`;
     feed.prepend(article);
   });
 }
+
 function addOrUpdateReview(){
-  const name=document.getElementById('reviewName').value.trim();
-  const location=document.getElementById('reviewLocation').value.trim();
-  const text=document.getElementById('reviewText').value.trim();
+  const name = document.getElementById('reviewName').value.trim();
+  const location = document.getElementById('reviewLocation').value.trim();
+  const text = document.getElementById('reviewText').value.trim();
   if(!name||!location||!text){ alert('Please fill all fields.'); return; }
-  const reviews=JSON.parse(localStorage.getItem('marketReviews'))||[];
+  const reviews = JSON.parse(localStorage.getItem('marketReviews'))||[];
   if(editIndex!==null){ reviews[editIndex]={name,location,text,stars:currentStars}; editIndex=null; }
   else{ reviews.push({name,location,text,stars:currentStars}); }
-  localStorage.setItem('marketReviews',JSON.stringify(reviews));
+  localStorage.setItem('marketReviews', JSON.stringify(reviews));
   document.getElementById('reviewName').value='';
   document.getElementById('reviewLocation').value='';
   document.getElementById('reviewText').value='';
   currentStars=5; updateStarsDisplay(currentStars);
   loadReviews();
 }
+
 function editReview(index){
-  const reviews=JSON.parse(localStorage.getItem('marketReviews'))||[];
-  const r=reviews[index];
-  document.getElementById('reviewName').value=r.name;
-  document.getElementById('reviewLocation').value=r.location;
-  document.getElementById('reviewText').value=r.text;
-  currentStars=r.stars; updateStarsDisplay(currentStars);
-  editIndex=index;
+  const reviews = JSON.parse(localStorage.getItem('marketReviews'))||[];
+  const r = reviews[index];
+  document.getElementById('reviewName').value = r.name;
+  document.getElementById('reviewLocation').value = r.location;
+  document.getElementById('reviewText').value = r.text;
+  currentStars = r.stars; updateStarsDisplay(currentStars);
+  editIndex = index;
 }
+
 function deleteReview(index){
   if(!confirm('Are you sure you want to delete this review?')) return;
-  const reviews=JSON.parse(localStorage.getItem('marketReviews'))||[];
-  reviews.splice(index,1); localStorage.setItem('marketReviews',JSON.stringify(reviews));
+  const reviews = JSON.parse(localStorage.getItem('marketReviews'))||[];
+  reviews.splice(index,1);
+  localStorage.setItem('marketReviews', JSON.stringify(reviews));
   loadReviews();
 }
+
 loadReviews();
 </script>
 
