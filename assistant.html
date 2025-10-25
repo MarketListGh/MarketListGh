@@ -4,29 +4,55 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Assistant - MarketList</title>
-<link rel="stylesheet" href="style.css">
 <style>
-<!-- Header -->
-<div class="headerbar">
-  <div class="inner">
-    <div class="brand" onclick="location.href='index.html'">
-      <img src="logo.png" alt="MarketList">
-      <div class="title">MarketList</div>
-    </div>
-    <nav class="nav">
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="reviews.html">Reviews</a>
-      <a href="assistant.html" class="active">Assistant</a>
-    </nav>
-  </div>
-</div>
+/* === Reset and base === */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+body { background: #f9f9f9; }
 
-/* Chat container styles */
+/* === Header (EXACT same as About/Index) === */
+.headerbar {
+  background: #06b25f;
+  padding: 10px 25px;
+}
+.headerbar .inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.brand img {
+  height: 40px; /* ✅ Larger image */
+  margin-right: 8px;
+}
+.brand .title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+}
+.nav a {
+  color: #fff;
+  text-decoration: none; /* ✅ No underline */
+  margin-left: 25px;
+  font-weight: bold;
+  font-size: 13.5px; /* ✅ Smaller font */
+  transition: opacity 0.3s ease;
+}
+.nav a:hover {
+  opacity: 0.8;
+}
+.nav a.active {
+  text-decoration: none; /* ✅ No underline active */
+}
+
+/* === Chat container === */
 .chat-container {
   max-width: 700px;
   margin: 40px auto;
-  background: #f9f9f9;
+  background: #fff;
   border-radius: 15px;
   padding: 20px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -86,90 +112,90 @@
   background: #007b3e;
 }
 
-/* Footer styles (copied from index.html) */
+/* === Footer === */
 .footer {
-  background: #00a859;
-  color: #fff;
   text-align: center;
-  padding: 15px 10px;
-  font-size: 14px;
+  padding: 15px;
+  background: #eee;
   margin-top: 40px;
+  color: #333;
+  font-size: 14px;
 }
 </style>
 </head>
 
 <body>
-  <!-- Header -->
-  <header class="headerbar">
-    <div class="inner">
-      <a href="index.html" class="brand">
-        <img src="images/logo.png" alt="MarketList Logo">
-        <span>MarketList</span>
-      </a>
-      <nav>
-        <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="reviews.html">Reviews</a>
-        <a href="assistant.html" class="active">Assistant</a>
-        <a href="contact.html">Contact</a>
-      </nav>
-    </div>
-  </header>
 
-  <!-- Chat Section -->
-  <div class="chat-container">
-    <div class="chat-box" id="chat-box">
-      <div class="bot-message">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>
+<!-- Header -->
+<div class="headerbar">
+  <div class="inner">
+    <div class="brand" onclick="location.href='index.html'">
+      <img src="logo.png" alt="MarketList">
+      <div class="title">MarketList</div>
     </div>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="reviews.html">Reviews</a>
+      <a href="assistant.html" class="active">Assistant</a>
+    </nav>
+  </div>
+</div>
 
-    <div class="chat-input-area">
-      <input type="text" id="user-input" placeholder="Type your message...">
-      <button id="send-btn">Send</button>
-    </div>
+<!-- Chat Section -->
+<div class="chat-container">
+  <div class="chat-box" id="chat-box">
+    <div class="bot-message">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>
   </div>
 
-  <!-- Footer -->
-  <footer class="footer">
-    © 2025 MarketList — Bringing Market to Your Doorstep
-  </footer>
+  <div class="chat-input-area">
+    <input type="text" id="user-input" placeholder="Type your message...">
+    <button id="send-btn">Send</button>
+  </div>
+</div>
 
-  <script>
-  const sendBtn = document.getElementById("send-btn");
-  const userInput = document.getElementById("user-input");
-  const chatBox = document.getElementById("chat-box");
+<!-- Footer -->
+<footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
 
-  sendBtn.addEventListener("click", () => {
-    const userText = userInput.value.trim();
-    if (userText === "") return;
+<script>
+const sendBtn = document.getElementById("send-btn");
+const userInput = document.getElementById("user-input");
+const chatBox = document.getElementById("chat-box");
 
-    const userMsg = document.createElement("div");
-    userMsg.classList.add("user-message");
-    userMsg.textContent = userText;
-    chatBox.appendChild(userMsg);
+sendBtn.addEventListener("click", sendMessage);
+userInput.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
 
-    const botReply = document.createElement("div");
-    botReply.classList.add("bot-message");
-    botReply.textContent = "Typing...";
-    chatBox.appendChild(botReply);
+function sendMessage() {
+  const userText = userInput.value.trim();
+  if (userText === "") return;
 
+  const userMsg = document.createElement("div");
+  userMsg.classList.add("user-message");
+  userMsg.textContent = userText;
+  chatBox.appendChild(userMsg);
+
+  const botReply = document.createElement("div");
+  botReply.classList.add("bot-message");
+  botReply.textContent = "Typing...";
+  chatBox.appendChild(botReply);
+
+  chatBox.scrollTop = chatBox.scrollHeight;
+  userInput.value = "";
+
+  setTimeout(() => {
+    botReply.textContent = getBotResponse(userText);
     chatBox.scrollTop = chatBox.scrollHeight;
-    userInput.value = "";
+  }, 1000);
+}
 
-    setTimeout(() => {
-      botReply.textContent = getBotResponse(userText);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }, 1000);
-  });
-
-  function getBotResponse(msg) {
-    const q = msg.toLowerCase();
-    if (q.includes("marketlist")) return "MarketList helps you order groceries and market items online for quick delivery.";
-    if (q.includes("delivery")) return "We deliver across most parts of Greater Accra between 8 AM and 6 PM.";
-    if (q.includes("payment")) return "You can pay via Mobile Money or Paystack securely.";
-    if (q.includes("time")) return "Our operating hours are 8:00 AM - 6:00 PM, Monday to Saturday.";
-    return "I’m not sure about that, but you can reach our support at 0537351866 for help.";
-  }
-  </script>
+function getBotResponse(msg) {
+  const q = msg.toLowerCase();
+  if (q.includes("marketlist")) return "MarketList helps you order groceries and market items online for quick delivery.";
+  if (q.includes("delivery")) return "We deliver across most parts of Greater Accra between 8 AM and 6 PM.";
+  if (q.includes("payment")) return "You can pay via Mobile Money or Paystack securely.";
+  if (q.includes("time")) return "Our operating hours are 8:00 AM - 6:00 PM, Monday to Saturday.";
+  return "I’m not sure about that, but you can reach our support at 0537351866 for help.";
+}
+</script>
 </body>
 </html>
-
