@@ -77,11 +77,28 @@
   background: #0056b3;
 }
 
-/* ✅ Fixed Menu Bar (matches Index.html exactly) */
+<!-- Header (exact copy from Index.html) -->
+<div class="headerbar">
+  <div class="inner">
+    <div class="brand" onclick="location.href='index.html'">
+      <img src="logo.png" alt="MarketList">
+      <div class="title">MarketList</div>
+    </div>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="reviews.html" class="active">Reviews</a>
+      <a href="assistant.html">Assistant</a>
+    </nav>
+  </div>
+</div>
+
+<style>
 .headerbar {
   background:#00a859; 
   color:#fff; 
   padding:10px 20px;
+  font-family: Arial, sans-serif;
 }
 .headerbar .inner {
   display:flex; 
@@ -93,17 +110,17 @@
   align-items:center; 
   cursor:pointer; 
 }
-.headerbar .brand img { width:40px; margin-right:10px; }
+.headerbar .brand img { width:40px; height:40px; margin-right:10px; }
+.headerbar .brand .title { font-size:20px; font-weight:bold; color:#fff; }
 .headerbar nav a { 
   color:#fff; 
   margin-left:20px; 
   text-decoration:none; 
   font-weight:bold; 
+  font-size:16px;
 }
 .headerbar nav a:hover,
-.headerbar nav a.active { 
-  color:#ffeb3b; 
-}
+.headerbar nav a.active { color:#ffeb3b; }
 </style>
 </head>
 <body>
@@ -199,3 +216,4 @@ window.onload = () => {
 
 </body>
 </html>
+
