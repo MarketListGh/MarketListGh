@@ -7,39 +7,58 @@
 <link rel="stylesheet" href="style.css">
 <style>
 /* =======================
-   Menu Bar (matches Index.html)
+   MENU BAR (exact match with Index.html & About.html)
 ======================= */
 .headerbar {
-  background:#00a859; 
-  color:#fff; 
-  padding:10px 20px;
-}
-.headerbar .inner {
-  display:flex; 
-  align-items:center; 
+  background-color: #00a859;
+  padding: 12px 60px;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
+  font-family: "Poppins", Arial, sans-serif;
 }
-.headerbar .brand { 
-  display:flex; 
-  align-items:center; 
-  cursor:pointer; 
+
+.headerbar .inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
-.headerbar .brand img { width:40px; margin-right:10px; }
-.headerbar .brand .title { font-size:20px; font-weight:bold; color:#fff; }
-.headerbar nav a { 
-  color:#fff; 
-  margin-left:20px; 
-  text-decoration:none; 
-  font-weight:bold; 
-  font-size:16px;
+
+.headerbar .brand {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
 }
-.headerbar nav a:hover,
-.headerbar nav a.active { 
-  color:#ffeb3b; 
+
+.headerbar .brand img {
+  width: 35px;
+  height: auto;
+  margin-right: 8px;
+}
+
+.headerbar .brand .title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.headerbar .nav a {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  text-decoration: none;
+  margin-left: 25px;
+  transition: color 0.3s;
+}
+
+.headerbar .nav a:hover,
+.headerbar .nav a.active {
+  color: #ffeb3b;
 }
 
 /* =======================
-   Floating Chatbot (matches Index.html)
+   Floating Chatbot
 ======================= */
 .chatbot-btn {
   position: fixed;
@@ -59,11 +78,13 @@
   animation: bounce 2s infinite;
   z-index: 10000;
 }
+
 @keyframes bounce {
   0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
   40% { transform: translateY(-12px); }
   60% { transform: translateY(-6px); }
 }
+
 .chat-overlay {
   display: none;
   position: fixed;
@@ -78,6 +99,7 @@
   flex-direction: column;
   overflow: hidden;
 }
+
 .chat-header {
   background: #00a859;
   color: #fff;
@@ -85,6 +107,7 @@
   text-align: center;
   font-weight: bold;
 }
+
 .chat-body {
   flex: 1;
   padding: 10px;
@@ -95,6 +118,7 @@
   flex-direction: column;
   gap: 8px;
 }
+
 .chat-message, .message.bot, .message.user {
   padding: 8px 10px;
   border-radius: 10px;
@@ -102,15 +126,34 @@
   word-wrap: break-word;
   font-size: 14px;
 }
+
 .user { background: #f2f2f2; color: #000; align-self: flex-end; }
 .bot { background: #d8ecff; color: #000; align-self: flex-start; }
+
 .chat-input {
   display: flex;
   border-top: 1px solid #ddd;
 }
-.chat-input input { flex: 1; border: none; padding: 14px; font-size: 14px; outline: none; }
-.chat-input button { background: #00a859; color: #fff; border: none; padding: 10px 15px; cursor: pointer; }
-.chat-input button:hover { background: #007b3e; }
+
+.chat-input input {
+  flex: 1;
+  border: none;
+  padding: 14px;
+  font-size: 14px;
+  outline: none;
+}
+
+.chat-input button {
+  background: #00a859;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.chat-input button:hover {
+  background: #007b3e;
+}
 
 /* =======================
    Review Card
@@ -129,11 +172,11 @@
 <body>
 
 <!-- Header -->
-<div class="headerbar">
+<header class="headerbar">
   <div class="inner">
     <div class="brand" onclick="location.href='index.html'">
-      <img src="logo.png" alt="MarketList">
-      <div class="title">MarketList</div>
+      <img src="logo.png" alt="MarketList Logo">
+      <span class="title">MarketList</span>
     </div>
     <nav class="nav">
       <a href="index.html">Home</a>
@@ -142,7 +185,7 @@
       <a href="assistant.html">Assistant</a>
     </nav>
   </div>
-</div>
+</header>
 
 <main class="container">
   <section class="card fade-in">
