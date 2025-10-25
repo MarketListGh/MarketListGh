@@ -9,10 +9,10 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
 body { background: #f9f9f9; }
 
-/* === Header (EXACT same as About) === */
+/* === Header (EXACT same as About/Index) === */
 .headerbar {
   background: #06b25f;
-  padding: 12px 30px;
+  padding: 10px 25px;
 }
 .headerbar .inner {
   display: flex;
@@ -25,27 +25,27 @@ body { background: #f9f9f9; }
   cursor: pointer;
 }
 .brand img {
-  height: 32px;
+  height: 40px; /* ✅ Larger image */
   margin-right: 8px;
 }
 .brand .title {
-  font-size: 20px;
+  font-size: 18px; /* ✅ Slightly smaller text */
   font-weight: bold;
   color: #fff;
 }
 .nav a {
   color: #fff;
-  text-decoration: none;
+  text-decoration: none; /* ✅ No underline */
   margin-left: 25px;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 13.5px; /* ✅ Smaller font size */
   transition: opacity 0.3s ease;
 }
 .nav a:hover {
-  opacity: 0.8;
+  opacity: 0.8; /* ✅ Simple hover */
 }
 .nav a.active {
-  text-decoration: underline;
+  text-decoration: none; /* ✅ No underline on active */
 }
 
 /* === Chat Container === */
@@ -85,7 +85,14 @@ body { background: #f9f9f9; }
 .input-area button:hover { background: #007b3e; }
 
 /* === Footer === */
-.footer { text-align:center; padding:15px; background:#eee; margin-top:40px; color:#333; font-size:14px; }
+.footer {
+  text-align: center;
+  padding: 15px;
+  background: #eee;
+  margin-top: 40px;
+  color: #333;
+  font-size: 14px;
+}
 </style>
 </head>
 <body>
