@@ -9,28 +9,10 @@
 /* =======================
    Menu Bar (matches Index.html)
 ======================= */
-<!-- Header (exact copy from Index.html) -->
-<div class="headerbar">
-  <div class="inner">
-    <div class="brand" onclick="location.href='index.html'">
-      <img src="logo.png" alt="MarketList">
-      <div class="title">MarketList</div>
-    </div>
-    <nav class="nav">
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="reviews.html" class="active">Reviews</a>
-      <a href="assistant.html">Assistant</a>
-    </nav>
-  </div>
-</div>
-
-<style>
 .headerbar {
   background:#00a859; 
   color:#fff; 
   padding:10px 20px;
-  font-family: Arial, sans-serif;
 }
 .headerbar .inner {
   display:flex; 
@@ -42,7 +24,7 @@
   align-items:center; 
   cursor:pointer; 
 }
-.headerbar .brand img { width:40px; height:40px; margin-right:10px; }
+.headerbar .brand img { width:40px; margin-right:10px; }
 .headerbar .brand .title { font-size:20px; font-weight:bold; color:#fff; }
 .headerbar nav a { 
   color:#fff; 
@@ -52,8 +34,8 @@
   font-size:16px;
 }
 .headerbar nav a:hover,
-.headerbar nav a.active { color:#ffeb3b; }
-</style>
+.headerbar nav a.active { 
+  color:#ffeb3b; 
 }
 
 /* =======================
@@ -129,6 +111,18 @@
 .chat-input input { flex: 1; border: none; padding: 14px; font-size: 14px; outline: none; }
 .chat-input button { background: #00a859; color: #fff; border: none; padding: 10px 15px; cursor: pointer; }
 .chat-input button:hover { background: #007b3e; }
+
+/* =======================
+   Review Card
+======================= */
+.container { max-width:700px; margin:40px auto; padding:0 20px; }
+.card { background:#fff; color:#000; padding:30px; border-radius:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2); }
+.card h1 { margin-bottom:20px; }
+.review-form { margin-top:30px; display:flex; flex-direction:column; gap:10px; }
+.review-form input, .review-form textarea { padding:10px; border-radius:8px; border:1px solid #ccc; font-size:15px; width:100%; }
+.review-form button { margin-top:10px; padding:12px 18px; border:none; border-radius:8px; background:#00a859; color:#fff; cursor:pointer; font-size:16px; }
+.review-form button:hover { background:#007b3e; }
+#starContainer span { cursor:pointer; font-size:20px; margin-right:4px; }
 </style>
 </head>
 
@@ -196,7 +190,7 @@
 
 <script>
 /* =======================
-   Chatbot Functions (Index style)
+   Chatbot Functions
 ======================= */
 const chatOverlay = document.getElementById('chatOverlay');
 const chatBody = document.getElementById('chatBody');
@@ -322,4 +316,3 @@ loadReviews();
 
 </body>
 </html>
-
