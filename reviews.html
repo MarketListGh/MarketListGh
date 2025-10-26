@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Reviews - MarketList</title>
 <style>
-/* Reset & base */
 * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
 body { background:#f9f9f9; color:#222; }
 
@@ -15,78 +14,57 @@ body { background:#f9f9f9; color:#222; }
   color:#fff;
   padding:10px 20px;
 }
-.headerbar .inner {
-  display:flex;
-  align-items:center;
-  justify-content: space-between;
-}
-.headerbar .brand {
-  display:flex;
-  align-items:center;
-  cursor:pointer;
-}
+.headerbar .inner { display:flex; align-items:center; justify-content: space-between; }
+.headerbar .brand { display:flex; align-items:center; cursor:pointer; }
 .headerbar .brand img { width:40px; margin-right:10px; }
-.headerbar .brand .title {
-  font-size:20px;
-  font-weight: normal;
-  color:#fff;
-}
-.headerbar nav a {
-  color:#fff;
-  margin-left:20px;
-  text-decoration:none;
-  font-weight:bold;
-  font-size:13.5px;
-}
-.headerbar nav a:hover {
-  opacity:0.9;
-  text-decoration:none;
-}
+.headerbar .brand .title { font-size:20px; font-weight: normal; color:#fff; }
+.headerbar nav a { color:#fff; margin-left:20px; text-decoration:none; font-weight:bold; font-size:13.5px; }
+.headerbar nav a:hover { opacity:0.9; text-decoration:none; }
 
 /* Main container */
-.container {
-  max-width:700px;
-  margin:40px auto;
-  padding:0 20px;
-}
+.container { max-width:700px; margin:40px auto; padding:0 20px; }
 
-/* Card with gradient inside */
+/* Card with gradient */
 .card {
   background: linear-gradient(135deg, #00a859, #ff8c00);
-  color:#000;
+  color:#fff;
   padding:30px;
   border-radius:20px;
   box-shadow:0 4px 15px rgba(0,0,0,0.12);
 }
 
-/* Card inner white content */
-.card-inner {
-  background:#fff;
-  padding:20px;
-  border-radius:15px;
-}
+/* Card headings */
+.card h1, .card h2 { margin-bottom:18px; }
 
 /* Review form */
 .review-form { margin-top:22px; display:flex; flex-direction:column; gap:10px; }
 .review-form label { font-weight:600; font-size:14px; }
 .review-form input, .review-form textarea {
-  padding:10px; border-radius:8px; border:1px solid #ddd; font-size:15px; width:100%;
+  padding:10px; border-radius:8px; border:none; font-size:15px; width:100%;
 }
 .review-form button {
   margin-top:8px; padding:12px 18px; border:none; border-radius:8px;
-  background:#00a859; color:#fff; cursor:pointer; font-size:15px; font-weight:700;
+  background:#fff; color:#00a859; cursor:pointer; font-size:15px; font-weight:700;
 }
-.review-form button:hover { background:#008f4f; }
+.review-form button:hover { background:#f0f0f0; }
 
+/* Star rating */
 #starContainer { margin:8px 0; }
 #starContainer .star { cursor:pointer; font-size:20px; color:#ccc; margin-right:6px; user-select:none; }
 #starContainer .star.active { color:gold; }
 
 /* Reviews feed */
-#reviewsFeed article { padding:12px 10px; border-radius:10px; background:#fafafa; margin-bottom:12px; box-shadow:0 2px 6px rgba(0,0,0,0.03); }
+#reviewsFeed article {
+  padding:12px 10px;
+  border-radius:12px;
+  background: linear-gradient(135deg, #00a859, #ff8c00);
+  color:#fff;
+  margin-bottom:12px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.15);
+}
 .review-actions { margin-top:8px; }
 .review-actions button { margin-right:8px; padding:6px 10px; border-radius:6px; border:none; cursor:pointer; font-size:13px; }
-.review-actions button:first-child { background:#f0f0f0; color:#333; }
+.review-actions button:first-child { background:#fff; color:#00a859; }
 .review-actions button:nth-child(2) { background:#ff4b4b; color:#fff; }
 
 /* Footer */
@@ -130,40 +108,15 @@ body { background:#f9f9f9; color:#222; }
   flex-direction: column;
   overflow: hidden;
 }
-.chat-header {
-  background: #00a859;
-  color: #fff;
-  padding: 10px;
-  text-align: center;
-  font-weight: bold;
-}
-.chat-body {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-  font-size: 14px;
-  color: #333;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.chat-message, .message.bot, .message.user {
-  padding: 8px 10px;
-  border-radius: 10px;
-  max-width: 80%;
-  word-wrap: break-word;
-  font-size: 14px;
-}
+.chat-header { background: #00a859; color: #fff; padding: 10px; text-align: center; font-weight: bold; }
+.chat-body { flex: 1; padding: 10px; overflow-y: auto; font-size: 14px; color: #333; display: flex; flex-direction: column; gap: 8px; }
+.chat-message, .message.bot, .message.user { padding: 8px 10px; border-radius: 10px; max-width: 80%; word-wrap: break-word; font-size: 14px; }
 .user { background: #f2f2f2; color: #000; align-self: flex-end; }
 .bot { background: #d8ecff; color: #000; align-self: flex-start; }
-.chat-input {
-  display: flex;
-  border-top: 1px solid #ddd;
-}
+.chat-input { display: flex; border-top: 1px solid #ddd; }
 .chat-input input { flex: 1; border: none; padding: 14px; font-size: 14px; outline: none; }
 .chat-input button { background: #00a859; color: #fff; border: none; padding: 10px 15px; cursor: pointer; }
 .chat-input button:hover { background: #007b3e; }
-
 </style>
 </head>
 <body>
@@ -186,33 +139,32 @@ body { background:#f9f9f9; color:#222; }
 
 <main class="container">
   <section class="card">
-    <div class="card-inner">
-      <h1>Customer Reviews</h1>
-      <div id="reviewsFeed"></div>
+    <h1>Customer Reviews</h1>
 
-      <div class="review-form" aria-labelledby="submit-review-heading">
-        <h2 id="submit-review-heading">Submit Your Review</h2>
+    <div id="reviewsFeed"></div>
 
-        <label for="reviewName">Your Name</label>
-        <input id="reviewName" type="text" placeholder="Enter your name" required>
+    <div class="review-form" aria-labelledby="submit-review-heading">
+      <h2 id="submit-review-heading">Submit Your Review</h2>
 
-        <label for="reviewLocation">Your Location</label>
-        <input id="reviewLocation" type="text" placeholder="e.g., Accra, Kasoa" required>
+      <label for="reviewName">Your Name</label>
+      <input id="reviewName" type="text" placeholder="Enter your name" required>
 
-        <label>Star Rating</label>
-        <div id="starContainer" aria-hidden="false">
-          <span class="star" data-value="1">☆</span>
-          <span class="star" data-value="2">☆</span>
-          <span class="star" data-value="3">☆</span>
-          <span class="star" data-value="4">☆</span>
-          <span class="star" data-value="5">☆</span>
-        </div>
+      <label for="reviewLocation">Your Location</label>
+      <input id="reviewLocation" type="text" placeholder="e.g., Accra, Kasoa" required>
 
-        <label for="reviewText">Your Review</label>
-        <textarea id="reviewText" rows="4" placeholder="Write your review here..." required></textarea>
-
-        <button type="button" onclick="addOrUpdateReview()">Submit Review</button>
+      <label>Star Rating</label>
+      <div id="starContainer" aria-hidden="false">
+        <span class="star" data-value="1">☆</span>
+        <span class="star" data-value="2">☆</span>
+        <span class="star" data-value="3">☆</span>
+        <span class="star" data-value="4">☆</span>
+        <span class="star" data-value="5">☆</span>
       </div>
+
+      <label for="reviewText">Your Review</label>
+      <textarea id="reviewText" rows="4" placeholder="Write your review here..." required></textarea>
+
+      <button type="button" onclick="addOrUpdateReview()">Submit Review</button>
     </div>
   </section>
 </main>
@@ -234,13 +186,10 @@ body { background:#f9f9f9; color:#222; }
 </div>
 
 <script>
-/* =======================
-   Chatbot Functions
-======================= */
+/* Chatbot */
 const chatOverlay = document.getElementById('chatOverlay');
 const chatBody = document.getElementById('chatBody');
 const chatInput = document.getElementById('chatInput');
-
 function toggleChat() {
   const isOpen = chatOverlay.style.display === 'flex';
   chatOverlay.style.display = isOpen ? 'none' : 'flex';
@@ -248,22 +197,16 @@ function toggleChat() {
   chatOverlay.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
 }
 function handleKeyPress(e){ if (e.key==='Enter'){ e.preventDefault(); sendMessage(); } }
-
 function sendMessage(){
   const msg = chatInput.value.trim();
   if (!msg) return;
   const userMsg = document.createElement('div'); userMsg.className='user'; userMsg.textContent = msg;
   chatBody.appendChild(userMsg);
   chatInput.value=''; chatBody.scrollTop = chatBody.scrollHeight;
-  setTimeout(()=>{
-    const botMsg = document.createElement('div'); botMsg.className='bot'; botMsg.textContent = getAIResponse(msg);
-    chatBody.appendChild(botMsg); chatBody.scrollTop = chatBody.scrollHeight;
-  },700);
+  setTimeout(()=>{ const botMsg = document.createElement('div'); botMsg.className='bot'; botMsg.textContent = getAIResponse(msg); chatBody.appendChild(botMsg); chatBody.scrollTop = chatBody.scrollHeight; },700);
 }
 
-/* =======================
-   Simple Q&A
-======================= */
+/* Simple Q&A */
 function getAIResponse(msg) {
   const q = msg.toLowerCase();
   let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
@@ -276,25 +219,20 @@ function getAIResponse(msg) {
   return ans;
 }
 
-/* =======================
-   Review System
-======================= */
+/* Review system */
 let currentStars = 5;
 let editIndex = null;
 const stars = document.querySelectorAll('#starContainer .star');
-
-function updateStarsDisplay(num){
-  stars.forEach((s,i)=>{ s.textContent = i < num ? '★' : '☆'; s.classList.toggle('active', i < num); });
-}
-stars.forEach(s=>{ s.addEventListener('click', ()=>{ currentStars = parseInt(s.dataset.value); updateStarsDisplay(currentStars); }); });
+function updateStarsDisplay(num){ stars.forEach((s,i)=>{ s.textContent = i<num?'★':'☆'; s.classList.toggle('active', i<num); }); }
+stars.forEach(s=>{ s.addEventListener('click', ()=>{ currentStars=parseInt(s.dataset.value); updateStarsDisplay(currentStars); }); });
 updateStarsDisplay(currentStars);
 
 function loadReviews(){
-  const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
-  const feed = document.getElementById('reviewsFeed'); feed.innerHTML = '';
+  const reviews = JSON.parse(localStorage.getItem('marketReviews'))||[];
+  const feed = document.getElementById('reviewsFeed'); feed.innerHTML='';
   reviews.forEach((r,index)=>{
     const article = document.createElement('article');
-    let starsHtml=''; for(let i=0;i<5;i++){ starsHtml += i < r.stars ? '<span style="color:gold">★</span>' : '<span style="color:#ccc">☆</span>'; }
+    let starsHtml=''; for(let i=0;i<5;i++){ starsHtml += i<r.stars ? '<span style="color:gold">★</span>' : '<span style="color:#fff">☆</span>'; }
     article.innerHTML = `<p><strong>${escapeHtml(r.name)} — ${escapeHtml(r.location)}</strong> ${starsHtml}</p><p>${escapeHtml(r.text)}</p>
       <div class="review-actions"><button onclick="editReview(${index})">Edit</button><button onclick="deleteReview(${index})">Delete</button></div>`;
     feed.prepend(article);
@@ -305,37 +243,34 @@ function addOrUpdateReview(){
   const name = document.getElementById('reviewName').value.trim();
   const location = document.getElementById('reviewLocation').value.trim();
   const text = document.getElementById('reviewText').value.trim();
-  if(!name || !location || !text){ alert('Please fill all fields.'); return; }
-  const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
-  if (editIndex !== null){ reviews[editIndex] = { name, location, text, stars: currentStars }; editIndex = null; }
-  else { reviews.push({ name, location, text, stars: currentStars }); }
+  if(!name||!location||!text){alert('Please fill all fields.'); return;}
+  const reviews = JSON.parse(localStorage.getItem('marketReviews'))||[];
+  if(editIndex!==null){reviews[editIndex]={name,location,text,stars:currentStars}; editIndex=null;}
+  else{reviews.push({name,location,text,stars:currentStars});}
   localStorage.setItem('marketReviews', JSON.stringify(reviews));
   document.getElementById('reviewName').value=''; document.getElementById('reviewLocation').value=''; document.getElementById('reviewText').value='';
-  currentStars = 5; updateStarsDisplay(currentStars); loadReviews();
+  currentStars=5; updateStarsDisplay(currentStars); loadReviews();
 }
 
 function editReview(index){
-  const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
-  const r = reviews[index];
-  if(!r) return;
-  document.getElementById('reviewName').value = r.name;
-  document.getElementById('reviewLocation').value = r.location;
-  document.getElementById('reviewText').value = r.text;
-  currentStars = r.stars || 5; updateStarsDisplay(currentStars);
-  editIndex = index;
+  const reviews = JSON.parse(localStorage.getItem('marketReviews'))||[];
+  const r = reviews[index]; if(!r) return;
+  document.getElementById('reviewName').value=r.name;
+  document.getElementById('reviewLocation').value=r.location;
+  document.getElementById('reviewText').value=r.text;
+  currentStars=r.stars||5; updateStarsDisplay(currentStars);
+  editIndex=index;
 }
 
 function deleteReview(index){
   if(!confirm('Are you sure you want to delete this review?')) return;
-  const reviews = JSON.parse(localStorage.getItem('marketReviews')) || [];
+  const reviews = JSON.parse(localStorage.getItem('marketReviews'))||[];
   reviews.splice(index,1);
   localStorage.setItem('marketReviews', JSON.stringify(reviews));
   loadReviews();
 }
 
-function escapeHtml(str){
-  return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[s]));
-}
+function escapeHtml(str){return String(str).replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[s]));}
 
 /* init */
 loadReviews();
