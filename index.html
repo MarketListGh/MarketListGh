@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MarketList — Home</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
+* { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
 
 /* Preloader overlay */
 #preloader {
@@ -46,44 +46,38 @@
 header, main, footer { opacity:0; transition: opacity 1s ease; }
 .visible { opacity:1; }
 
-/* ✅ Header (EXACT same as About and Index) */
+/* ✅ Header and Menu (exactly as About.html) */
 .headerbar {
-  background:#00a859;
-  color:#fff;
-  padding:10px 25px;
+  background:#00a859; 
+  color:#fff; 
+  padding:10px 20px;
 }
 .headerbar .inner {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  display:flex; 
+  align-items:center; 
+  justify-content: space-between;
 }
-.headerbar .brand {
-  display:flex;
-  align-items:center;
-  cursor:pointer;
+.headerbar .brand { 
+  display:flex; 
+  align-items:center; 
+  cursor:pointer; 
 }
-.headerbar .brand img {
-  height:40px; /* ✅ bigger image */
-  margin-right:8px;
-}
+.headerbar .brand img { width:40px; margin-right:10px; }
 .headerbar .brand .title {
-  font-size:13px; /* ✅ smaller text */
-  font-weight:normal; /* ✅ not bold */
+  font-size:20px;
+  font-weight:normal;
   color:#fff;
 }
 .headerbar nav a {
   color:#fff;
-  text-decoration:none; /* ✅ no underline */
-  margin-left:25px;
+  margin-left:20px;
+  text-decoration:none;
   font-weight:bold;
-  font-size:13px; /* ✅ consistent with About/Index */
-  transition:opacity 0.3s ease;
+  font-size:13.5px;
 }
 .headerbar nav a:hover {
-  opacity:0.8;
-}
-.headerbar nav a.active {
-  text-decoration:none; /* ✅ stays clean */
+  opacity:0.9;
+  text-decoration:none;
 }
 
 /* Main content */
@@ -96,7 +90,7 @@ main.container { max-width:700px; margin:40px auto; padding:20px; }
 .header-main { display:flex; align-items:center; margin-bottom:20px; }
 .header-main img { width:60px; margin-right:15px; }
 .header-main h1 { margin:0; }
-.slogan { font-style:italic; font-size:0.9em; }
+.slogan { font-style: normal; font-size:0.9em; }
 
 form label { display:block; margin-top:15px; font-weight:bold; }
 form input, form select, form textarea {
@@ -182,34 +176,14 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
   word-wrap: break-word;
   font-size: 14px;
 }
-.user-msg {
-  background: #f2f2f2;
-  color: #000;
-  align-self: flex-end;
-}
-.bot-msg {
-  background: #d8ecff;
-  color: #000;
-  align-self: flex-start;
-}
+.user-msg { background: #f2f2f2; color: #000; align-self: flex-end; }
+.bot-msg { background: #d8ecff; color: #000; align-self: flex-start; }
 .chat-input {
   display: flex;
   border-top: 1px solid #ddd;
 }
-.chat-input input {
-  flex: 1;
-  border: none;
-  padding: 14px;
-  font-size: 14px;
-  outline: none;
-}
-.chat-input button {
-  background: #00a859;
-  color: #fff;
-  border: none;
-  padding: 10px 15px;
-  cursor: pointer;
-}
+.chat-input input { flex: 1; border: none; padding: 14px; font-size: 14px; outline: none; }
+.chat-input button { background: #00a859; color: #fff; border: none; padding: 10px 15px; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -222,7 +196,7 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
   </div>
 </div>
 
-<!-- ✅ Header (copied from About/Index exactly) -->
+<!-- Header -->
 <div class="headerbar">
   <div class="inner">
     <div class="brand" onclick="location.href='index.html'">
@@ -433,14 +407,12 @@ function sendMessage() {
 function getAIResponse(msg) {
   const q = msg.toLowerCase();
   let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
-
   if (q.includes("what is marketlist")) ans = "MarketList is an online service that lets you order groceries and other items from local markets, then delivers them straight to your door.";
   else if (q.includes("how does marketlist work")) ans = "You just fill out your shopping list, pick a market, and submit it. Our team will buy your items and deliver them to you.";
   else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
   else if (q.includes("how much is delivery")) ans = "Delivery fees depend on your location and are added on top of your market total.";
   else if (q.includes("how do i pay") || q.includes("payment options")) ans = "You can pay using Mobile Money or Paystack, which is a safe online payment platform.";
   else if (q.includes("do i pay before delivery")) ans = "Yes, all payments must be made before we deliver your items.";
-
   return ans;
 }
 </script>
