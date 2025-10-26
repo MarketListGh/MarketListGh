@@ -7,49 +7,40 @@
 <style>
 /* === Reset and base === */
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-body { background: #f9f9f9; }
+body { 
+  background: linear-gradient(135deg, #00a859, #ff8c00); 
+  min-height: 100vh;
+}
 
-/* === Header (EXACT same as About/Index) === */
+/* === Header (like About.html) === */
 .headerbar {
-  background: #00a859;
-  padding: 10px 25px;
-  color: #fff;
+  background:#00a859; 
+  color:#fff; 
+  padding:10px 20px;
 }
 .headerbar .inner {
-  display: flex;
-  align-items: center;
+  display:flex; 
+  align-items:center; 
   justify-content: space-between;
 }
-.brand {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
+.headerbar .brand { display:flex; align-items:center; cursor:pointer; }
+.headerbar .brand img { width:40px; margin-right:10px; }
+.headerbar .brand .title {
+  font-size:20px;
+  font-weight:normal;
+  color:#fff;
 }
-.brand img {
-  height: 40px; /* ✅ Larger image */
-  margin-right: 8px;
+.headerbar nav a {
+  color:#fff;
+  margin-left:20px;
+  text-decoration:none;
+  font-weight:bold;
+  font-size:13.5px;
 }
-.brand .title {
-  font-size: 18px;
-  font-weight: bold;
-  color: #fff;
-}
-.nav a {
-  color: #fff;
-  text-decoration: none; /* ✅ No underline */
-  margin-left: 25px;
-  font-weight: bold;
-  font-size: 13.5px; /* ✅ Smaller font */
-  transition: opacity 0.3s ease;
-}
-.nav a:hover {
-  opacity: 0.8;
-}
-.nav a.active {
-  text-decoration: none; /* ✅ No underline active */
-}
+.headerbar nav a:hover { opacity:0.9; text-decoration:none; }
+.headerbar nav a.active { text-decoration:none; }
 
-/* === Chat container === */
+/* === Chat container (unchanged) === */
 .chat-container {
   max-width: 700px;
   margin: 40px auto;
@@ -109,9 +100,7 @@ body { background: #f9f9f9; }
   cursor: pointer;
   font-size: 15px;
 }
-.chat-input-area button:hover {
-  background: #007b3e;
-}
+.chat-input-area button:hover { background: #007b3e; }
 
 /* === Footer === */
 .footer {
@@ -194,12 +183,12 @@ function getAIResponse(msg) {
   const q = msg.toLowerCase();
   let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
 
-// 🛒 GENERAL QUESTIONS
-if (q.includes("what is marketlist")) ans = "MarketList is an online service that lets you order groceries and other items from local markets, then delivers them straight to your door.";
-else if (q.includes("how does marketlist work")) ans = "You just fill out your shopping list, pick a market, and submit it. Our team will buy your items and deliver them to you.";
-else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
-else if (q.includes("how much is delivery")) ans = "Delivery fees depend on your location and are added on top of your market total.";
-else if (q.includes("how do i pay") || q.includes("payment options")) ans = "You can pay using Mobile Money or Paystack, which is a safe online payment platform.";
+  // 🛒 GENERAL QUESTIONS
+  if (q.includes("what is marketlist")) ans = "MarketList is an online service that lets you order groceries and other items from local markets, then delivers them straight to your door.";
+  else if (q.includes("how does marketlist work")) ans = "You just fill out your shopping list, pick a market, and submit it. Our team will buy your items and deliver them to you.";
+  else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
+  else if (q.includes("how much is delivery")) ans = "Delivery fees depend on your location and are added on top of your market total.";
+  else if (q.includes("how do i pay") || q.includes("payment options")) ans = "You can pay using Mobile Money or Paystack, which is a safe online payment platform.";
 
   return ans;
 }
