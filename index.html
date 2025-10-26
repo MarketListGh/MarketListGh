@@ -1,74 +1,127 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Reviews - MarketList</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MarketList — Home</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
-body { background:#f9f9f9; color:#222; }
 
-/* Header */
+/* Preloader overlay */
+#preloader {
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  transition: opacity 0.5s ease;
+}
+#preloader.hidden { opacity:0; pointer-events:none; }
+
+.loader-ring {
+  width: 120px; height: 120px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.loader-ring .ring {
+  width: 120px; height: 120px;
+  border: 6px solid #ccc;
+  border-top-color: #00a859;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  position: absolute; top: 0; left: 0;
+}
+.loader-ring img {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  position: relative;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+header, main, footer { opacity:0; transition: opacity 1s ease; }
+.visible { opacity:1; }
+
+/* Header and Menu */
 .headerbar {
-  background:#00a859;
-  color:#fff;
+  background:#00a859; 
+  color:#fff; 
   padding:10px 20px;
 }
-.headerbar .inner { display:flex; align-items:center; justify-content: space-between; }
-.headerbar .brand { display:flex; align-items:center; cursor:pointer; }
+.headerbar .inner {
+  display:flex; 
+  align-items:center; 
+  justify-content: space-between;
+}
+.headerbar .brand { 
+  display:flex; 
+  align-items:center; 
+  cursor:pointer; 
+}
 .headerbar .brand img { width:40px; margin-right:10px; }
-.headerbar .brand .title { font-size:20px; font-weight: normal; color:#fff; }
-.headerbar nav a { color:#fff; margin-left:20px; text-decoration:none; font-weight:bold; font-size:13.5px; }
-.headerbar nav a:hover { opacity:0.9; text-decoration:none; }
+.headerbar .brand .title {
+  font-size:20px;
+  font-weight:normal;
+  color:#fff;
+}
+.headerbar nav a {
+  color:#fff;
+  margin-left:20px;
+  text-decoration:none;
+  font-weight:bold;
+  font-size:13.5px;
+}
+.headerbar nav a:hover {
+  opacity:0.9;
+  text-decoration:none;
+}
 
-/* Main container */
-.container { max-width:700px; margin:40px auto; padding:0 20px; }
-
-/* Card with gradient */
+/* Main content */
+main.container { max-width:700px; margin:40px auto; padding:20px; }
 .card {
   background: linear-gradient(135deg, #00a859, #ff8c00);
-  color:#fff;
-  padding:30px;
-  border-radius:20px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.12);
+  color:#fff; padding:30px; border-radius:20px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.2);
 }
+.header-main { display:flex; align-items:center; margin-bottom:20px; }
+.header-main img { width:60px; margin-right:15px; }
+.header-main h1 { margin:0; }
+.slogan { font-style: normal; font-size:0.9em; }
 
-/* Card headings */
-.card h1, .card h2 { margin-bottom:18px; }
-
-/* Review form */
-.review-form { margin-top:22px; display:flex; flex-direction:column; gap:10px; }
-.review-form label { font-weight:600; font-size:14px; }
-.review-form input, .review-form textarea {
-  padding:10px; border-radius:8px; border:none; font-size:15px; width:100%;
+form label { display:block; margin-top:15px; font-weight:bold; }
+form input, form select, form textarea {
+  width:100%; padding:10px; margin-top:5px;
+  border:none; border-radius:8px; font-size:15px;
 }
-.review-form button {
-  margin-top:8px; padding:12px 18px; border:none; border-radius:8px;
-  background:#fff; color:#00a859; cursor:pointer; font-size:15px; font-weight:700;
+textarea { height:80px; resize:vertical; }
+
+.row { display:flex; gap:10px; }
+.row .col { flex:1; }
+.summary { margin-top:15px; font-weight:bold; }
+
+.send-whatsapp {
+  display:block; width:100%; text-align:center;
+  background-color:#25D366; color:white; font-weight:bold;
+  padding:15px; margin-top:25px; border-radius:30px;
+  text-decoration:none; transition: background-color 0.3s ease;
 }
-.review-form button:hover { background:#f0f0f0; }
+.send-whatsapp:hover { background-color:#1ebe5b; }
+footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40px; }
 
-/* Star rating */
-#starContainer { margin:8px 0; }
-#starContainer .star { cursor:pointer; font-size:20px; color:#ccc; margin-right:6px; user-select:none; }
-#starContainer .star.active { color:gold; }
-
-/* Reviews feed */
-#reviewsFeed article {
-  padding:12px 10px;
+/* Transparent box with shadow */
+.transparent-box {
+  background: rgba(255,255,255,0.95);
+  color:#000;
+  padding:20px;
   border-radius:12px;
-  background: linear-gradient(135deg, #00a859, #ff8c00);
-  color:#fff;
-  margin-bottom:12px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.15);
+  margin-top:15px;
+  font-weight:bold;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
 }
-.review-actions { margin-top:8px; }
-.review-actions button { margin-right:8px; padding:6px 10px; border-radius:6px; border:none; cursor:pointer; font-size:13px; }
-.review-actions button:first-child { background:#fff; color:#00a859; }
-.review-actions button:nth-child(2) { background:#ff4b4b; color:#fff; }
-
-/* Footer */
-.footer { text-align:center; padding:15px; background:#eee; margin-top:30px; color:#333; font-size:14px; }
 
 /* Floating Chat Bot */
 .chatbot-btn {
@@ -87,4 +140,283 @@ body { background:#f9f9f9; color:#222; }
   font-size: 28px;
   cursor: pointer;
   animation: bounce 2s infinite;
-  z
+  z-index: 10000;
+}
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-12px); }
+  60% { transform: translateY(-6px); }
+}
+
+/* Chat Overlay */
+.chat-overlay {
+  display: none;
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 320px;
+  height: 400px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 10001;
+  flex-direction: column;
+  overflow: hidden;
+}
+.chat-header {
+  background: #00a859;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+.chat-body {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chat-message {
+  padding: 8px 10px;
+  border-radius: 10px;
+  max-width: 80%;
+  word-wrap: break-word;
+  font-size: 14px;
+}
+.user-msg { background: #f2f2f2; color: #000; align-self: flex-end; }
+.bot-msg { background: #d8ecff; color: #000; align-self: flex-start; }
+.chat-input {
+  display: flex;
+  border-top: 1px solid #ddd;
+}
+.chat-input input { flex: 1; border: none; padding: 14px; font-size: 14px; outline: none; }
+.chat-input button { background: #00a859; color: #fff; border: none; padding: 10px 15px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- Preloader -->
+<div id="preloader">
+  <div class="loader-ring">
+    <div class="ring"></div>
+    <img src="logo.png" alt="MarketList Logo">
+  </div>
+</div>
+
+<!-- Header -->
+<div class="headerbar">
+  <div class="inner">
+    <div class="brand" onclick="location.href='index.html'">
+      <img src="logo.png" alt="MarketList">
+      <div class="title">MarketList</div>
+    </div>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="reviews.html" class="active">Reviews</a>
+      <a href="assistant.html">Assistant</a>
+    </nav>
+  </div>
+</div>
+
+<!-- Main content -->
+<main class="container">
+  <section class="card">
+    <div class="header-main">
+      <img src="logo.png" alt="logo">
+      <div>
+        <h1>MarketList</h1>
+        <div class="slogan">Bringing Market to Your Doorstep</div>
+      </div>
+    </div>
+
+    <form id="orderForm" onsubmit="return false;">
+      <label for="name">Full Name</label>
+      <input id="name" type="text" placeholder="Enter your full name" required>
+
+      <label for="contact">Contact Number</label>
+      <input id="contact" type="tel" placeholder="055XXXXXXXX" required>
+
+      <label for="location">Delivery Location</label>
+      <input id="location" type="text" placeholder="e.g., East Legon, Accra" required>
+
+      <div class="row">
+        <div class="col">
+          <label for="market">Select Market</label>
+          <select id="market">
+            <option value="">-- Select Market --</option>
+            <option>Makola Market</option>
+            <option>Nima Market</option>
+            <option>Accra Mall</option>
+            <option>Marina Mall</option>
+            <option>Lapaz Market</option>
+            <option>Accra Market</option>
+            <option>Kasoa Market</option>
+          </select>
+        </div>
+        <div class="col">
+          <label for="category">Category</label>
+          <select id="category">
+            <option value="">-- Select Category --</option>
+            <option>Groceries / Food Stuffs</option>
+            <option>Home Appliances</option>
+            <option>Electrical Appliances</option>
+            <option>Clothes</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="items">Item List (name — quantity — price)</label>
+      <textarea id="items" placeholder="Rice — 2 — 120"></textarea>
+
+      <label for="budget">Budget (₵)</label>
+      <input id="budget" type="number" min="0" placeholder="Enter budget amount">
+
+      <!-- Enhanced transparent box with shadow -->
+      <div class="transparent-box">
+        <div>Service Fee (20%): ₵<span id="serviceFee">0.00</span></div>
+        <div>Total (Budget + Service Fee): ₵<span id="totalAmount">0.00</span></div>
+        <div style="margin-top:10px; font-weight:normal;">⚠️ Customers are responsible for delivery fees.</div>
+        <div style="margin-top:12px; font-weight:normal;">
+          <strong>Make payment to:</strong>
+          <div>0537351866</div>
+          <div>Account Name: Michael Awintini Akurugu</div>
+          <div>Reference: (Customer Name)</div>
+        </div>
+      </div>
+
+      <a id="sendBtn" class="send-whatsapp" href="#" onclick="prepareAndOpenWhatsApp(event)">Send Your List Now</a>
+    </form>
+  </section>
+</main>
+
+<footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
+
+<!-- Floating Chatbot -->
+<div class="chatbot-btn" onclick="toggleChat()">💬</div>
+
+<div class="chat-overlay" id="chatOverlay">
+  <div class="chat-header">Chat with MarketList AI</div>
+  <div class="chat-body" id="chatBody">
+    <div class="chat-message bot-msg">
+      Hello there 👋, welcome to <strong>MarketList!</strong><br>
+      How can I assist you today?
+    </div>
+  </div>
+  <div class="chat-input">
+    <input id="chatInput" placeholder="Type your message...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+window.addEventListener('load', () => {
+  sessionStorage.clear();
+  setTimeout(() => {
+    document.getElementById('preloader').classList.add('hidden');
+    document.querySelector('main').classList.add('visible');
+    document.querySelector('.headerbar').classList.add('visible');
+    document.querySelector('footer').classList.add('visible');
+  }, 3000);
+});
+
+const budgetEl = document.getElementById('budget');
+const serviceEl = document.getElementById('serviceFee');
+const totalEl = document.getElementById('totalAmount');
+function updateTotals() {
+  const b = parseFloat(budgetEl.value) || 0;
+  const s = b * 0.20;
+  serviceEl.textContent = s.toFixed(2);
+  totalEl.textContent = (b + s).toFixed(2);
+}
+budgetEl?.addEventListener('input', updateTotals);
+
+function prepareAndOpenWhatsApp(e) {
+  e.preventDefault();
+  const name = document.getElementById('name').value.trim();
+  const contact = document.getElementById('contact').value.trim();
+  const location = document.getElementById('location').value.trim();
+  const items = document.getElementById('items').value.trim();
+  const market = document.getElementById('market').value;
+  const category = document.getElementById('category').value;
+  const budget = parseFloat(document.getElementById('budget').value) || 0;
+  const service = (budget * 0.20).toFixed(2);
+  const total = (budget + parseFloat(service)).toFixed(2);
+  if (!name || !contact || !location || !items) {
+    alert('Please fill Name, Contact, Location and Items before sending.');
+    return;
+  }
+  const lines = [
+    '🛒 MARKET LIST ORDER','',
+    `Name: ${name}`,
+    `Contact: ${contact}`,
+    `Location: ${location}`,
+    `Market: ${market}`,
+    `Category: ${category}`,'',
+    'Items:', items,'',
+    `Budget: ₵${budget.toFixed(2)}`,
+    `Service Fee (20%): ₵${service}`,
+    `Total: ₵${total}`,'',
+    'Make payment to:',
+    '0537351866 (Account Name: Michael Awintini Akurugu)',
+    `Reference: ${name}`
+  ];
+  const msg = encodeURIComponent(lines.join('\n'));
+  window.open('https://wa.me/2330537351866?text=' + msg, '_blank');
+}
+
+/* Chatbot functionality */
+const overlay = document.getElementById('chatOverlay');
+const chatBody = document.getElementById('chatBody');
+const input = document.getElementById('chatInput');
+
+function toggleChat() {
+  overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
+  overlay.style.flexDirection = 'column';
+}
+
+input.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+function sendMessage() {
+  const msg = input.value.trim();
+  if (!msg) return;
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-message user-msg';
+  userMsg.textContent = msg;
+  chatBody.appendChild(userMsg);
+  input.value = '';
+  chatBody.scrollTop = chatBody.scrollHeight;
+
+  setTimeout(() => {
+    const botMsg = document.createElement('div');
+    botMsg.className = 'chat-message bot-msg';
+    botMsg.textContent = getAIResponse(msg);
+    chatBody.appendChild(botMsg);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }, 700);
+}
+
+/* Simple Q&A */
+function getAIResponse(msg) {
+  const q = msg.toLowerCase();
+  let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
+  if (q.includes("what is marketlist")) ans = "MarketList is an online service that lets you order groceries and other items from local markets, then delivers them straight to your door.";
+  else if (q.includes("how does marketlist work")) ans = "You just fill out your shopping list, pick a market, and submit it. Our team will buy your items and deliver them to you.";
+  else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
+  else if (q.includes("how much is delivery")) ans = "Delivery fees depend on your location and are added on top of your market total.";
+  else if (q.includes("how do i pay") || q.includes("payment options")) ans = "You can pay using Mobile Money or Paystack, which is a safe online payment platform.";
+  else if (q.includes("do i pay before delivery")) ans = "Yes, all payments must be made before we deliver your items.";
+  return ans;
+}
+</script>
+</body>
+</html>
