@@ -9,7 +9,7 @@
 * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
 body { background:#f9f9f9; color:#222; }
 
-/* Header (identical to index/about) */
+/* Header */
 .headerbar {
   background:#00a859;
   color:#fff;
@@ -25,7 +25,7 @@ body { background:#f9f9f9; color:#222; }
   align-items:center;
   cursor:pointer;
 }
-.headerbar .brand img { width:40px; margin-right:10px; } /* logo size */
+.headerbar .brand img { width:40px; margin-right:10px; }
 .headerbar .brand .title {
   font-size:20px;
   font-weight: normal;
@@ -43,25 +43,28 @@ body { background:#f9f9f9; color:#222; }
   text-decoration:none;
 }
 
-/* Main container with gradient */
+/* Main container */
 .container {
   max-width:700px;
   margin:40px auto;
   padding:0 20px;
-  background: linear-gradient(to bottom right, #00a859, #f7941d); /* green → orange gradient */
-  border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.12);
 }
 
-/* Card inside container remains white */
+/* Card with gradient inside */
 .card {
-  background:#fff;
+  background: linear-gradient(135deg, #00a859, #ff8c00);
   color:#000;
   padding:30px;
   border-radius:20px;
   box-shadow:0 4px 15px rgba(0,0,0,0.12);
 }
-.card h1 { margin-bottom:18px; }
+
+/* Card inner white content */
+.card-inner {
+  background:#fff;
+  padding:20px;
+  border-radius:15px;
+}
 
 /* Review form */
 .review-form { margin-top:22px; display:flex; flex-direction:column; gap:10px; }
@@ -89,7 +92,7 @@ body { background:#f9f9f9; color:#222; }
 /* Footer */
 .footer { text-align:center; padding:15px; background:#eee; margin-top:30px; color:#333; font-size:14px; }
 
-/* Floating Chat Bot (index style) */
+/* Floating Chat Bot */
 .chatbot-btn {
   position: fixed;
   bottom: 25px;
@@ -183,39 +186,40 @@ body { background:#f9f9f9; color:#222; }
 
 <main class="container">
   <section class="card">
-    <h1>Customer Reviews</h1>
+    <div class="card-inner">
+      <h1>Customer Reviews</h1>
+      <div id="reviewsFeed"></div>
 
-    <div id="reviewsFeed"></div>
+      <div class="review-form" aria-labelledby="submit-review-heading">
+        <h2 id="submit-review-heading">Submit Your Review</h2>
 
-    <div class="review-form" aria-labelledby="submit-review-heading">
-      <h2 id="submit-review-heading">Submit Your Review</h2>
+        <label for="reviewName">Your Name</label>
+        <input id="reviewName" type="text" placeholder="Enter your name" required>
 
-      <label for="reviewName">Your Name</label>
-      <input id="reviewName" type="text" placeholder="Enter your name" required>
+        <label for="reviewLocation">Your Location</label>
+        <input id="reviewLocation" type="text" placeholder="e.g., Accra, Kasoa" required>
 
-      <label for="reviewLocation">Your Location</label>
-      <input id="reviewLocation" type="text" placeholder="e.g., Accra, Kasoa" required>
+        <label>Star Rating</label>
+        <div id="starContainer" aria-hidden="false">
+          <span class="star" data-value="1">☆</span>
+          <span class="star" data-value="2">☆</span>
+          <span class="star" data-value="3">☆</span>
+          <span class="star" data-value="4">☆</span>
+          <span class="star" data-value="5">☆</span>
+        </div>
 
-      <label>Star Rating</label>
-      <div id="starContainer" aria-hidden="false">
-        <span class="star" data-value="1">☆</span>
-        <span class="star" data-value="2">☆</span>
-        <span class="star" data-value="3">☆</span>
-        <span class="star" data-value="4">☆</span>
-        <span class="star" data-value="5">☆</span>
+        <label for="reviewText">Your Review</label>
+        <textarea id="reviewText" rows="4" placeholder="Write your review here..." required></textarea>
+
+        <button type="button" onclick="addOrUpdateReview()">Submit Review</button>
       </div>
-
-      <label for="reviewText">Your Review</label>
-      <textarea id="reviewText" rows="4" placeholder="Write your review here..." required></textarea>
-
-      <button type="button" onclick="addOrUpdateReview()">Submit Review</button>
     </div>
   </section>
 </main>
 
 <footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
 
-<!-- Floating Chatbot (index style) -->
+<!-- Floating Chatbot -->
 <div class="chatbot-btn" onclick="toggleChat()">💬</div>
 
 <div class="chat-overlay" id="chatOverlay" aria-hidden="true">
@@ -231,7 +235,7 @@ body { background:#f9f9f9; color:#222; }
 
 <script>
 /* =======================
-   Chatbot (index-style)
+   Chatbot Functions
 ======================= */
 const chatOverlay = document.getElementById('chatOverlay');
 const chatBody = document.getElementById('chatBody');
@@ -251,17 +255,29 @@ function sendMessage(){
   const userMsg = document.createElement('div'); userMsg.className='user'; userMsg.textContent = msg;
   chatBody.appendChild(userMsg);
   chatInput.value=''; chatBody.scrollTop = chatBody.scrollHeight;
-  setTimeout(()=>{ const botMsg = document.createElement('div'); botMsg.className='bot'; botMsg.textContent = getAIResponse(msg); chatBody.appendChild(botMsg); chatBody.scrollTop = chatBody.scrollHeight; },700);
-}
-
-/* FULL 100 Q&A Chatbot */
-function getAIResponse(msg) {
-  // ... keep all Q&A exactly as your existing script ...
-  return "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
+  setTimeout(()=>{
+    const botMsg = document.createElement('div'); botMsg.className='bot'; botMsg.textContent = getAIResponse(msg);
+    chatBody.appendChild(botMsg); chatBody.scrollTop = chatBody.scrollHeight;
+  },700);
 }
 
 /* =======================
-   Review system
+   Simple Q&A
+======================= */
+function getAIResponse(msg) {
+  const q = msg.toLowerCase();
+  let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
+  if (q.includes("what is marketlist")) ans = "MarketList is an online service that lets you order groceries and other items from local markets, then delivers them straight to your door.";
+  else if (q.includes("how does marketlist work")) ans = "You just fill out your shopping list, pick a market, and submit it. Our team will buy your items and deliver them to you.";
+  else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
+  else if (q.includes("how much is delivery")) ans = "Delivery fees depend on your location and are added on top of your market total.";
+  else if (q.includes("how do i pay") || q.includes("payment options")) ans = "You can pay using Mobile Money or Paystack, which is a safe online payment platform.";
+  else if (q.includes("do i pay before delivery")) ans = "Yes, all payments must be made before we deliver your items.";
+  return ans;
+}
+
+/* =======================
+   Review System
 ======================= */
 let currentStars = 5;
 let editIndex = null;
