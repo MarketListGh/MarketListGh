@@ -262,29 +262,20 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
       <label for="items">Item List (name — quantity — price)</label>
       <textarea id="items" placeholder="Rice — 2 — 120"></textarea>
 
-      <div class="row">
-        <div class="col">
-          <label for="budget">Budget (₵)</label>
-          <input id="budget" type="number" min="0" placeholder="Enter budget amount">
-        </div>
-        <div class="col">
-          <label for="count">Estimated item count</label>
-          <input id="count" type="number" min="0" placeholder="e.g., 3">
-        </div>
-      </div>
+      <label for="budget">Budget (₵)</label>
+      <input id="budget" type="number" min="0" placeholder="Enter budget amount">
 
-      <div class="summary" aria-live="polite">
+      <!-- Transparent square box for summary and payment -->
+      <div style="background: rgba(255,255,255,0.9); color:#000; padding:20px; border-radius:12px; margin-top:15px; font-weight:bold;">
         <div>Service Fee (20%): ₵<span id="serviceFee">0.00</span></div>
         <div>Total (Budget + Service Fee): ₵<span id="totalAmount">0.00</span></div>
-      </div>
-
-      <div class="note">⚠️ Customers are responsible for delivery fees.</div>
-
-      <div style="margin-top:12px">
-        <strong>Make payment to:</strong>
-        <div>0537351866</div>
-        <div>Account Name: Michael Awintini Akurugu</div>
-        <div>Reference: (Customer Name)</div>
+        <div style="margin-top:10px; font-weight:normal;">⚠️ Customers are responsible for delivery fees.</div>
+        <div style="margin-top:12px; font-weight:normal;">
+          <strong>Make payment to:</strong>
+          <div>0537351866</div>
+          <div>Account Name: Michael Awintini Akurugu</div>
+          <div>Reference: (Customer Name)</div>
+        </div>
       </div>
 
       <a id="sendBtn" class="send-whatsapp" href="#" onclick="prepareAndOpenWhatsApp(event)">Send Your List Now</a>
