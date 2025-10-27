@@ -125,23 +125,22 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
 </head>
 <body>
 
-<!-- Header (updated to match Reviews and Index) -->
-<div class="headerbar">
+<header class="headerbar">
   <div class="inner">
-    <div class="brand" onclick="location.href='index.html'">
-      <img src="logo.png" alt="MarketList">
-      <div class="title">MarketList</div>
+    <div class="brand" onclick="window.location.href='index.html'">
+      <img src="logo.png" alt="MarketList Logo">
+      <span class="title">MarketList</span>
     </div>
-    <nav class="nav">
-      <a href="index.html">Home</a>
-      <a href="track.html">Track</a>
-      <a href="about.html" class="active">About</a>
+    <nav>
+      <a href="index.html" class="active">Home</a>
+      <a href="about.html">About</a>
       <a href="reviews.html">Reviews</a>
       <a href="assistant.html">Assistant</a>
+      <a href="Track.html">Track Order</a>
     </nav>
   </div>
-</div>
-
+</header>
+  
 <!-- Main content -->
 <div class="container">
   <section class="card">
@@ -358,5 +357,6 @@ return ans;
 </script>
 </body>
 </html>
+
 
 
