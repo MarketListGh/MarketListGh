@@ -1,207 +1,220 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MarketList Order Tracking</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Your Order — MarketList</title>
 <style>
-/* === Reset and Base === */
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+* { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
+
+/* Header and Menu (exact same as index.html) */
+.headerbar {
+  background:#00a859; 
+  color:#fff; 
+  padding:10px 20px;
+}
+.headerbar .inner {
+  display:flex; 
+  align-items:center; 
+  justify-content: space-between;
+}
+.headerbar .brand { 
+  display:flex; 
+  align-items:center; 
+  cursor:pointer; 
+}
+.headerbar .brand img { width:40px; margin-right:10px; }
+.headerbar .brand .title {
+  font-size:20px;
+  font-weight:normal;
+  color:#fff;
+}
+.headerbar nav a {
+  color:#fff;
+  margin-left:20px;
+  text-decoration:none;
+  font-weight:bold;
+  font-size:13.5px;
+}
+.headerbar nav a:hover {
+  opacity:0.9;
+  text-decoration:none;
+}
+
+/* Background and Card */
 body {
   background: linear-gradient(135deg, #00a859, #ff8c00);
-  color: #333;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
-
-/* === Header (Same as Index) === */
-.headerbar {
-  background: #00a859;
-  padding: 10px 25px;
-  color: #fff;
-}
-.headerbar .inner {
+main.container {
+  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  padding: 30px;
 }
-.brand {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-.brand img {
-  height: 40px;
-  margin-right: 8px;
-}
-.brand .title {
-  font-size: 18px;
-  font-weight: bold;
-  color: #fff;
-}
-.nav a {
-  color: #fff;
-  text-decoration: none;
-  margin-left: 25px;
-  font-weight: bold;
-  font-size: 13.5px;
-  transition: opacity 0.3s ease;
-}
-.nav a:hover { opacity: 0.8; }
-.nav a.active { text-decoration: none; }
-
-/* === Tracking Card === */
-.tracking-card {
+.card {
   background: #fff;
-  width: 70%;
-  max-width: 800px;
-  margin: 50px auto;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-  padding: 25px 30px;
-}
-.tracking-card h2 {
+  color: #000;
+  width: 100%;
+  max-width: 500px;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
   text-align: center;
-  color: #00a859;
-  margin-bottom: 25px;
-  font-size: 22px;
 }
 
-/* === Selection Buttons === */
-.select-buttons {
+/* Buttons */
+.track-btns {
   display: flex;
   justify-content: center;
   gap: 15px;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
-.select-buttons button {
-  background: #00a859;
-  color: #fff;
+.track-btns button {
+  background-color: #00a859;
+  color: white;
   border: none;
-  padding: 12px 25px;
-  font-size: 15px;
+  padding: 10px 18px;
   border-radius: 8px;
   cursor: pointer;
-  transition: 0.3s;
+  font-weight: bold;
+  transition: background 0.3s;
 }
-.select-buttons button:hover {
-  background: #007b3e;
+.track-btns button:hover {
+  background-color: #028f4a;
 }
 
-/* === Sections === */
-.tracking-section {
+/* Hidden sections */
+.hidden-section {
   display: none;
   margin-top: 15px;
-  animation: fadeIn 0.3s ease;
 }
-.tracking-section label {
+.hidden-section.active {
   display: block;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #333;
 }
-.tracking-section input {
+
+/* Input and results */
+label {
+  display: block;
+  text-align: left;
+  margin-top: 12px;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #222;
+  font-size: 14.5px;
+}
+input[type="text"] {
   width: 100%;
   padding: 12px;
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 15px;
-  outline: none;
-  margin-bottom: 10px;
 }
-.tracking-section button {
-  background: #00a859;
-  color: #fff;
+button.submit {
+  width: 100%;
+  margin-top: 15px;
+  background-color: #ff8c00;
+  color: white;
   border: none;
-  padding: 12px 18px;
+  padding: 12px;
   border-radius: 8px;
+  font-weight: bold;
   cursor: pointer;
+  transition: background 0.3s;
+}
+button.submit:hover { background-color: #e57a00; }
+.result {
+  margin-top: 18px;
+  font-weight: bold;
   font-size: 15px;
-}
-.tracking-section button:hover {
-  background: #007b3e;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  color: #333;
 }
 
-/* === Chat Assistant === */
-.chat-container {
-  max-width: 700px;
-  margin: 50px auto;
+/* Footer */
+footer.footer {
+  text-align:center;
+  padding:15px;
+  background:#eee;
+}
+
+/* Floating Chat Bot */
+.chatbot-btn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 60px;
+  height: 60px;
   background: #fff;
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  height: 70vh;
-  overflow: hidden;
-}
-.chat-box {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.user-message {
-  align-self: flex-end;
-  background: #e0e0e0;
-  color: #000;
-  padding: 12px 16px;
-  border-radius: 15px;
-  max-width: 75%;
-}
-.bot-message {
-  align-self: flex-start;
-  background: #d2e7ff;
-  color: #000;
-  padding: 12px 16px;
-  border-radius: 15px;
-  max-width: 75%;
-}
-.chat-input-area {
+  color: #00a859;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   display: flex;
   align-items: center;
-  margin-top: 10px;
-}
-.chat-input-area input {
-  flex: 1;
-  padding: 14px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 15px;
-  outline: none;
-}
-.chat-input-area button {
-  margin-left: 8px;
-  padding: 12px 18px;
-  border: none;
-  background: #00a859;
-  color: #fff;
-  border-radius: 8px;
+  justify-content: center;
+  font-size: 28px;
   cursor: pointer;
-  font-size: 15px;
+  animation: bounce 2s infinite;
+  z-index: 10000;
 }
-.chat-input-area button:hover {
-  background: #007b3e;
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-12px); }
+  60% { transform: translateY(-6px); }
 }
 
-/* === Footer === */
-.footer {
+/* Chat Overlay */
+.chat-overlay {
+  display: none;
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 320px;
+  height: 400px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 10001;
+  flex-direction: column;
+  overflow: hidden;
+}
+.chat-header {
+  background: #00a859;
+  color: #fff;
+  padding: 10px;
   text-align: center;
-  padding: 15px;
-  background: #eee;
-  margin-top: 40px;
+  font-weight: bold;
+}
+.chat-body {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 14px;
   color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chat-message {
+  padding: 8px 10px;
+  border-radius: 10px;
+  max-width: 80%;
+  word-wrap: break-word;
   font-size: 14px;
 }
+.user-msg { background: #f2f2f2; color: #000; align-self: flex-end; }
+.bot-msg { background: #d8ecff; color: #000; align-self: flex-start; }
+.chat-input {
+  display: flex;
+  border-top: 1px solid #ddd;
+}
+.chat-input input { flex: 1; border: none; padding: 14px; font-size: 14px; outline: none; }
+.chat-input button { background: #00a859; color: #fff; border: none; padding: 10px 15px; cursor: pointer; }
 </style>
 </head>
+
 <body>
 
 <!-- Header -->
@@ -216,124 +229,160 @@ body {
       <a href="about.html">About</a>
       <a href="reviews.html">Reviews</a>
       <a href="assistant.html">Assistant</a>
-      <a href="track.html" class="active">Track</a>
     </nav>
   </div>
 </div>
 
-<!-- Tracking Card -->
-<div class="tracking-card">
-  <h2>MarketList Order Tracking</h2>
+<!-- Main content -->
+<main class="container">
+  <section class="card">
+    <h2>Track Your Order</h2>
+    <p style="margin: 8px 0 20px;">Select your role to continue:</p>
 
-  <!-- Select Type -->
-  <div class="select-buttons">
-    <button onclick="showSection('customer')">I’m a Customer</button>
-    <button onclick="showSection('delivery')">I’m a Delivery Guy</button>
+    <div class="track-btns">
+      <button onclick="showSection('customer')">Customer</button>
+      <button onclick="showSection('deliverer')">Deliverer</button>
+    </div>
+
+    <div id="customerSection" class="hidden-section">
+      <input type="text" id="customerCode" placeholder="Enter your tracking number">
+      <button class="submit" onclick="trackOrder()">Track Order</button>
+      <div id="customerResult" class="result"></div>
+    </div>
+
+    <div id="delivererSection" class="hidden-section">
+      <label>Enter Delivery Tracking Code:</label>
+      <input type="text" id="delivererCode" placeholder="e.g. ML-12345">
+      <label>Your Full Name:</label>
+      <input type="text" id="delivererName" placeholder="Enter full name">
+      <label>Contact Number:</label>
+      <input type="text" id="delivererContact" placeholder="e.g. 0537351866">
+      <button class="submit" onclick="acceptOrder()">Accept Order</button>
+      <div id="delivererResult" class="result"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
+
+<!-- Floating Chatbot -->
+<div class="chatbot-btn" onclick="toggleChat()">💬</div>
+<div class="chat-overlay" id="chatOverlay">
+  <div class="chat-header">Chat with MarketList AI</div>
+  <div class="chat-body" id="chatBody">
+    <div class="chat-message bot-msg">
+      Hello there 👋, welcome to <strong>MarketList!</strong><br>
+      How can I assist you today?
+    </div>
   </div>
-
-  <!-- Customer Section -->
-  <div id="customer" class="tracking-section">
-    <label>Customer Tracking (Example: MLX-12458)</label>
-    <input type="text" id="customerTrack" placeholder="Enter your tracking number...">
-    <button onclick="trackOrder()">Track Now</button>
-    <div id="customerResult" style="margin-top:15px; font-size:15px;"></div>
-  </div>
-
-  <!-- Delivery Guy Section -->
-  <div id="delivery" class="tracking-section">
-    <label>Delivery Personnel Access (Example: MLX-12458)</label>
-    <input type="text" id="deliveryTrack" placeholder="Enter tracking number...">
-    <input type="text" id="deliveryName" placeholder="Your Full Name">
-    <input type="text" id="deliveryContact" placeholder="Your Contact Number">
-    <button onclick="acceptOrder()">Accept Order</button>
-    <div id="deliveryResult" style="margin-top:15px; font-size:15px;"></div>
+  <div class="chat-input">
+    <input id="chatInput" placeholder="Type your message...">
+    <button onclick="sendMessage()">Send</button>
   </div>
 </div>
-
-<!-- Chat Section -->
-<div class="chat-container">
-  <div class="chat-box" id="chat-box">
-    <div class="bot-message">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>
-  </div>
-  <div class="chat-input-area">
-    <input type="text" id="user-input" placeholder="Type your message...">
-    <button id="send-btn">Send</button>
-  </div>
-</div>
-
-<!-- Footer -->
-<footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
 
 <script>
-/* === Show/Hide Sections === */
 function showSection(type) {
-  document.getElementById("customer").style.display = "none";
-  document.getElementById("delivery").style.display = "none";
-  document.getElementById(type).style.display = "block";
+  document.getElementById('customerSection').classList.remove('active');
+  document.getElementById('delivererSection').classList.remove('active');
+  if (type === 'customer') {
+    document.getElementById('customerSection').classList.add('active');
+  } else {
+    document.getElementById('delivererSection').classList.add('active');
+  }
 }
 
-/* === Tracking Functions === */
+/* Customer Tracking */
 function trackOrder() {
-  const code = document.getElementById("customerTrack").value.trim();
-  const result = document.getElementById("customerResult");
-  if (code === "") {
-    result.textContent = "Please enter your tracking number.";
-    return;
+  const code = document.getElementById('customerCode').value.trim();
+  const res = document.getElementById('customerResult');
+  if (!code) { res.textContent = "Please enter a tracking number."; return; }
+
+  try {
+    const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
+    const found = orders.find(o => o.tracking === code);
+    if (found) {
+      res.innerHTML = `
+        ✅ <strong>Order Found!</strong><br>
+        Name: ${found.name}<br>
+        Location: ${found.location}<br>
+        Market: ${found.market}<br>
+        Category: ${found.category}<br>
+        Total: ₵${found.total.toFixed(2)}<br>
+        Status: ${found.delivery ? found.delivery : "Pending"}
+      `;
+    } else res.textContent = "❌ No order found with this tracking number.";
+  } catch {
+    res.textContent = "Error loading your order. Try again later.";
   }
-  result.innerHTML = `<strong>Tracking Number:</strong> ${code}<br>Your list and budget are being processed.<br>Delivery Guy: <em>Awaiting assignment...</em>`;
 }
 
+/* Deliverer Section */
 function acceptOrder() {
-  const code = document.getElementById("deliveryTrack").value.trim();
-  const name = document.getElementById("deliveryName").value.trim();
-  const contact = document.getElementById("deliveryContact").value.trim();
-  const result = document.getElementById("deliveryResult");
-  
+  const code = document.getElementById('delivererCode').value.trim();
+  const name = document.getElementById('delivererName').value.trim();
+  const contact = document.getElementById('delivererContact').value.trim();
+  const res = document.getElementById('delivererResult');
+
   if (!code || !name || !contact) {
-    result.textContent = "Please fill in all details before accepting the order.";
+    res.textContent = "Please fill in all fields.";
     return;
   }
-  result.innerHTML = `<strong>Order Accepted!</strong><br>Tracking: ${code}<br>Delivery Guy: ${name}<br>Contact: ${contact}`;
+
+  try {
+    const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
+    const found = orders.find(o => o.tracking === code);
+    if (found) {
+      found.delivery = `Accepted by ${name} (${contact})`;
+      localStorage.setItem('marketOrders', JSON.stringify(orders));
+      res.innerHTML = `
+        ✅ <strong>Order Accepted!</strong><br>
+        Tracking: ${code}<br>
+        Delivery Assigned To: ${name}<br>
+        Contact: ${contact}
+      `;
+    } else res.textContent = "❌ No order found with this tracking number.";
+  } catch {
+    res.textContent = "Error updating the order.";
+  }
 }
 
-/* === Chatbot Assistant === */
-const sendBtn = document.getElementById("send-btn");
-const userInput = document.getElementById("user-input");
-const chatBox = document.getElementById("chat-box");
+/* Chatbot */
+const overlay = document.getElementById('chatOverlay');
+const chatBody = document.getElementById('chatBody');
+const input = document.getElementById('chatInput');
 
-sendBtn.addEventListener("click", sendMessage);
-userInput.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
-
+function toggleChat() {
+  overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
+  overlay.style.flexDirection = 'column';
+}
+input.addEventListener('keypress', e => {
+  if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
+});
 function sendMessage() {
-  const userText = userInput.value.trim();
-  if (userText === "") return;
-
-  const userMsg = document.createElement("div");
-  userMsg.classList.add("user-message");
-  userMsg.textContent = userText;
-  chatBox.appendChild(userMsg);
-
-  const botReply = document.createElement("div");
-  botReply.classList.add("bot-message");
-  botReply.textContent = "Typing...";
-  chatBox.appendChild(botReply);
-
-  chatBox.scrollTop = chatBox.scrollHeight;
-  userInput.value = "";
+  const msg = input.value.trim();
+  if (!msg) return;
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-message user-msg';
+  userMsg.textContent = msg;
+  chatBody.appendChild(userMsg);
+  input.value = '';
+  chatBody.scrollTop = chatBody.scrollHeight;
 
   setTimeout(() => {
-    botReply.textContent = getAIResponse(userText);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }, 1000);
+    const botMsg = document.createElement('div');
+    botMsg.className = 'chat-message bot-msg';
+    botMsg.textContent = getAIResponse(msg);
+    chatBody.appendChild(botMsg);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }, 700);
 }
-
-/* Simple Q&A */
 function getAIResponse(msg) {
   const q = msg.toLowerCase();
   let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
   if (q.includes("what is marketlist")) ans = "MarketList is an online service that lets you order groceries and other items from local markets, then delivers them straight to your door.";
   else if (q.includes("how does marketlist work")) ans = "You just fill out your shopping list, pick a market, and submit it. Our team will buy your items and deliver them to you.";
-  else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
+  else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra.";
   else if (q.includes("how much is delivery")) ans = "Delivery fees depend on your location and are added on top of your market total.";
   else if (q.includes("how do i pay") || q.includes("payment options")) ans = "You can pay using Mobile Money or Paystack, which is a safe online payment platform.";
   else if (q.includes("do i pay before delivery")) ans = "Yes, all payments must be made before we deliver your items.";
