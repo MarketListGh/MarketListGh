@@ -5,34 +5,117 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Assistant - MarketList</title>
 <style>
+/* === Reset and base === */
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-body { background: linear-gradient(135deg, #00a859, #ff8c00); min-height: 100vh; }
-
-.headerbar {
-  background:#00a859; color:#fff; padding:10px 20px;
+body { 
+  background: linear-gradient(135deg, #00a859, #ff8c00); 
+  min-height: 100vh;
 }
-.headerbar .inner { display:flex; align-items:center; justify-content: space-between; }
+
+/* === Header (like About.html) === */
+.headerbar {
+  background:#00a859; 
+  color:#fff; 
+  padding:10px 20px;
+}
+.headerbar .inner {
+  display:flex; 
+  align-items:center; 
+  justify-content: space-between;
+}
 .headerbar .brand { display:flex; align-items:center; cursor:pointer; }
 .headerbar .brand img { width:40px; margin-right:10px; }
-.headerbar .brand .title { font-size:20px; font-weight:normal; color:#fff; }
-.headerbar nav a { color:#fff; margin-left:20px; text-decoration:none; font-weight:bold; font-size:13.5px; }
+.headerbar .brand .title {
+  font-size:20px;
+  font-weight:normal;
+  color:#fff;
+}
+.headerbar nav a {
+  color:#fff;
+  margin-left:20px;
+  text-decoration:none;
+  font-weight:bold;
+  font-size:13.5px;
+}
 .headerbar nav a:hover { opacity:0.9; text-decoration:none; }
 .headerbar nav a.active { text-decoration:none; }
 
-.chat-container { max-width: 700px; margin: 40px auto; background: #fff; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 75vh; overflow: hidden; }
-.chat-box { flex-grow: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-.user-message { align-self: flex-end; background: #e0e0e0; color: #000; padding: 12px 16px; border-radius: 15px; max-width: 75%; }
-.bot-message { align-self: flex-start; background: #d2e7ff; color: #000; padding: 12px 16px; border-radius: 15px; max-width: 75%; }
-.chat-input-area { display: flex; align-items: center; margin-top: 10px; }
-.chat-input-area input { flex: 1; padding: 14px; border-radius: 8px; border: 1px solid #ccc; font-size: 15px; outline: none; }
-.chat-input-area button { margin-left: 8px; padding: 12px 18px; border: none; background: #00a859; color: #fff; border-radius: 8px; cursor: pointer; font-size: 15px; }
+/* === Chat container === */
+.chat-container {
+  max-width: 700px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  height: 75vh;
+  overflow: hidden;
+}
+.chat-box {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.user-message {
+  align-self: flex-end;
+  background: #e0e0e0;
+  color: #000;
+  padding: 12px 16px;
+  border-radius: 15px;
+  max-width: 75%;
+}
+.bot-message {
+  align-self: flex-start;
+  background: #d2e7ff;
+  color: #000;
+  padding: 12px 16px;
+  border-radius: 15px;
+  max-width: 75%;
+}
+.chat-input-area {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+.chat-input-area input {
+  flex: 1;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  outline: none;
+}
+.chat-input-area button {
+  margin-left: 8px;
+  padding: 12px 18px;
+  border: none;
+  background: #00a859;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+}
 .chat-input-area button:hover { background: #007b3e; }
 
-.footer { text-align: center; padding: 15px; background: #eee; margin-top: 40px; color: #333; font-size: 14px; }
+/* === Footer === */
+.footer {
+  text-align: center;
+  padding: 15px;
+  background: #eee;
+  margin-top: 40px;
+  color: #333;
+  font-size: 14px;
+}
 </style>
 </head>
 
 <body>
+
 <header class="headerbar">
   <div class="inner">
     <div class="brand" onclick="window.location.href='index.html'">
@@ -49,6 +132,7 @@ body { background: linear-gradient(135deg, #00a859, #ff8c00); min-height: 100vh;
   </div>
 </header>
 
+<!-- Chat Section -->
 <div class="chat-container">
   <div class="chat-box" id="chat-box">
     <div class="bot-message">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>
@@ -60,6 +144,7 @@ body { background: linear-gradient(135deg, #00a859, #ff8c00); min-height: 100vh;
   </div>
 </div>
 
+<!-- Footer -->
 <footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
 
 <script>
@@ -70,9 +155,9 @@ const chatBox = document.getElementById("chat-box");
 sendBtn.addEventListener("click", sendMessage);
 userInput.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
 
-async function sendMessage() {
+function sendMessage() {
   const userText = userInput.value.trim();
-  if (!userText) return;
+  if (userText === "") return;
 
   const userMsg = document.createElement("div");
   userMsg.classList.add("user-message");
@@ -87,19 +172,23 @@ async function sendMessage() {
   chatBox.scrollTop = chatBox.scrollHeight;
   userInput.value = "";
 
-  try {
-    const res = await fetch("https://your-server.com/chat", { // Node.js endpoint
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: userText })
-    });
-    const data = await res.json();
-    botReply.textContent = data.reply || "Sorry, I couldn't get a response. Try again.";
+  setTimeout(() => {
+    botReply.textContent = getAIResponse(userText);
     chatBox.scrollTop = chatBox.scrollHeight;
-  } catch {
-    botReply.textContent = "Unable to reach AI server. Please try later.";
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
+  }, 1000);
+}
+function getAIResponse(msg) {
+  let q = msg.toLowerCase(); // normalize input
+  let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
+
+  if (q.includes("what is marketlist")) ans = "MarketList is an online service that lets you order groceries and other items from local markets, then delivers them straight to your door.";
+  else if (q.includes("how does marketlist work")) ans = "You just fill out your shopping list, pick a market, and submit it. Our team will buy your items and deliver them to you.";
+  else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
+  else if (q.includes("how much is delivery")) ans = "Delivery fees depend on your location and are added on top of your market total.";
+  else if (q.includes("how do i pay") || q.includes("payment options")) ans = "You can pay using Mobile Money or Paystack, which is a safe online payment platform.";
+  else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
+
+  return ans;
 }
 </script>
 </body>
