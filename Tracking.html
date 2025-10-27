@@ -64,11 +64,36 @@ body {
 .tracking-card h2 {
   text-align: center;
   color: #00a859;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   font-size: 22px;
 }
-.tracking-section {
+
+/* === Selection Buttons === */
+.select-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
   margin-bottom: 25px;
+}
+.select-buttons button {
+  background: #00a859;
+  color: #fff;
+  border: none;
+  padding: 12px 25px;
+  font-size: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.select-buttons button:hover {
+  background: #007b3e;
+}
+
+/* === Sections === */
+.tracking-section {
+  display: none;
+  margin-top: 15px;
+  animation: fadeIn 0.3s ease;
 }
 .tracking-section label {
   display: block;
@@ -76,16 +101,16 @@ body {
   margin-bottom: 8px;
   color: #333;
 }
-.tracking-section input, .tracking-section textarea {
+.tracking-section input {
   width: 100%;
   padding: 12px;
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 15px;
   outline: none;
+  margin-bottom: 10px;
 }
 .tracking-section button {
-  margin-top: 12px;
   background: #00a859;
   color: #fff;
   border: none;
@@ -97,39 +122,9 @@ body {
 .tracking-section button:hover {
   background: #007b3e;
 }
-
-/* === Popup Box === */
-.popup {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-.popup-content {
-  background: #fff;
-  padding: 25px 35px;
-  border-radius: 15px;
-  text-align: center;
-  box-shadow: 0 5px 25px rgba(0,0,0,0.3);
-  width: 85%;
-  max-width: 400px;
-}
-.popup-content h3 {
-  color: #00a859;
-  margin-bottom: 10px;
-}
-.popup-content p {
-  font-size: 15px;
-  margin-bottom: 15px;
-}
-.tracking-number {
-  font-size: 24px;
-  font-weight: bold;
-  color: #ff8c00;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* === Chat Assistant === */
@@ -229,34 +224,29 @@ body {
 <!-- Tracking Card -->
 <div class="tracking-card">
   <h2>MarketList Order Tracking</h2>
-  
+
+  <!-- Select Type -->
+  <div class="select-buttons">
+    <button onclick="showSection('customer')">I’m a Customer</button>
+    <button onclick="showSection('delivery')">I’m a Delivery Guy</button>
+  </div>
+
   <!-- Customer Section -->
-  <div class="tracking-section">
-    <label>Track your order (Example: MLX-12458)</label>
+  <div id="customer" class="tracking-section">
+    <label>Customer Tracking (Example: MLX-12458)</label>
     <input type="text" id="customerTrack" placeholder="Enter your tracking number...">
     <button onclick="trackOrder()">Track Now</button>
     <div id="customerResult" style="margin-top:15px; font-size:15px;"></div>
   </div>
 
   <!-- Delivery Guy Section -->
-  <div class="tracking-section">
+  <div id="delivery" class="tracking-section">
     <label>Delivery Personnel Access (Example: MLX-12458)</label>
     <input type="text" id="deliveryTrack" placeholder="Enter tracking number...">
     <input type="text" id="deliveryName" placeholder="Your Full Name">
     <input type="text" id="deliveryContact" placeholder="Your Contact Number">
     <button onclick="acceptOrder()">Accept Order</button>
     <div id="deliveryResult" style="margin-top:15px; font-size:15px;"></div>
-  </div>
-</div>
-
-<!-- Popup for new tracking number -->
-<div class="popup" id="popup">
-  <div class="popup-content">
-    <h3>✅ Thank You for Using MarketList</h3>
-    <p>Your order is being taken care of. Here’s your tracking number:</p>
-    <div class="tracking-number" id="trackingNumber"></div>
-    <br>
-    <button onclick="closePopup()">Close</button>
   </div>
 </div>
 
@@ -275,23 +265,14 @@ body {
 <footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
 
 <script>
+/* === Show/Hide Sections === */
+function showSection(type) {
+  document.getElementById("customer").style.display = "none";
+  document.getElementById("delivery").style.display = "none";
+  document.getElementById(type).style.display = "block";
+}
+
 /* === Tracking Functions === */
-function generateTrackingNumber() {
-  const prefix = "MLX-";
-  const randomNum = Math.floor(10000 + Math.random() * 90000);
-  return prefix + randomNum;
-}
-
-function showPopup() {
-  const trackingCode = generateTrackingNumber();
-  document.getElementById("trackingNumber").textContent = trackingCode;
-  document.getElementById("popup").style.display = "flex";
-}
-
-function closePopup() {
-  document.getElementById("popup").style.display = "none";
-}
-
 function trackOrder() {
   const code = document.getElementById("customerTrack").value.trim();
   const result = document.getElementById("customerResult");
@@ -358,9 +339,6 @@ function getAIResponse(msg) {
   else if (q.includes("do i pay before delivery")) ans = "Yes, all payments must be made before we deliver your items.";
   return ans;
 }
-
-/* Auto show popup simulation */
-setTimeout(showPopup, 1000);
 </script>
 </body>
 </html>
