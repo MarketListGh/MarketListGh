@@ -357,15 +357,12 @@ function toggleChat() {
   overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
   overlay.style.flexDirection = 'column';
 }
-
 input.addEventListener('keypress', e => {
   if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
 });
-
-async function sendMessage() {
+function sendMessage() {
   const msg = input.value.trim();
   if (!msg) return;
-
   const userMsg = document.createElement('div');
   userMsg.className = 'chat-message user-msg';
   userMsg.textContent = msg;
@@ -373,27 +370,25 @@ async function sendMessage() {
   input.value = '';
   chatBody.scrollTop = chatBody.scrollHeight;
 
-  try {
-    const response = await fetch("/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: msg })
-    });
-    const data = await response.json();
-
+  setTimeout(() => {
     const botMsg = document.createElement('div');
     botMsg.className = 'chat-message bot-msg';
-    botMsg.textContent = data.reply || "⚠️ Sorry, no response.";
+    botMsg.textContent = getAIResponse(msg);
     chatBody.appendChild(botMsg);
     chatBody.scrollTop = chatBody.scrollHeight;
+  }, 700);
+}
+function getAIResponse(msg) {
+  let q = msg.toLowerCase(); // normalize input
+  let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
 
-  } catch (err) {
-    const botMsg = document.createElement('div');
-    botMsg.className = 'chat-message bot-msg';
-    botMsg.textContent = "⚠️ AI service unavailable.";
-    chatBody.appendChild(botMsg);
-    chatBody.scrollTop = chatBody.scrollHeight;
-  }
+  if (q.includes("what is marketlist")) ans = "MarketList is an online service that lets you order groceries and other items from local markets, then delivers them straight to your door.";
+  else if (q.includes("how does marketlist work")) ans = "You just fill out your shopping list, pick a market, and submit it. Our team will buy your items and deliver them to you.";
+  else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
+  else if (q.includes("how much is delivery")) ans = "Delivery fees depend on your location and are added on top of your market total.";
+  else if (q.includes("how do i pay") || q.includes("payment options")) ans = "You can pay using Mobile Money or Paystack, which is a safe online payment platform.";
+  else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
+  return ans;
 }
 </script>
 </body>
