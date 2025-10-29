@@ -7,7 +7,7 @@
 <style>
 * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
 
-/* Header and Menu (exact same as index.html) */
+/* Header and Menu (same as index.html) */
 .headerbar {
   background:#00a859; 
   color:#fff; 
@@ -18,30 +18,15 @@
   align-items:center; 
   justify-content: space-between;
 }
-.headerbar .brand { 
-  display:flex; 
-  align-items:center; 
-  cursor:pointer; 
-}
+.headerbar .brand { display:flex; align-items:center; cursor:pointer; }
 .headerbar .brand img { width:40px; margin-right:10px; }
-.headerbar .brand .title {
-  font-size:20px;
-  font-weight:normal;
-  color:#fff;
-}
+.headerbar .brand .title { font-size:20px; font-weight:normal; color:#fff; }
 .headerbar nav a {
-  color:#fff;
-  margin-left:20px;
-  text-decoration:none;
-  font-weight:bold;
-  font-size:13.5px;
+  color:#fff; margin-left:20px; text-decoration:none;
+  font-weight:bold; font-size:13.5px;
 }
-.headerbar nav a:hover {
-  opacity:0.9;
-  text-decoration:none;
-}
+.headerbar nav a:hover { opacity:0.9; text-decoration:none; }
 
-/* Background and Card */
 body {
   background: linear-gradient(135deg, #00a859, #ff8c00);
   min-height: 100vh;
@@ -83,20 +68,12 @@ main.container {
   font-weight: bold;
   transition: background 0.3s;
 }
-.track-btns button:hover {
-  background-color: #028f4a;
-}
+.track-btns button:hover { background-color: #028f4a; }
 
-/* Hidden sections */
-.hidden-section {
-  display: none;
-  margin-top: 15px;
-}
-.hidden-section.active {
-  display: block;
-}
+.hidden-section { display: none; margin-top: 15px; }
+.hidden-section.active { display: block; }
 
-/* Input and results */
+/* Inputs and result */
 label {
   display: block;
   text-align: left;
@@ -133,6 +110,49 @@ button.submit:hover { background-color: #e57a00; }
   color: #333;
 }
 
+/* Popup (for both Deliverer & Customer) */
+.popup-overlay {
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+.popup {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+  max-width: 420px;
+  width: 90%;
+  padding: 25px;
+  text-align: left;
+  animation: slideUp 0.35s ease;
+}
+.popup h3 { color: #00a859; margin-bottom: 15px; text-align:center; }
+.popup p { margin: 6px 0; font-size: 15px; color: #333; }
+.popup-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+.popup-buttons button {
+  padding: 10px 20px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+.popup-buttons .accept { background:#00a859; color:#fff; }
+.popup-buttons .close { background:#ccc; color:#000; }
+
+@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+@keyframes slideUp { from {transform:translateY(30px); opacity:0;} to {transform:translateY(0); opacity:1;} }
+
 /* Footer */
 footer.footer {
   text-align:center;
@@ -140,78 +160,40 @@ footer.footer {
   background:#eee;
 }
 
-/* Floating Chat Bot */
+/* Chatbot */
 .chatbot-btn {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  width: 60px;
-  height: 60px;
-  background: #fff;
-  color: #00a859;
+  position: fixed; bottom: 25px; right: 25px;
+  width: 60px; height: 60px;
+  background: #fff; color: #00a859;
   border-radius: 50%;
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  cursor: pointer;
-  animation: bounce 2s infinite;
-  z-index: 10000;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; cursor: pointer;
+  animation: bounce 2s infinite; z-index: 10001;
 }
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-12px); }
-  60% { transform: translateY(-6px); }
+  0%,20%,50%,80%,100%{transform:translateY(0);}
+  40%{transform:translateY(-12px);}
+  60%{transform:translateY(-6px);}
 }
-
-/* Chat Overlay */
 .chat-overlay {
-  display: none;
-  position: fixed;
-  bottom: 100px;
-  right: 30px;
-  width: 320px;
-  height: 400px;
+  display: none; position: fixed;
+  bottom: 100px; right: 30px;
+  width: 320px; height: 400px;
   background: rgba(255,255,255,0.95);
   border-radius: 15px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  z-index: 10001;
-  flex-direction: column;
-  overflow: hidden;
+  z-index: 10002;
+  flex-direction: column; overflow: hidden;
 }
-.chat-header {
-  background: #00a859;
-  color: #fff;
-  padding: 10px;
-  text-align: center;
-  font-weight: bold;
-}
-.chat-body {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-  font-size: 14px;
-  color: #333;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.chat-message {
-  padding: 8px 10px;
-  border-radius: 10px;
-  max-width: 80%;
-  word-wrap: break-word;
-  font-size: 14px;
-}
-.user-msg { background: #f2f2f2; color: #000; align-self: flex-end; }
-.bot-msg { background: #d8ecff; color: #000; align-self: flex-start; }
-.chat-input {
-  display: flex;
-  border-top: 1px solid #ddd;
-}
-.chat-input input { flex: 1; border: none; padding: 14px; font-size: 14px; outline: none; }
-.chat-input button { background: #00a859; color: #fff; border: none; padding: 10px 15px; cursor: pointer; }
+.chat-header { background:#00a859; color:#fff; padding:10px; text-align:center; font-weight:bold; }
+.chat-body { flex:1; padding:10px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
+.chat-message { padding:8px 10px; border-radius:10px; max-width:80%; word-wrap:break-word; }
+.user-msg{background:#f2f2f2; align-self:flex-end;}
+.bot-msg{background:#d8ecff; align-self:flex-start;}
+.chat-input { display:flex; border-top:1px solid #ddd; }
+.chat-input input { flex:1; border:none; padding:14px; outline:none; }
+.chat-input button { background:#00a859; color:#fff; border:none; padding:10px 15px; cursor:pointer; }
 </style>
 </head>
 
@@ -234,7 +216,7 @@ footer.footer {
   </div>
 </div>
 
-<!-- Main content -->
+<!-- Main -->
 <main class="container">
   <section class="card">
     <h2>Track Your Order</h2>
@@ -258,7 +240,7 @@ footer.footer {
       <input type="text" id="delivererName" placeholder="Enter full name">
       <label>Contact Number:</label>
       <input type="text" id="delivererContact" placeholder="e.g. 0537351866">
-      <button class="submit" onclick="acceptOrder()">Accept Order</button>
+      <button class="submit" onclick="reviewOrder()">Review Order</button>
       <div id="delivererResult" class="result"></div>
     </div>
   </section>
@@ -266,15 +248,34 @@ footer.footer {
 
 <footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
 
-<!-- Floating Chatbot -->
+<!-- Popups -->
+<div id="delivererPopup" class="popup-overlay">
+  <div class="popup">
+    <h3>Order Review</h3>
+    <div id="delivererPopupContent"></div>
+    <div class="popup-buttons">
+      <button class="accept" onclick="confirmAccept()">Accept Order</button>
+      <button class="close" onclick="closePopup('delivererPopup')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="customerPopup" class="popup-overlay">
+  <div class="popup">
+    <h3>Order Details</h3>
+    <div id="customerPopupContent"></div>
+    <div class="popup-buttons">
+      <button class="close" onclick="closePopup('customerPopup')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chatbot -->
 <div class="chatbot-btn" onclick="toggleChat()">💬</div>
 <div class="chat-overlay" id="chatOverlay">
   <div class="chat-header">Chat with MarketList AI</div>
   <div class="chat-body" id="chatBody">
-    <div class="chat-message bot-msg">
-      Hello there 👋, welcome to <strong>MarketList!</strong><br>
-      How can I assist you today?
-    </div>
+    <div class="chat-message bot-msg">Hello 👋, welcome to <strong>MarketList!</strong> How can I help today?</div>
   </div>
   <div class="chat-input">
     <input id="chatInput" placeholder="Type your message...">
@@ -283,111 +284,102 @@ footer.footer {
 </div>
 
 <script>
-function showSection(type) {
+function showSection(type){
   document.getElementById('customerSection').classList.remove('active');
   document.getElementById('delivererSection').classList.remove('active');
-  if (type === 'customer') {
-    document.getElementById('customerSection').classList.add('active');
-  } else {
-    document.getElementById('delivererSection').classList.add('active');
+  if(type==='customer') document.getElementById('customerSection').classList.add('active');
+  else document.getElementById('delivererSection').classList.add('active');
+}
+
+/* CUSTOMER POPUP */
+function trackOrder(){
+  const code=document.getElementById('customerCode').value.trim();
+  if(!code){alert("Please enter a tracking number.");return;}
+  const orders=JSON.parse(localStorage.getItem('marketOrders')||'[]');
+  const found=orders.find(o=>o.tracking===code);
+  if(found){
+    const delivererInfo=found.delivery?found.delivery:"Not yet assigned";
+    const deliveryTime = found.distance ? `${(found.distance*5).toFixed(0)} mins` : "Pending";
+    const popup=document.getElementById('customerPopupContent');
+    popup.innerHTML=`
+      <p><strong>Name:</strong> ${found.name}</p>
+      <p><strong>Market:</strong> ${found.market}</p>
+      <p><strong>Category:</strong> ${found.category}</p>
+      <p><strong>Total Amount:</strong> ₵${found.total.toFixed(2)}</p>
+      <p><strong>Estimated Delivery Time:</strong> ${deliveryTime}</p>
+      <p><strong>Deliverer:</strong> ${delivererInfo}</p>
+    `;
+    openPopup('customerPopup');
+  } else alert("❌ No order found with this tracking number.");
+}
+
+/* DELIVERER POPUP */
+function reviewOrder(){
+  const code=document.getElementById('delivererCode').value.trim();
+  const name=document.getElementById('delivererName').value.trim();
+  const contact=document.getElementById('delivererContact').value.trim();
+  if(!code||!name||!contact){alert("Please fill in all fields.");return;}
+  const orders=JSON.parse(localStorage.getItem('marketOrders')||'[]');
+  const found=orders.find(o=>o.tracking===code);
+  if(found){
+    found.tempDeliverer={name,contact};
+    const km = found.distance || (Math.floor(Math.random()*10)+5);
+    const deliveryFee = Math.max(20, km*2);
+    const total = (found.total||0)+deliveryFee;
+    const popup=document.getElementById('delivererPopupContent');
+    popup.innerHTML=`
+      <p><strong>Customer:</strong> ${found.name}</p>
+      <p><strong>Location:</strong> ${found.location}</p>
+      <p><strong>Market:</strong> ${found.market}</p>
+      <p><strong>Category:</strong> ${found.category}</p>
+      <p><strong>Amount Paid:</strong> ₵${found.total.toFixed(2)}</p>
+      <p><strong>Delivery Fee:</strong> ₵${deliveryFee.toFixed(2)}</p>
+      <p><strong>Total Amount:</strong> ₵${total.toFixed(2)}</p>
+      <p><strong>Distance:</strong> ${km} km</p>
+      <p><strong>Estimated Time:</strong> ${(km*5).toFixed(0)} mins</p>
+      <p><strong>Customer Contact:</strong> ${found.phone || 'N/A'}</p>
+    `;
+    openPopup('delivererPopup');
+  } else alert("❌ No order found with this tracking number.");
+}
+
+function confirmAccept(){
+  const code=document.getElementById('delivererCode').value.trim();
+  const orders=JSON.parse(localStorage.getItem('marketOrders')||'[]');
+  const found=orders.find(o=>o.tracking===code);
+  if(found && found.tempDeliverer){
+    found.delivery=`${found.tempDeliverer.name} (${found.tempDeliverer.contact})`;
+    delete found.tempDeliverer;
+    localStorage.setItem('marketOrders',JSON.stringify(orders));
+    alert("✅ Order Accepted Successfully!");
+    closePopup('delivererPopup');
   }
 }
 
-/* Customer Tracking */
-function trackOrder() {
-  const code = document.getElementById('customerCode').value.trim();
-  const res = document.getElementById('customerResult');
-  if (!code) { res.textContent = "Please enter a tracking number."; return; }
-
-  try {
-    const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
-    const found = orders.find(o => o.tracking === code);
-    if (found) {
-      res.innerHTML = `
-        ✅ <strong>Order Found!</strong><br>
-        Name: ${found.name}<br>
-        Location: ${found.location}<br>
-        Market: ${found.market}<br>
-        Category: ${found.category}<br>
-        Total: ₵${found.total.toFixed(2)}<br>
-        Status: ${found.delivery ? found.delivery : "Pending"}
-      `;
-    } else res.textContent = "❌ No order found with this tracking number.";
-  } catch {
-    res.textContent = "Error loading your order. Try again later.";
-  }
-}
-
-/* Deliverer Section */
-function acceptOrder() {
-  const code = document.getElementById('delivererCode').value.trim();
-  const name = document.getElementById('delivererName').value.trim();
-  const contact = document.getElementById('delivererContact').value.trim();
-  const res = document.getElementById('delivererResult');
-
-  if (!code || !name || !contact) {
-    res.textContent = "Please fill in all fields.";
-    return;
-  }
-
-  try {
-    const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
-    const found = orders.find(o => o.tracking === code);
-    if (found) {
-      found.delivery = `Accepted by ${name} (${contact})`;
-      localStorage.setItem('marketOrders', JSON.stringify(orders));
-      res.innerHTML = `
-        ✅ <strong>Order Accepted!</strong><br>
-        Tracking: ${code}<br>
-        Delivery Assigned To: ${name}<br>
-        Contact: ${contact}
-      `;
-    } else res.textContent = "❌ No order found with this tracking number.";
-  } catch {
-    res.textContent = "Error updating the order.";
-  }
-}
+/* Popup controls */
+function openPopup(id){document.getElementById(id).style.display='flex';}
+function closePopup(id){document.getElementById(id).style.display='none';}
 
 /* Chatbot */
-const overlay = document.getElementById('chatOverlay');
-const chatBody = document.getElementById('chatBody');
-const input = document.getElementById('chatInput');
-
-function toggleChat() {
-  overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
-  overlay.style.flexDirection = 'column';
+const overlay=document.getElementById('chatOverlay');
+const chatBody=document.getElementById('chatBody');
+const input=document.getElementById('chatInput');
+function toggleChat(){overlay.style.display=overlay.style.display==='flex'?'none':'flex';overlay.style.flexDirection='column';}
+input.addEventListener('keypress',e=>{if(e.key==='Enter'){e.preventDefault();sendMessage();}});
+function sendMessage(){
+  const msg=input.value.trim(); if(!msg)return;
+  const userMsg=document.createElement('div'); userMsg.className='chat-message user-msg'; userMsg.textContent=msg; chatBody.appendChild(userMsg);
+  input.value=''; chatBody.scrollTop=chatBody.scrollHeight;
+  setTimeout(()=>{
+    const botMsg=document.createElement('div'); botMsg.className='chat-message bot-msg';
+    botMsg.textContent=getAIResponse(msg); chatBody.appendChild(botMsg); chatBody.scrollTop=chatBody.scrollHeight;
+  },700);
 }
-input.addEventListener('keypress', e => {
-  if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
-});
-function sendMessage() {
-  const msg = input.value.trim();
-  if (!msg) return;
-  const userMsg = document.createElement('div');
-  userMsg.className = 'chat-message user-msg';
-  userMsg.textContent = msg;
-  chatBody.appendChild(userMsg);
-  input.value = '';
-  chatBody.scrollTop = chatBody.scrollHeight;
-
-  setTimeout(() => {
-    const botMsg = document.createElement('div');
-    botMsg.className = 'chat-message bot-msg';
-    botMsg.textContent = getAIResponse(msg);
-    chatBody.appendChild(botMsg);
-    chatBody.scrollTop = chatBody.scrollHeight;
-  }, 700);
-}
-function getAIResponse(msg) {
-  let q = msg.toLowerCase(); // normalize input
-  let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
-
-  if (q.includes("what is marketlist")) ans = "MarketList is an online service that lets you order groceries and other items from local markets, then delivers them straight to your door.";
-  else if (q.includes("how does marketlist work")) ans = "You just fill out your shopping list, pick a market, and submit it. Our team will buy your items and deliver them to you.";
-  else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
-  else if (q.includes("how much is delivery")) ans = "Delivery fees depend on your location and are added on top of your market total.";
-  else if (q.includes("how do i pay") || q.includes("payment options")) ans = "You can pay using Mobile Money or Paystack, which is a safe online payment platform.";
-  else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
+function getAIResponse(msg){
+  let q=msg.toLowerCase(), ans="Please contact support at 0537351866 for further help.";
+  if(q.includes("what is marketlist")) ans="MarketList is your trusted service for getting items delivered from local markets.";
+  else if(q.includes("how much is delivery")) ans="Delivery fees depend on your distance, starting at ₵20 for up to 10km.";
+  else if(q.includes("how do i pay")) ans="Payments can be made via MoMo or Paystack safely.";
   return ans;
 }
 </script>
