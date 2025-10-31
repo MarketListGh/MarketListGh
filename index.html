@@ -1,93 +1,314 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MarketList — Home</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  integrity="sha256-sA+e2Qp9Z8b4g6Nf9x3Xq0zY1bM6Qw5Yv2v+0q5m0mM=" crossorigin=""/>
 <style>
-/* ---- keep original styles (trimmed here for brevity) ---- */
 * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
-#preloader { position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:flex; justify-content:center; align-items:center; z-index:9999; transition: opacity 0.5s ease; }
+
+/* Preloader overlay */
+#preloader {
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  transition: opacity 0.5s ease;
+}
 #preloader.hidden { opacity:0; pointer-events:none; }
-.loader-ring { width: 120px; height: 120px; position: relative; display:flex; justify-content:center; align-items:center; }
-.loader-ring .ring { width: 120px; height: 120px; border: 6px solid #ccc; border-top-color: #00a859; border-radius: 50%; animation: spin 1s linear infinite; position: absolute; top:0; left:0; }
-.loader-ring img { width: 60px; height: 60px; border-radius: 50%; position: relative; }
+
+.loader-ring {
+  width: 120px; height: 120px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.loader-ring .ring {
+  width: 120px; height: 120px;
+  border: 6px solid #ccc;
+  border-top-color: #00a859;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  position: absolute; top: 0; left: 0;
+}
+.loader-ring img {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  position: relative;
+}
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-header, main, footer { opacity:0; transition: opacity 1s ease; } .visible { opacity:1; }
+
+header, main, footer { opacity:0; transition: opacity 1s ease; }
+.visible { opacity:1; }
+
 /* Header and Menu */
-.headerbar { background:#00a859; color:#fff; padding:10px 20px; }
-.headerbar .inner { display:flex; align-items:center; justify-content: space-between; }
-.headerbar .brand { display:flex; align-items:center; cursor:pointer; }
+.headerbar {
+  background:#00a859; 
+  color:#fff; 
+  padding:10px 20px;
+}
+.headerbar .inner {
+  display:flex; 
+  align-items:center; 
+  justify-content: space-between;
+}
+.headerbar .brand { 
+  display:flex; 
+  align-items:center; 
+  cursor:pointer; 
+}
 .headerbar .brand img { width:40px; margin-right:10px; }
-.headerbar .brand .title { font-size:20px; font-weight:normal; color:#fff; }
-.headerbar nav a { color:#fff; margin-left:20px; text-decoration:none; font-weight:bold; font-size:13.5px; }
-.headerbar nav a:hover { opacity:0.9; text-decoration:none; }
+.headerbar .brand .title {
+  font-size:20px;
+  font-weight:normal;
+  color:#fff;
+}
+.headerbar nav a {
+  color:#fff;
+  margin-left:20px;
+  text-decoration:none;
+  font-weight:bold;
+  font-size:13.5px;
+}
+.headerbar nav a:hover {
+  opacity:0.9;
+  text-decoration:none;
+}
+
 /* --- SLIDER (added) --- */
-.slider-box { max-width:700px; margin: 20px auto 0; padding: 12px; border-radius: 16px; background: linear-gradient(135deg, #00a859, #ff8c00); box-shadow: 0 6px 25px rgba(0,0,0,0.12); }
-.slider { position: relative; width: 100%; height: 180px; overflow: hidden; border-radius: 12px; background: rgba(255,255,255,0.03); }
-.slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.7s ease-in-out; display:flex; align-items:center; justify-content:center; }
+.slider-box {
+  max-width:700px;
+  margin: 20px auto 0;
+  padding: 12px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #00a859, #ff8c00);
+  box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+}
+.slider {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+}
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.7s ease-in-out;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 .slide.active { opacity: 1; z-index:1; }
-.slide img { width: 100%; height: 100%; object-fit: contain; display:block; border-radius: 12px; background: #fff; padding:6px; filter: contrast(0.98) saturate(1.02); }
-.slider .arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.36); color: #fff; border-radius: 50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer; z-index: 5; user-select:none; }
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display:block;
+  border-radius: 12px;
+  filter: contrast(0.98) saturate(1.02);
+}
+.slider .arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.36);
+  color: #fff;
+  border-radius: 50%;
+  width:36px;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  cursor:pointer;
+  z-index: 5;
+  user-select:none;
+}
 .slider .arrow:hover { background: rgba(0,0,0,0.55); }
-.slider .prev { left: 10px; } .slider .next { right: 10px; }
-.slider .dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display:flex; gap:8px; z-index:6; }
-.slider .dot { width:10px; height:10px; border-radius:50%; background: rgba(255,255,255,0.55); cursor:pointer; }
+.slider .prev { left: 10px; }
+.slider .next { right: 10px; }
+.slider .dots {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display:flex;
+  gap:8px;
+  z-index:6;
+}
+.slider .dot {
+  width:10px; height:10px; border-radius:50%;
+  background: rgba(255,255,255,0.55);
+  cursor:pointer;
+}
 .slider .dot.active { background: #fff; transform: scale(1.1); }
+
 /* Main content */
 main.container { max-width:700px; margin:40px auto; padding:20px; }
-.card { background: linear-gradient(135deg, #00a859, #ff8c00); color:#fff; padding:30px; border-radius:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2); }
+.card {
+  background: linear-gradient(135deg, #00a859, #ff8c00);
+  color:#fff; padding:30px; border-radius:20px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.2);
+}
 .header-main { display:flex; align-items:center; margin-bottom:20px; }
 .header-main img { width:60px; margin-right:15px; }
 .header-main h1 { margin:0; }
 .slogan { font-style: normal; font-size:0.9em; }
+
 form label { display:block; margin-top:15px; font-weight:bold; }
-form input, form select, form textarea { width:100%; padding:10px; margin-top:5px; border:none; border-radius:8px; font-size:15px; }
+form input, form select, form textarea {
+  width:100%; padding:10px; margin-top:5px;
+  border:none; border-radius:8px; font-size:15px;
+}
 textarea { height:80px; resize:vertical; }
-.row { display:flex; gap:10px; } .row .col { flex:1; }
+
+.row { display:flex; gap:10px; }
+.row .col { flex:1; }
 .summary { margin-top:15px; font-weight:bold; }
-.send-whatsapp { display:block; width:100%; text-align:center; background-color:#25D366; color:white; font-weight:bold; padding:15px; margin-top:25px; border-radius:30px; text-decoration:none; transition: background-color 0.3s ease; }
+
+.send-whatsapp {
+  display:block; width:100%; text-align:center;
+  background-color:#25D366; color:white; font-weight:bold;
+  padding:15px; margin-top:25px; border-radius:30px;
+  text-decoration:none; transition: background-color 0.3s ease;
+}
 .send-whatsapp:hover { background-color:#1ebe5b; }
 footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40px; }
+
 /* Transparent box with shadow */
-.transparent-box { background: rgba(255,255,255,0.95); color:#000; padding:20px; border-radius:12px; margin-top:15px; font-weight:bold; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
+.transparent-box {
+  background: rgba(255,255,255,0.95);
+  color:#000;
+  padding:20px;
+  border-radius:12px;
+  margin-top:15px;
+  font-weight:bold;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+}
+
 /* Popup styles (added) */
-.popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 20000; }
-.popup-box { background: #fff; padding: 28px 30px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3); text-align: center; max-width: 420px; width: 90%; }
-.popup-box h3 { color: #00a859; margin-bottom: 8px; font-size: 18px; }
+.popup-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 20000;
+}
+.popup-box {
+  background: #fff;
+  padding: 28px 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  text-align: center;
+  max-width: 420px;
+  width: 90%;
+}
+.popup-box h3 {
+  color: #00a859;
+  margin-bottom: 8px;
+  font-size: 18px;
+}
 .popup-box p { color:#333; margin:6px 0; }
-.tracking-number { font-size: 32px; font-weight: 800; color: #ff8c00; margin-top: 10px; letter-spacing: 1px; }
-.popup-box .ok-btn { margin-top: 18px; background: #00a859; color: #fff; padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; }
-/* Map modal styles - styled to look like your screenshot but uses non-copyright map preview */
-#locationModal .modal-card { max-width:760px; width:92%; padding:0; border-radius:12px; background:#fff; box-shadow:0 12px 40px rgba(0,0,0,0.3); color:#222; overflow:hidden; }
-.modal-top { padding:16px 18px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #eee; }
-.modal-title { color:#111; font-weight:700; font-size:18px; }
-.close-x { font-size:22px; background:#eee; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; }
-.modal-search { padding:12px 18px; }
-.search-input { width:100%; padding:12px 14px; border-radius:10px; border:1px solid #eee; font-size:15px; box-shadow:inset 0 1px 3px rgba(0,0,0,0.05); }
-.modal-map { position:relative; background:#f2f2f2; height:360px; display:flex; align-items:center; justify-content:center; }
-.map-preview { width:100%; height:100%; background:linear-gradient(180deg,#e9eef3,#d6dde6); display:flex; align-items:center; justify-content:center; position:relative; }
-.map-pin { width:48px; height:48px; background: #00a859; border-radius:50%; box-shadow: 0 6px 18px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold; transform:translateY(-12px); }
-.hint-text { padding:12px 18px; color:#555; font-size:14px; }
-.modal-actions { display:flex; gap:10px; justify-content:space-between; align-items:center; padding:12px 18px; border-top:1px solid #f0f0f0; }
-.btn { padding:10px 14px; border-radius:8px; border:none; cursor:pointer; font-weight:bold; }
-.btn.secondary { background:#ddd; color:#000; }
-.btn.primary { background:#00a859; color:#fff; }
-.map-info { margin-top:6px; font-weight:bold; color:#222; }
+.tracking-number {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ff8c00;
+  margin-top: 10px;
+  letter-spacing: 1px;
+}
+.popup-box .ok-btn {
+  margin-top: 18px;
+  background: #00a859;
+  color: #fff;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
 /* Floating Chat Bot */
-.chatbot-btn { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; background: #fff; color:#00a859; border-radius:50%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; font-size:28px; cursor:pointer; animation:bounce 2s infinite; z-index: 10000; }
-@keyframes bounce { 0%,20%,50%,80%,100%{transform:translateY(0);} 40%{transform:translateY(-12px);} 60%{transform:translateY(-6px);} }
+.chatbot-btn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 60px;
+  height: 60px;
+  background: #fff;
+  color: #00a859;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  cursor: pointer;
+  animation: bounce 2s infinite;
+  z-index: 10000;
+}
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-12px); }
+  60% { transform: translateY(-6px); }
+}
+
 /* Chat Overlay */
-.chat-overlay { display: none; position: fixed; bottom: 100px; right: 30px; width: 320px; height: 400px; background: rgba(255,255,255,0.95); border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 10001; flex-direction: column; overflow: hidden; }
-.chat-header { background: #00a859; color: #fff; padding: 10px; text-align: center; font-weight: bold; }
-.chat-body { flex: 1; padding: 10px; overflow-y: auto; display:flex; flex-direction:column; gap:8px; }
-.chat-message { padding: 8px 10px; border-radius: 10px; max-width: 80%; word-wrap: break-word; font-size: 14px; }
-.user-msg { background:#f2f2f2; align-self:flex-end; }
-.bot-msg { background:#d8ecff; align-self:flex-start; }
-/* small responsive tweaks */
-@media (max-width:600px){ .modal-map{height:340px;} .slide{height:140px;} #locationModal .modal-card{width:98%;} .map-pin{width:44px;height:44px;} }
+.chat-overlay {
+  display: none;
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 320px;
+  height: 400px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 10001;
+  flex-direction: column;
+  overflow: hidden;
+}
+.chat-header {
+  background: #00a859;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+.chat-body {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chat-message {
+  padding: 8px 10px;
+  border-radius: 10px;
+  max-width: 80%;
+  word-wrap: break-word;
+  font-size: 14px;
+}
+.user-msg { background: #f2f2f2; color: #000; align-self: flex-end; }
+.bot-msg { background: #d8ecff; color: #000; align-self: flex-start; }
+.chat-input {
+  display: flex;
+  border-top: 1px solid #ddd;
+}
+.chat-input input { flex: 1; border: none; padding: 14px; font-size: 14px; outline: none; }
+.chat-input button { background: #00a859; color: #fff; border: none; padding: 10px 15px; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -172,9 +393,6 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
 
       <label for="location">Delivery Location</label>
       <input id="location" type="text" placeholder="e.g., East Legon, Accra" required>
-      <div style="margin-top:8px;">
-        <button id="setLocationBtn" type="button" class="btn secondary">Set Delivery Location</button>
-      </div>
 
       <div class="row">
         <div class="col">
@@ -211,10 +429,7 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
       <div class="transparent-box">
         <div>Service Fee (20%): ₵<span id="serviceFee">0.00</span></div>
         <div>Total (Budget + Service Fee): ₵<span id="totalAmount">0.00</span></div>
-        <div style="margin-top:8px;">Distance: <span id="displayDistance">—</span></div>
-        <div>Estimated Time: <span id="displayETA">—</span></div>
-        <div>Delivery Fee: ₵<span id="displayDeliveryFee">—</span></div>
-        <div style="margin-top:10px; font-weight:normal;">⚠️ Customers are responsible for delivery fees. Distances ≤ 10 km = ₵20 minimum.</div>
+        <div style="margin-top:10px; font-weight:normal;">⚠️ Customers are responsible for delivery fees.</div>
         <div style="margin-top:12px; font-weight:normal;">
           <strong>Make payment to:</strong>
           <div>0537351866</div>
@@ -229,43 +444,6 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
 </main>
 
 <footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
-
-<!-- Map Modal (styled like your screenshot; no copyrighted map used) -->
-<div class="popup-overlay" id="locationModal" aria-hidden="true">
-  <div class="modal-card" role="dialog" aria-labelledby="locTitle">
-    <div class="modal-top">
-      <div class="modal-title">Set delivery address</div>
-      <div class="close-x" id="locationClose">✕</div>
-    </div>
-
-    <div class="modal-search">
-      <input id="modalSearch" class="search-input" placeholder="Osu Klottey Street (optional)" />
-    </div>
-
-    <div class="modal-map">
-      <div class="map-preview" id="mapPreview" aria-hidden="true">
-        <!-- stylized map preview (non-copyright) -->
-        <div class="map-pin" id="mapPin">●</div>
-      </div>
-    </div>
-
-    <div class="hint-text">Move the pin to your building entrance to help your courier find you faster</div>
-
-    <div class="modal-actions">
-      <div>
-        <button id="detectBtn" class="btn primary">Detect My Location</button>
-        <button id="clearMarkerBtn" class="btn secondary">Clear</button>
-      </div>
-      <div style="text-align:right;">
-        <div id="mapInfo" class="map-info">No location selected</div>
-        <div style="margin-top:8px;">
-          <button id="cancelLocationBtn" class="btn secondary">Cancel</button>
-          <button id="saveLocationBtn" class="btn primary">Set address</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Floating Chatbot -->
 <div class="chatbot-btn" onclick="toggleChat()">💬</div>
@@ -291,7 +469,7 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
     <p>Your order is being taken care of.</p>
     <p style="margin-top:8px;">Here is your tracking number:</p>
     <div id="popupTracking" class="tracking-number" aria-live="polite">ML-000000</div>
-    <button class="ok-btn" id="trackingOkBtn">OK</button>
+    <button class="ok-btn" onclick="closeTrackingPopup()">OK</button>
   </div>
 </div>
 
@@ -306,7 +484,6 @@ window.addEventListener('load', () => {
   }, 3000);
 });
 
-/* Totals logic (unchanged) */
 const budgetEl = document.getElementById('budget');
 const serviceEl = document.getElementById('serviceFee');
 const totalEl = document.getElementById('totalAmount');
@@ -333,213 +510,35 @@ function saveOrderToLocalStorage(orderObj) {
   }
 }
 
-/* ----- Market Coordinates ----- */
-const MARKET_COORDS = {
-  "Makola Market": { lat: 5.5471, lng: -0.2057 },
-  "Nima Market": { lat: 5.5559, lng: -0.1876 },
-  "Accra Mall": { lat: 5.5600, lng: -0.1968 },
-  "Marina Mall": { lat: 5.5572, lng: -0.2043 },
-  "Lapaz Market": { lat: 5.6037, lng: -0.2429 },
-  "Accra Market": { lat: 5.5520, lng: -0.2000 },
-  "Kasoa Market": { lat: 5.5310, lng: -0.4152 }
-};
-
-/* ----- Haversine distance ----- */
-function haversineDistance(lat1, lon1, lat2, lon2) {
-  function toRad(x){ return x * Math.PI / 180; }
-  const R = 6371; // km
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
-}
-
-/* ----- Delivery fee & ETA ----- */
-function calcDeliveryFee(km){
-  if(km <= 10) return 20;
-  // beyond 10km, ₵2 per km (rounded)
-  return 20 + 2 * Math.round(km - 10);
-}
-function calcETA(km){
-  // use 2.5 minutes per km
-  return Math.round(km * 2.5);
-}
-
-/* ----- Modal + location logic (non-copyright map preview) ----- */
-const setLocationBtn = document.getElementById('setLocationBtn');
-const locationModal = document.getElementById('locationModal');
-const detectBtn = document.getElementById('detectBtn');
-const saveLocationBtn = document.getElementById('saveLocationBtn');
-const cancelLocationBtn = document.getElementById('cancelLocationBtn');
-const clearMarkerBtn = document.getElementById('clearMarkerBtn');
-const mapInfo = document.getElementById('mapInfo');
-const displayDistance = document.getElementById('displayDistance');
-const displayETA = document.getElementById('displayETA');
-const displayDeliveryFee = document.getElementById('displayDeliveryFee');
-const modalSearch = document.getElementById('modalSearch');
-const mapPin = document.getElementById('mapPin');
-const locationClose = document.getElementById('locationClose');
-const mapPreview = document.getElementById('mapPreview');
-
-let selectedLocation = null;
-let selectedDistance = null;
-let selectedDeliveryFee = null;
-let selectedETA = null;
-
-/* open modal */
-function openLocationModal(){
-  locationModal.style.display = 'flex';
-  locationModal.setAttribute('aria-hidden','false');
-  // reset preview hint
-  mapInfo.textContent = 'Click Detect to find your location, or type an address.';
-  // place visual pin center (no real dragging map) - pin always centered visually
-  mapPin.style.transform = 'translateY(-12px)';
-}
-setLocationBtn.addEventListener('click', openLocationModal);
-
-/* close modal functions */
-function closeLocationModal(){
-  locationModal.style.display = 'none';
-  locationModal.setAttribute('aria-hidden','true');
-}
-cancelLocationBtn.addEventListener('click', closeLocationModal);
-locationClose.addEventListener('click', closeLocationModal);
-
-/* Clear detected location */
-clearMarkerBtn.addEventListener('click', () => {
-  selectedLocation = null;
-  selectedDistance = null;
-  selectedDeliveryFee = null;
-  selectedETA = null;
-  mapInfo.textContent = 'Location cleared.';
-});
-
-/* Detect user's geolocation using browser API */
-detectBtn.addEventListener('click', () => {
-  if(!navigator.geolocation){
-    alert('Geolocation not supported by your browser.');
-    return;
-  }
-  detectBtn.textContent = 'Detecting...';
-  navigator.geolocation.getCurrentPosition((pos) => {
-    detectBtn.textContent = 'Detect My Location';
-    selectedLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-    // put the typed-search fallback text if user didn't type one
-    if(!modalSearch.value) modalSearch.value = `Lat ${selectedLocation.lat.toFixed(5)}, Lng ${selectedLocation.lng.toFixed(5)}`;
-    updateDistanceAndInfo();
-    mapInfo.textContent = `Detected: ${selectedLocation.lat.toFixed(5)}, ${selectedLocation.lng.toFixed(5)}`;
-    // small visual pulse to indicate pin set
-    mapPin.style.transform = 'translateY(-20px)';
-    setTimeout(()=> mapPin.style.transform = 'translateY(-12px)', 350);
-  }, (err) => {
-    detectBtn.textContent = 'Detect My Location';
-    alert('Could not detect location: ' + err.message);
-  }, { enableHighAccuracy:true, timeout:10000 });
-});
-
-/* compute distance using selected market and selectedLocation */
-function updateDistanceAndInfo(){
-  const marketName = document.getElementById('market').value;
-  if(!marketName){
-    mapInfo.textContent = 'Please select a market in the form first.';
-    return;
-  }
-  const market = MARKET_COORDS[marketName];
-  if(!market){
-    mapInfo.textContent = 'Market coordinates not found for ' + marketName;
-    return;
-  }
-  if(!selectedLocation){
-    mapInfo.textContent = 'No location selected yet.';
-    return;
-  }
-  const km = haversineDistance(market.lat, market.lng, selectedLocation.lat, selectedLocation.lng);
-  selectedDistance = Math.round(km * 10) / 10; // 1 decimal
-  selectedDeliveryFee = calcDeliveryFee(selectedDistance);
-  selectedETA = calcETA(selectedDistance);
-  mapInfo.innerHTML = `Distance: <strong>${selectedDistance} km</strong> — ETA: <strong>${selectedETA} min</strong> — Fee: <strong>₵${selectedDeliveryFee}</strong>`;
-}
-
-/* Save location to form and session storage when user clicks Set address */
-saveLocationBtn.addEventListener('click', () => {
-  // If user typed an address but didn't detect, we can still save typed address with lat/lng fallback
-  if(!selectedLocation && modalSearch.value.trim()){
-    // No geolocation available, save typed address as text and keep distance blank until detection
-    document.getElementById('location').value = modalSearch.value.trim();
-    // clear previous display values
-    displayDistance.textContent = '—';
-    displayETA.textContent = '—';
-    displayDeliveryFee.textContent = '—';
-    sessionStorage.removeItem('ml_selectedLocation');
-    sessionStorage.removeItem('ml_selectedDistance');
-    sessionStorage.removeItem('ml_selectedDeliveryFee');
-    sessionStorage.removeItem('ml_selectedETA');
-    closeLocationModal();
-    return;
-  }
-
-  if(!selectedLocation){
-    alert('Please detect your location or type the address.');
-    return;
-  }
-
-  // update visible inputs & displays
-  document.getElementById('location').value = modalSearch.value.trim() || `Lat ${selectedLocation.lat.toFixed(5)}, Lng ${selectedLocation.lng.toFixed(5)}`;
-  displayDistance.textContent = `${selectedDistance} km`;
-  displayETA.textContent = `${selectedETA} mins`;
-  displayDeliveryFee.textContent = selectedDeliveryFee.toFixed(2);
-
-  // save to session storage so later code (send WhatsApp) can use it
-  sessionStorage.setItem('ml_selectedLocation', JSON.stringify(selectedLocation));
-  sessionStorage.setItem('ml_selectedDistance', selectedDistance);
-  sessionStorage.setItem('ml_selectedDeliveryFee', selectedDeliveryFee);
-  sessionStorage.setItem('ml_selectedETA', selectedETA);
-
-  closeLocationModal();
-});
-
-/* ----- Prepare and send WhatsApp (and save order) ----- */
 function prepareAndOpenWhatsApp(e) {
   e.preventDefault();
   const name = document.getElementById('name').value.trim();
   const contact = document.getElementById('contact').value.trim();
-  const locationText = document.getElementById('location').value.trim();
+  const location = document.getElementById('location').value.trim();
   const items = document.getElementById('items').value.trim();
   const market = document.getElementById('market').value;
   const category = document.getElementById('category').value;
   const budget = parseFloat(document.getElementById('budget').value) || 0;
-  const service = (budget * 0.20);
-  // pull map values (if user set them)
-  const selLoc = JSON.parse(sessionStorage.getItem('ml_selectedLocation') || 'null');
-  const selDistance = parseFloat(sessionStorage.getItem('ml_selectedDistance') || '0');
-  const selDeliveryFee = parseFloat(sessionStorage.getItem('ml_selectedDeliveryFee') || '0');
-  const selETA = parseInt(sessionStorage.getItem('ml_selectedETA') || '0', 10);
+  const service = (budget * 0.20).toFixed(2);
+  const total = (budget + parseFloat(service)).toFixed(2);
 
-  const totalItemsAndService = budget + service;
-  const totalAll = totalItemsAndService + selDeliveryFee;
-
-  if (!name || !contact || !locationText || !items) {
+  if (!name || !contact || !location || !items) {
     alert('Please fill Name, Contact, Location and Items before sending.');
     return;
   }
-  if(!market){ alert('Please select a Market'); return; }
 
   const trackingNumber = generateTrackingNumber();
   const lines = [
     '🛒 MARKET LIST ORDER','',
     `Name: ${name}`,
     `Contact: ${contact}`,
-    `Location: ${locationText}`,
+    `Location: ${location}`,
     `Market: ${market}`,
     `Category: ${category}`,'',
     'Items:', items,'',
-    `Budget (items): ₵${budget.toFixed(2)}`,
-    `Service Fee (20%): ₵${service.toFixed(2)}`,
-    `Delivery Fee: ₵${selDeliveryFee.toFixed(2)}`,
-    `Total (items + service + delivery): ₵${totalAll.toFixed(2)}`,'',
-    `Distance (km): ${selDistance}`,
-    `Estimated Time (mins): ${selETA}`,'',
+    `Budget: ₵${budget.toFixed(2)}`,
+    `Service Fee (20%): ₵${service}`,
+    `Total: ₵${total}`,'',
     `Tracking Number: ${trackingNumber}`,'',
     'Make payment to:',
     '0537351866 (Account Name: Michael Awintini Akurugu)',
@@ -550,25 +549,20 @@ function prepareAndOpenWhatsApp(e) {
   const orderObj = {
     tracking: trackingNumber,
     name: name,
-    phone: contact,
-    location: locationText,
-    locationLatLng: selLoc,
+    contact: contact,
+    location: location,
     market: market,
     category: category,
     itemsRaw: items,
     list: items.split(/\r?\n|,|;/).map(s => s.trim()).filter(Boolean),
     budget: Number(budget),
-    serviceFee: Number(service.toFixed(2)),
-    deliveryFee: Number(selDeliveryFee.toFixed(2)),
-    distance: Number(selDistance),
-    etaMinutes: Number(selETA),
-    total: Number(totalAll.toFixed(2)),
+    serviceFee: Number(service),
+    total: Number(total),
     delivery: null,
     createdAt: new Date().toISOString()
   };
   saveOrderToLocalStorage(orderObj);
 
-  // open whatsapp (company number used below)
   window.open('https://wa.me/2330537351866?text=' + msg, '_blank');
 
   const popup = document.getElementById('trackingPopup');
@@ -579,29 +573,56 @@ function prepareAndOpenWhatsApp(e) {
   try { localStorage.setItem('lastTracking', trackingNumber); } catch (err) {}
 }
 
-/* Fix tracking popup OK to close properly */
-document.getElementById('trackingOkBtn').addEventListener('click', closeTrackingPopup);
-function closeTrackingPopup(){ const popup = document.getElementById('trackingPopup'); popup.style.display='none'; popup.setAttribute('aria-hidden','true'); }
+function closeTrackingPopup() {
+  const popup = document.getElementById('trackingPopup');
+  popup.style.display = 'none';
+  popup.setAttribute('aria-hidden', 'true');
+}
 
-/* Chatbot & slider (unchanged except getAIResponse inserted) */
 const overlay = document.getElementById('chatOverlay');
 const chatBody = document.getElementById('chatBody');
 const input = document.getElementById('chatInput');
-function toggleChat() { overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex'; overlay.style.flexDirection = 'column'; }
-input.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } });
-function sendMessage() { const msg = input.value.trim(); if (!msg) return; const userMsg = document.createElement('div'); userMsg.className = 'chat-message user-msg'; userMsg.textContent = msg; chatBody.appendChild(userMsg); input.value = ''; chatBody.scrollTop = chatBody.scrollHeight; setTimeout(() => { const botMsg = document.createElement('div'); botMsg.className = 'chat-message bot-msg'; botMsg.textContent = getAIResponse(msg); chatBody.appendChild(botMsg); chatBody.scrollTop = chatBody.scrollHeight; }, 700); }
 
-/* EXACT getAIResponse function you requested (inserted as-is) */
+function toggleChat() {
+  overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
+  overlay.style.flexDirection = 'column';
+}
+
+input.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+function sendMessage() {
+  const msg = input.value.trim();
+  if (!msg) return;
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-message user-msg';
+  userMsg.textContent = msg;
+  chatBody.appendChild(userMsg);
+  input.value = '';
+  chatBody.scrollTop = chatBody.scrollHeight;
+
+  setTimeout(() => {
+    const botMsg = document.createElement('div');
+    botMsg.className = 'chat-message bot-msg';
+    botMsg.textContent = getAIResponse(msg);
+    chatBody.appendChild(botMsg);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }, 700);
+}
 function getAIResponse(msg) {
-  let q = msg.toLowerCase(); // normalize input
+  let q = msg.toLowerCase();
   let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
 
   if (q.includes("what is marketlist")) ans = "MarketList is an online service that lets you order groceries and other items from local markets, then delivers them straight to your door.";
-  else if (q.includes("how does marketlist work")) ans = "You just fill out your shopping list, pick a market, and submit it. Our team will buy your items and deliver it to you.";
+  else if (q.includes("how does marketlist work")) ans = "You just fill out your shopping list, pick a market, and submit it. Our team will buy your items and deliver them to you.";
   else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
   else if (q.includes("how much is delivery")) ans = "Delivery fees depend on your location and are added on top of your market total.";
   else if (q.includes("how do i pay") || q.includes("payment options")) ans = "You can pay using Mobile Money or Paystack, which is a safe online payment platform.";
-  else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
+
   return ans;
 }
 
@@ -614,17 +635,30 @@ function getAIResponse(msg) {
   let sliderIndex = 0;
   let autoTimer = null;
   const AUTO_DELAY = 4000;
-  function showSlider(i) { slides.forEach((s, idx) => s.classList.toggle('active', idx === i)); dots.forEach((d, idx) => d.classList.toggle('active', idx === i)); sliderIndex = i; }
-  function changeSlider(direction) { const nextIndex = (sliderIndex + direction + slides.length) % slides.length; showSlider(nextIndex); }
+
+  function showSlider(i) {
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    dots.forEach((d, idx) => d.classList.toggle('active', idx === i));
+    sliderIndex = i;
+  }
+
+  function changeSlider(direction) {
+    const nextIndex = (sliderIndex + direction + slides.length) % slides.length;
+    showSlider(nextIndex);
+  }
+
   prev?.addEventListener('click', () => { changeSlider(-1); resetAuto(); });
   next?.addEventListener('click', () => { changeSlider(1); resetAuto(); });
   dots.forEach(d => d.addEventListener('click', (e) => { const i = parseInt(e.currentTarget.dataset.index,10); showSlider(i); resetAuto(); }));
+
   function startAuto() { autoTimer = setInterval(() => changeSlider(1), AUTO_DELAY); }
   function stopAuto(){ if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
   function resetAuto(){ stopAuto(); startAuto(); }
+
   const sliderEl = document.getElementById('mainSlider');
   sliderEl?.addEventListener('mouseenter', stopAuto);
   sliderEl?.addEventListener('mouseleave', startAuto);
+
   showSlider(0);
   startAuto();
 })();
