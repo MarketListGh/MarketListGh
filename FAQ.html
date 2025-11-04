@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FAQ - MarketList</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif;}
+body{background:linear-gradient(135deg,#00a859,#ff8c00);min-height:100vh;}
+
+/* Header */
+.headerbar{background:#00a859;color:#fff;padding:10px 20px;}
+.headerbar .inner{display:flex;align-items:center;justify-content:space-between;}
+.headerbar .brand{display:flex;align-items:center;cursor:pointer;}
+.headerbar .brand img{width:40px;margin-right:10px;}
+.headerbar .brand .title{font-size:20px;font-weight:normal;color:#fff;}
+.headerbar nav a{
+  color:#fff;margin-left:20px;text-decoration:none;font-weight:bold;font-size:13.5px;
+}
+.headerbar nav a:hover{opacity:0.9;}
+.headerbar nav .active{text-decoration:underline;}
+
+/* FAQ */
+.container{max-width:800px;margin:30px auto;padding:20px;}
+.card{
+  background:#fff;color:#000;padding:30px;border-radius:20px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.2);
+}
+.card h1{margin-bottom:20px;text-align:center;color:#00a859;}
+
+/* Accordion */
+.faq-item{margin-bottom:15px;border-bottom:1px solid #ccc;padding-bottom:10px;}
+.faq-question{font-weight:bold;cursor:pointer;font-size:16px;color:#333;}
+.faq-answer{display:none;padding-top:8px;color:#444;line-height:1.5;}
+
+/* Footer */
+footer{text-align:center;padding:15px;background:#eee;margin-top:40px;color:#333;}
+
+/* Floating Chat */
+.chatbot-btn{
+  position:fixed;bottom:25px;right:25px;width:60px;height:60px;background:#fff;color:#00a859;
+  border-radius:50%;box-shadow:0 4px 15px rgba(0,0,0,0.3);display:flex;align-items:center;
+  justify-content:center;font-size:28px;cursor:pointer;animation:bounce 2s infinite;z-index:10000;
+}
+@keyframes bounce{0%,20%,50%,80%,100%{transform:translateY(0);}40%{transform:translateY(-12px);}60%{transform:translateY(-6px);}}
+.chat-overlay{
+  display:none;position:fixed;bottom:100px;right:30px;width:320px;height:400px;
+  background:rgba(255,255,255,0.95);border-radius:15px;box-shadow:0 4px 20px rgba(0,0,0,0.3);
+  z-index:10001;flex-direction:column;overflow:hidden;
+}
+.chat-header{background:#00a859;color:#fff;padding:10px;text-align:center;font-weight:bold;}
+.chat-body{flex:1;padding:10px;overflow-y:auto;font-size:14px;color:#333;display:flex;flex-direction:column;gap:8px;}
+.chat-message{padding:8px 10px;border-radius:10px;max-width:80%;word-wrap:break-word;}
+.user-msg{background:#f2f2f2;color:#000;align-self:flex-end;}
+.bot-msg{background:#d8ecff;color:#000;align-self:flex-start;}
+.chat-input{display:flex;border-top:1px solid #ddd;}
+.chat-input input{flex:1;border:none;padding:14px;font-size:14px;outline:none;}
+.chat-input button{background:#00a859;color:#fff;border:none;padding:10px 15px;cursor:pointer;}
+</style>
+</head>
+
+<body>
+
+<header class="headerbar">
+  <div class="inner">
+    <div class="brand" onclick="window.location.href='index.html'">
+      <img src="logo.png" alt="MarketList Logo">
+      <span class="title">MarketList</span>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="reviews.html">Reviews</a>
+      <a href="assistant.html">Assistant</a>
+      <a href="tracking.html">Track Order</a>
+      <a href="faq.html" class="active">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h1>Frequently Asked Questions</h1>
+
+    <div class="faq-item">
+      <div class="faq-question">What is MarketList?</div>
+      <div class="faq-answer">MarketList allows you to send your grocery list online, and our personal shoppers will buy and deliver the items to your location.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Which areas do you deliver to?</div>
+      <div class="faq-answer">We currently deliver across Greater Accra and expanding soon to other regions in Ghana.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">How do I place an order?</div>
+      <div class="faq-answer">Submit your shopping list on our website. You will receive a confirmation and delivery details shortly after.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">How do I pay?</div>
+      <div class="faq-answer">We accept Mobile Money (MTN, Vodafone, AirtelTigo) and secure online payments.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">How long does delivery take?</div>
+      <div class="faq-answer">Most deliveries are completed within 1–3 hours depending on your location and list size.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Can I track my order?</div>
+      <div class="faq-answer">Yes! Use our tracking page and enter your tracking code to see your order status.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Can I cancel or change my order?</div>
+      <div class="faq-answer">Yes — contact us via chat or WhatsApp within 5 minutes of submitting your list.</div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2025 MarketList — Bringing Market to Your Doorstep</footer>
+
+<!-- Chatbot -->
+<div class="chatbot-btn" onclick="toggleChat()">💬</div>
+<div class="chat-overlay" id="chatOverlay">
+  <div class="chat-header">Chat with MarketList AI</div>
+  <div class="chat-body" id="chatBody">
+    <div class="bot-msg">👋 Hi! How can I help you today?</div>
+  </div>
+  <div class="chat-input">
+    <input id="chatInput" placeholder="Type a message...">
+    <button onclick="sendChat()">Send</button>
+  </div>
+</div>
+
+<script>
+// FAQ toggle
+document.querySelectorAll(".faq-question").forEach(q=>{
+  q.onclick=()=>q.nextElementSibling.style.display=
+    q.nextElementSibling.style.display==="block"?"none":"block";
+});
+
+// Chat
+const overlay=document.getElementById("chatOverlay"),
+chatBody=document.getElementById("chatBody"),
+input=document.getElementById("chatInput");
+
+function toggleChat(){overlay.style.display=overlay.style.display==="flex"?"none":"flex";overlay.style.flexDirection="column";}
+function sendChat(){
+  let msg=input.value.trim(); if(!msg)return;
+  chatBody.innerHTML+=`<div class="chat-message user-msg">${msg}</div>`;
+  input.value=""; chatBody.scrollTop=chatBody.scrollHeight;
+  setTimeout(()=>{
+    chatBody.innerHTML+=`<div class="chat-message bot-msg">Thanks! Our team will get back to you.</div>`;
+    chatBody.scrollTop=chatBody.scrollHeight;
+  },700);
+}
+</script>
+
+</body>
+</html>
