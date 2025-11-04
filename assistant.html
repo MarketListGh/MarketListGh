@@ -12,7 +12,7 @@ body {
   min-height: 100vh;
 }
 
-/* === Header (like About.html) === */
+/* === Header === */
 .headerbar {
   background:#00a859; 
   color:#fff; 
@@ -25,20 +25,11 @@ body {
 }
 .headerbar .brand { display:flex; align-items:center; cursor:pointer; }
 .headerbar .brand img { width:40px; margin-right:10px; }
-.headerbar .brand .title {
-  font-size:20px;
-  font-weight:normal;
-  color:#fff;
-}
+.headerbar .brand .title { font-size:20px; font-weight:normal; color:#fff; }
 .headerbar nav a {
-  color:#fff;
-  margin-left:20px;
-  text-decoration:none;
-  font-weight:bold;
-  font-size:13.5px;
+  color:#fff; margin-left:20px; text-decoration:none; font-weight:bold; font-size:13.5px;
 }
-.headerbar nav a:hover { opacity:0.9; text-decoration:none; }
-.headerbar nav a.active { text-decoration:none; }
+.headerbar nav a:hover { opacity:0.9; }
 
 /* === Chat container === */
 .chat-container {
@@ -77,6 +68,26 @@ body {
   border-radius: 15px;
   max-width: 75%;
 }
+
+/* Quick Suggestion Buttons */
+.quick-btns {
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.quick-btn {
+  background:#00a859;
+  color:#fff;
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:13px;
+  border: none;
+}
+.quick-btn:hover { opacity:0.85; }
+
+/* Input area */
 .chat-input-area {
   display: flex;
   align-items: center;
@@ -102,7 +113,39 @@ body {
 }
 .chat-input-area button:hover { background: #007b3e; }
 
-/* === Footer === */
+/* Mic button */
+.mic-btn {
+  margin-left: 6px;
+  background:#ff8c00;
+  color:#fff;
+  width:50px;
+  font-size:18px;
+  border-radius:8px;
+  cursor:pointer;
+  border:none;
+}
+.mic-btn:active { background:#d97700; }
+
+/* WhatsApp Floating Button */
+.whatsapp-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background:#25D366;
+  color:#fff;
+  font-size:26px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  cursor:pointer;
+  box-shadow:0 4px 10px rgba(0,0,0,0.3);
+  z-index:999;
+}
+
+/* Footer */
 .footer {
   text-align: center;
   padding: 15px;
@@ -123,73 +166,140 @@ body {
       <span class="title">MarketList</span>
     </div>
     <nav>
-      <a href="index.html" class="active">Home</a>
+      <a href="index.html">Home</a>
       <a href="about.html">About</a>
       <a href="reviews.html">Reviews</a>
-      <a href="assistant.html">Assistant</a>
-      <a href="Tracking.html">Track Order</a>
+      <a href="assistant.html" style="text-decoration:underline;">Assistant</a>
+      <a href="tracking.html">Track Order</a>
     </nav>
   </div>
 </header>
 
-<!-- Chat Section -->
+<!-- Chat Box -->
 <div class="chat-container">
+  
+  <div class="quick-btns">
+    <button class="quick-btn" onclick="quickAsk('How MarketList works')">How it works</button>
+    <button class="quick-btn" onclick="quickAsk('Delivery fees')">Delivery fees</button>
+    <button class="quick-btn" onclick="quickAsk('Payment options')">Payment</button>
+    <button class="quick-btn" onclick="quickAsk('Available markets')">Markets</button>
+    <button class="quick-btn" onclick="quickAsk('I want to order')">Place an order</button>
+  </div>
+
   <div class="chat-box" id="chat-box">
-    <div class="bot-message">👋 Hello there! Welcome to MarketList. How can I assist you today?</div>
+    <div class="bot-message">👋 Hello! I'm your MarketList Assistant. Tell me your shopping needs.</div>
   </div>
 
   <div class="chat-input-area">
-    <input type="text" id="user-input" placeholder="Type your message...">
+    <input type="text" id="user-input" placeholder="Ask me anything...">
     <button id="send-btn">Send</button>
+    <button class="mic-btn" id="micBtn">🎤</button>
   </div>
 </div>
 
-<!-- Footer -->
 <footer class="footer">© 2025 MarketList — Bringing Market to Your Doorstep</footer>
+
+<!-- WhatsApp Button -->
+<div class="whatsapp-btn" onclick="window.open('https://wa.me/233555319887','_blank')">
+  🟢
+</div>
 
 <script>
 const sendBtn = document.getElementById("send-btn");
 const userInput = document.getElementById("user-input");
 const chatBox = document.getElementById("chat-box");
+const micBtn = document.getElementById("micBtn");
+
+let orderMode = false;
+let orderData = { items: "", location: "", phone: "" };
 
 sendBtn.addEventListener("click", sendMessage);
 userInput.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
 
-function sendMessage() {
-  const userText = userInput.value.trim();
-  if (userText === "") return;
+function quickAsk(text){
+  userInput.value = text;
+  sendMessage();
+}
 
-  const userMsg = document.createElement("div");
-  userMsg.classList.add("user-message");
-  userMsg.textContent = userText;
-  chatBox.appendChild(userMsg);
-
-  const botReply = document.createElement("div");
-  botReply.classList.add("bot-message");
-  botReply.textContent = "Typing...";
-  chatBox.appendChild(botReply);
-
+function appendMessage(text, sender="bot"){
+  const msg = document.createElement("div");
+  msg.className = sender === "bot" ? "bot-message" : "user-message";
+  msg.textContent = text;
+  chatBox.appendChild(msg);
   chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function sendMessage() {
+  const text = userInput.value.trim();
+  if (!text) return;
+
+  appendMessage(text,"user");
   userInput.value = "";
 
+  if(orderMode) return handleOrderFlow(text);
+
   setTimeout(() => {
-    botReply.textContent = getAIResponse(userText);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }, 1000);
+    appendMessage(getAIResponse(text));
+  }, 800);
 }
-function getAIResponse(msg) {
-  let q = msg.toLowerCase(); // normalize input
-  let ans = "Sorry, I couldn’t find an exact answer. Please contact support at 0537351866 or via WhatsApp for help.";
 
-  if (q.includes("what is marketlist")) ans = "MarketList is an online service that lets you order groceries and other items from local markets, then delivers them straight to your door.";
-  else if (q.includes("how does marketlist work")) ans = "You just fill out your shopping list, pick a market, and submit it. Our team will buy your items and deliver them to you.";
-  else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
-  else if (q.includes("how much is delivery")) ans = "Delivery fees depend on your location and are added on top of your market total.";
-  else if (q.includes("how do i pay") || q.includes("payment options")) ans = "You can pay using Mobile Money or Paystack, which is a safe online payment platform.";
-  else if (q.includes("do you deliver everywhere")) ans = "We deliver to most areas in Greater Accra. Delivery options will show up based on your location.";
+function getAIResponse(msg){
+  let q = msg.toLowerCase();
 
-  return ans;
+  if(q.includes("order")) {
+    orderMode = true;
+    appendMessage("Great! Let's place your order. 🛒\n\nWhat items do you want?");
+    return "";
+  }
+
+  if(q.includes("how work")) return "Tell us your list ➜ We shop ➜ We deliver 🚚✅";
+  if(q.includes("delivery")) return "Delivery starts from ₵20 depending on distance.";
+  if(q.includes("payment")) return "We support Mobile Money & Paystack.";
+  if(q.includes("market")) return "We shop from Makola, Kaneshie, Madina, Agbogbloshie & malls.";
+  
+  return "I'm here to help with shopping, delivery, payments & more 😄";
+}
+
+/* Order Collection Flow */
+function handleOrderFlow(text){
+  if(!orderData.items){
+    orderData.items = text;
+    return appendMessage("📍 Please enter your delivery location:");
+  }
+  if(!orderData.location){
+    orderData.location = text;
+    return appendMessage("📞 Enter your phone number:");
+  }
+  if(!orderData.phone){
+    orderData.phone = text;
+
+    const message = `🛒 NEW MARKETLIST ORDER\n\nItems: ${orderData.items}\nLocation: ${orderData.location}\nPhone: ${orderData.phone}`;
+    const waURL = "https://wa.me/233555319887?text=" + encodeURIComponent(message);
+
+    appendMessage("✅ Order received! Sending to MarketList team...");
+    window.open(waURL,"_blank");
+
+    orderMode = false;
+    orderData = { items:"", location:"", phone:"" };
+  }
+}
+
+/* Voice Input */
+const recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (recognition){
+  const r = new recognition();
+  r.lang = "en-US";
+
+  micBtn.onclick = () => {
+    r.start();
+    micBtn.style.background="#c76500";
+  };
+  r.onresult = e => {
+    userInput.value = e.results[0][0].transcript;
+    micBtn.style.background="#ff8c00";
+  };
 }
 </script>
+
 </body>
 </html>
