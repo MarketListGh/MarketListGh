@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Track Your Order — MarketList</title>
+
+<!-- Leaflet (for deliverer map) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
 * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
 
@@ -73,7 +76,6 @@ main.container {
 .hidden-section { display: none; margin-top: 15px; }
 .hidden-section.active { display: block; }
 
-/* Inputs and result */
 label {
   display: block;
   text-align: left;
@@ -168,6 +170,16 @@ button.submit:hover { background-color: #e57a00; }
   box-shadow: 0 6px 25px rgba(0,0,0,0.25);
   z-index: 11000;
   display: none;
+}
+
+/* Map inside deliverer panel */
+.deliverer-map {
+  width: 100%;
+  height: 260px;
+  border-radius: 10px;
+  margin-top: 12px;
+  border: 1px solid #ddd;
+  overflow: hidden;
 }
 
 /* animations */
@@ -309,9 +321,13 @@ footer.footer {
   </div>
 </div>
 
+<!-- Leaflet JS (no routing network calls; straight-line polyline only) -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 /* ======= Configuration ======= */
 const COMPANY_WA = '233537351866'; // company whatsapp (no +). Change if needed.
+const GEOAPIFY_KEY = 'efc8ef712d1a4cc3b5224e429987da3b'; // used only for geocoding if no coords stored (silent)
 
 /* ======= Helpers ======= */
 function showToast(msg, ms=2000){
@@ -526,6 +542,16 @@ function renderDelivererPanel(order){
       <p><strong>Delivery Fee:</strong> ₵${order.delivery.deliveryFee.toFixed(2)}</p>
       <p><strong>Total (items + delivery):</strong> ₵${(order.delivery.totalAmount||0).toFixed(2)}</p>
       <p><strong>Deliverer:</strong> ${order.delivery.name} (${order.delivery.contact})</p>
+
+      <!-- Map area (straight-line route) -->
+      <div id="delivererMapWrap">
+        <div id="delivererMap" class="deliverer-map"></div>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button id="navigateBtn" class="submit" style="background:#00a859; width:50%;">Navigate</button>
+          <button id="shareLocationBtn" class="submit" style="background:#028f4a; width:50%;">Share Live Location</button>
+        </div>
+      </div>
+
       <div style="margin-top:12px; display:flex; gap:8px; justify-content:space-between;">
         <button id="markDeliveredBtn" class="submit" style="background:#00a859; width:48%;" disabled onclick="markDelivered('${order.tracking}')">Mark as Delivered</button>
         <button id="cancelOrderBtn" class="submit" style="background:#f44336; width:48%;" onclick="cancelOrder('${order.tracking}')">Cancel Order</button>
@@ -534,13 +560,181 @@ function renderDelivererPanel(order){
     </div>
   `;
 
+  // Start map for deliverer (straight-line)
+  initDelivererMap(order);
+
   // Start a timer to check when to enable Mark as Delivered button
   checkEnableDelivered(order.tracking);
 }
 
+/* ======= Map / Deliverer live helpers (straight-line route, no routing API) ======= */
+
+/**
+ * initDelivererMap(order)
+ * - shows customer pin (geocoded if needed)
+ * - attempts to get deliverer's live GPS (blue marker)
+ * - draws a straight green polyline between deliverer and customer
+ */
+async function initDelivererMap(order){
+  const mapEl = document.getElementById('delivererMap');
+  if(!mapEl) return;
+
+  // default center (Accra)
+  const defaultCenter = [5.6037, -0.1870];
+  // create map (if previously created, remove)
+  if(window._delivererMapInstance){
+    try { window._delivererMapInstance.remove(); } catch(e){ /* ignore */ }
+    window._delivererMapInstance = null;
+  }
+
+  const map = L.map('delivererMap', { attributionControl:false, zoomControl:true }).setView(defaultCenter, 12);
+  window._delivererMapInstance = map;
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+  // helper to get customer coords: prefer order fields 'lat','lng' or 'customerLat/customerLng' or order.location via geocoding
+  let custLat = order.customerLat || order.lat || (order.locationLat || null);
+  let custLng = order.customerLng || order.lng || (order.locationLng || null);
+
+  async function geocodeAddress(addr){
+    try {
+      const resp = await fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(addr)}&limit=1&format=json&apiKey=${GEOAPIFY_KEY}`);
+      if(!resp.ok) return null;
+      const data = await resp.json();
+      if(data.features && data.features.length){
+        const p = data.features[0].properties;
+        return { lat: p.lat, lng: p.lon };
+      }
+    } catch(e){ /* ignore errors */ }
+    return null;
+  }
+
+  if((custLat == null || custLng == null) && order.location){
+    // perform geocode (silent) - only if we don't already have coords
+    const g = await geocodeAddress(order.location);
+    if(g){ custLat = g.lat; custLng = g.lng; }
+    // store for future (so geocoding not repeated)
+    if(custLat && custLng){
+      // attach to order & persist
+      const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
+      const found = orders.find(o=>o.tracking === order.tracking);
+      if(found){
+        found.lat = custLat;
+        found.lng = custLng;
+        localStorage.setItem('marketOrders', JSON.stringify(orders));
+      }
+    }
+  }
+
+  // place customer marker (red)
+  let customerMarker = null;
+  if(custLat && custLng){
+    customerMarker = L.marker([custLat, custLng], { title: 'Customer', icon: L.icon({
+      iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png',
+      iconSize: [28,28]
+    }) }).addTo(map).bindPopup('Customer location');
+    map.setView([custLat, custLng], 13);
+  }
+
+  // place deliverer marker (blue) - try to get current position
+  let delivererMarker = null;
+  function placeDeliverer(lat, lng){
+    if(!lat || !lng) return;
+    if(delivererMarker) delivererMarker.setLatLng([lat,lng]);
+    else {
+      delivererMarker = L.marker([lat,lng], { title: 'You (Deliverer)', icon: L.icon({
+        iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png',
+        iconSize: [28,28]
+      }) }).addTo(map).bindPopup('Your location (live)');
+    }
+  }
+
+  // try browser geolocation once, and watch position
+  if(navigator.geolocation){
+    // initial attempt
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const lat = pos.coords.latitude, lng = pos.coords.longitude;
+      placeDeliverer(lat, lng);
+      // fit bounds to show both markers if customer exists
+      if(customerMarker){
+        const bounds = L.latLngBounds([[lat,lng], [custLat, custLng]]);
+        map.fitBounds(bounds, { padding:[60,60] });
+      } else {
+        map.setView([lat, lng], 13);
+      }
+      // draw line
+      drawStraightLine();
+    }, ()=> {
+      // ignore failure
+      drawStraightLine();
+    }, { enableHighAccuracy:true, timeout:7000 });
+    // watch position and update marker + line live
+    try {
+      window._delivererGeoWatch = navigator.geolocation.watchPosition(pos=>{
+        const lat = pos.coords.latitude, lng = pos.coords.longitude;
+        placeDeliverer(lat,lng);
+        drawStraightLine();
+      }, ()=>{}, { enableHighAccuracy:true, maximumAge:5000, timeout:10000 });
+    } catch(e){ /* ignore */ }
+  } else {
+    drawStraightLine();
+  }
+
+  // draw straight polyline between deliverer and customer
+  let currentLine = null;
+  function drawStraightLine(){
+    // compute latest points
+    const delPos = delivererMarker ? delivererMarker.getLatLng() : null;
+    const custPos = customerMarker ? customerMarker.getLatLng() : (custLat && custLng ? L.latLng(custLat, custLng) : null);
+
+    if(currentLine){
+      try{ map.removeLayer(currentLine); }catch(e){}
+      currentLine = null;
+    }
+    if(delPos && custPos){
+      currentLine = L.polyline([delPos, custPos], { color:'#2ecc71', weight:4, opacity:0.9 }).addTo(map);
+      // fit bounds to show both
+      const bounds = L.latLngBounds([delPos, custPos]);
+      map.fitBounds(bounds, { padding:[60,60] });
+    } else if(custPos){
+      map.setView(custPos, 13);
+    }
+  }
+
+  // click handler for Navigate button (open Google Maps directions to customer)
+  const navigateBtn = document.getElementById('navigateBtn');
+  if(navigateBtn){
+    navigateBtn.onclick = function(){
+      if(!custLat || !custLng){
+        alert('Customer coordinates not available.');
+        return;
+      }
+      // open google maps directions to customer
+      const gUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(custLat + ',' + custLng)}&travelmode=driving`;
+      window.open(gUrl, '_blank');
+    };
+  }
+
+  // share live location button (copies coords to clipboard / opens share)
+  const shareBtn = document.getElementById('shareLocationBtn');
+  if(shareBtn){
+    shareBtn.onclick = async function(){
+      if(!navigator.geolocation) return alert('Geolocation not supported.');
+      navigator.geolocation.getCurrentPosition(pos=>{
+        const lat = pos.coords.latitude, lng = pos.coords.longitude;
+        const shareText = `Deliverer location: https://maps.google.com/?q=${lat},${lng}`;
+        if(navigator.clipboard) navigator.clipboard.writeText(shareText).then(()=> showToast('Location copied to clipboard',1500));
+        else showToast('Copy this link: ' + shareText, 3000);
+      }, err=> alert('Unable to get your location: ' + (err.message || 'error')));
+    };
+  }
+
+  // cleanup when leaving page (optional)
+  // (we keep watchers in global to reuse or clear later)
+}
+
 /* enable mark delivered only after ETA passed */
 function checkEnableDelivered(tracking){
-  const intervalId = setInterval(()=>{
+  const intervalId = setInterval(()=>{ 
     const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
     const found = orders.find(o=>o.tracking === tracking);
     if(!found || !found.delivery){ clearInterval(intervalId); return; }
@@ -637,8 +831,6 @@ function tryRestoreDelivererPanel(){
     renderDelivererPanel(found);
   }
 }
-
-/* Popup accept button uses popupAccept (above) */
 
 /* ======= Chatbot (unchanged) ======= */
 const overlay = document.getElementById('chatOverlay');
