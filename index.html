@@ -347,7 +347,7 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
       </div>
 
       <label for="items">Item List (name — quantity — price)</label>
-      <textarea id="items" placeholder="Rice — 2 — 120"></textarea>
+      <textarea id="items" placeholder="Rice — 2 — 120 Ghs"></textarea>
 
       <label for="budget">Budget (₵)</label>
       <input id="budget" type="number" min="0" placeholder="Enter budget amount">
@@ -544,7 +544,7 @@ document.getElementById('continueWhatsAppBtn').addEventListener('click', functio
   const code = sessionStorage.getItem('ml_tracking_code') || document.getElementById('trackingCode').textContent;
   // append tracking code to message
   const messageWithCode = lastWhatsAppMessage + `\nTracking Code: ${code}`;
-  const waUrl = `https://wa.me/233547351866?text=${encodeURIComponent(messageWithCode)}`;
+  const waUrl = `https://wa.me/233537351866?text=${encodeURIComponent(messageWithCode)}`;
   // close popup then open WhatsApp
   document.getElementById('trackingPopup').style.display = 'none';
   window.open(waUrl, '_blank');
@@ -848,6 +848,7 @@ function sendMessage(){
 
 </body>
 </html>
+
 
 
 
