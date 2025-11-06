@@ -516,13 +516,17 @@ function saveOrderToLocalStorage(order){
 
 // WhatsApp integration (updated)
 let lastWhatsAppMessage='';
+
 function prepareAndOpenWhatsApp(e){
   e.preventDefault();
 
   const name=document.getElementById('name').value.trim();
   const contact=document.getElementById('contact').value.trim();
   const location=document.getElementById('location').value.trim();
-  if(!name||!contact||!location){alert("Please fill in your information first!");return;}
+  if(!name||!contact||!location){
+    alert("Please fill in your information first!");
+    return;
+  }
 
   const market=document.getElementById('market').value;
   const category=document.getElementById('category').value;
@@ -550,8 +554,15 @@ function prepareAndOpenWhatsApp(e){
     serviceFee: parseFloat(service)||0,
     deliveryFee: parseFloat(delivery)||0,
     total: parseFloat(total)||0,
-    createdAt: Date.now()
+    createdAt: Date.now(),
+
+    // ✅ Include coordinates for the tracking map
+    customerLat: selectedLatLng ? selectedLatLng.lat : null,
+    customerLng: selectedLatLng ? selectedLatLng.lng : null,
+    marketLat: selectedMarketLatLng ? selectedMarketLatLng.lat : null,
+    marketLng: selectedMarketLatLng ? selectedMarketLatLng.lng : null
   };
+
   saveOrderToLocalStorage(orderObj);
 
   // ✅ Store in session for immediate access
@@ -562,6 +573,23 @@ function prepareAndOpenWhatsApp(e){
   document.getElementById('trackingCode').textContent=code;
   document.getElementById('trackingPopup').style.display='flex';
 }
+
+function generateTrackingCode(){
+  const n=Math.floor(100000+Math.random()*900000);
+  return `ML-${n}`;
+}
+
+document.getElementById('continueWhatsAppBtn').addEventListener('click',()=>{
+  const code=sessionStorage.getItem('ml_tracking_code')||document.getElementById('trackingCode').textContent;
+  const messageWithCode=lastWhatsAppMessage+`\nTracking Code: ${code}`;
+  const waUrl=`https://wa.me/233537351866?text=${encodeURIComponent(messageWithCode)}`;
+  document.getElementById('trackingPopup').style.display='none';
+  window.open(waUrl,'_blank');
+});
+
+document.getElementById('closeTrackingBtn').addEventListener('click',()=>{
+  document.getElementById('trackingPopup').style.display='none';
+});
 
 function generateTrackingCode(){
   const n=Math.floor(100000+Math.random()*900000);
@@ -940,4 +968,5 @@ function sendMessage(){
 
 </body>
 </html>
+
 
