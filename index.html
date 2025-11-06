@@ -501,7 +501,20 @@ function updateTotals(){
 }
 budgetEl.addEventListener('input',updateTotals);
 
-// WhatsApp integration (modified: show tracking popup first)
+ // ✅ Add this helper near the top of your script (above prepareAndOpenWhatsApp)
+function saveOrderToLocalStorage(order){
+  try{
+    const existing = JSON.parse(localStorage.getItem('marketOrders') || '[]');
+    if(!existing.some(o => o.tracking === order.tracking)){
+      existing.push(order);
+      localStorage.setItem('marketOrders', JSON.stringify(existing));
+    }
+  }catch(err){
+    console.error('Failed to save order to localStorage', err);
+  }
+}
+
+// WhatsApp integration (updated)
 let lastWhatsAppMessage='';
 function prepareAndOpenWhatsApp(e){
   e.preventDefault();
@@ -514,14 +527,38 @@ function prepareAndOpenWhatsApp(e){
   const market=document.getElementById('market').value;
   const category=document.getElementById('category').value;
   const items=document.getElementById('items').value;
-  const budget=document.getElementById('budget').value;
+  const budget=parseFloat(document.getElementById('budget').value)||0;
   const service=serviceEl.textContent;
   const delivery=deliveryEl.textContent;
   const total=totalEl.textContent;
+
   lastWhatsAppMessage=`Hello, I want to place an order:\nName: ${name}\nContact: ${contact}\nLocation: ${location}\nMarket: ${market}\nCategory: ${category}\nItems:\n${items}\nBudget: ₵${budget}\nService Fee: ₵${service}\nDelivery Fee: ₵${delivery}\nTotal: ₵${total}`;
 
+  // ✅ Generate tracking code
   const code=generateTrackingCode();
-  sessionStorage.setItem('ml_tracking_code',code);
+
+  // ✅ Build order object and save to localStorage
+  const orderObj = {
+    tracking: code,
+    name: name,
+    phone: contact,
+    location: location,
+    market: market,
+    category: category,
+    items: items,
+    budget: budget,
+    serviceFee: parseFloat(service)||0,
+    deliveryFee: parseFloat(delivery)||0,
+    total: parseFloat(total)||0,
+    createdAt: Date.now()
+  };
+  saveOrderToLocalStorage(orderObj);
+
+  // ✅ Store in session for immediate access
+  sessionStorage.setItem('ml_tracking_code', code);
+  sessionStorage.setItem('ml_last_order', JSON.stringify(orderObj));
+
+  // ✅ Show popup with tracking code
   document.getElementById('trackingCode').textContent=code;
   document.getElementById('trackingPopup').style.display='flex';
 }
@@ -538,7 +575,10 @@ document.getElementById('continueWhatsAppBtn').addEventListener('click',()=>{
   document.getElementById('trackingPopup').style.display='none';
   window.open(waUrl,'_blank');
 });
-document.getElementById('closeTrackingBtn').addEventListener('click',function(){document.getElementById('trackingPopup').style.display='none';});
+
+document.getElementById('closeTrackingBtn').addEventListener('click',()=>{
+  document.getElementById('trackingPopup').style.display='none';
+});
 
 // Map fixes with red/blue markers and correct autocomplete handling
 let map,userMarker,marketMarker,routingControl;
@@ -900,3 +940,4 @@ function sendMessage(){
 
 </body>
 </html>
+
