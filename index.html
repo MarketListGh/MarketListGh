@@ -165,12 +165,16 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
   flex-direction: column;
   gap:10px;
 }
+/* map container inside popup */
 #mapBox #map { width:100%; height:300px; border-radius:8px; }
+
+/* Buttons inside popup */
 #mapBox button { padding:10px; border:none; border-radius:6px; cursor:pointer; color:#fff; font-weight:bold; }
 #detectBtn { background:#ff8c00; }
 #saveBtn { background:#1b5e20; }
 
-#closeMap { position:absolute; top:8px; right:10px; font-size:22px; background:#fff; color:#00a859; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; }
+/* Close button — changed to be red with X but size unchanged */
+#closeMap { position:absolute; top:8px; right:10px; font-size:22px; background:#e53935; color:#fff; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; }
 
 /* Search suggestions dropdown */
 .suggestions {
@@ -608,19 +612,57 @@ document.getElementById('closeTrackingBtn').addEventListener('click',()=>{
   document.getElementById('trackingPopup').style.display='none';
 });
 
+// -----------------------------
+// Map section (ONLY this was updated)
+// - White road map tiles (Carto Positron / light_all)
+// - iOS-style soft pins implemented as inline SVG via divIcon
+// - Detect location uses getCurrentPosition (fast) then falls back to watchPosition
+// -----------------------------
+
 // Map fixes with red/blue markers and correct autocomplete handling
 let map,userMarker,marketMarker,routingControl;
 const apiKey="efc8ef712d1a4cc3b5224e429987da3b";
 const accraCenter=[5.6037,-0.1870];
 
+// Helper: create an iOS-style soft-pin SVG as a divIcon
+function createSoftPinIcon(color){
+  // color: hex (e.g. '#e53935' or '#1e88e5')
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="52" viewBox="0 0 40 52">
+      <defs>
+        <filter id="s" x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.16"/>
+        </filter>
+      </defs>
+      <g filter="url(#s)">
+        <path d="M20 0c6.627 0 12 5.373 12 12 0 6.627-12 28-12 28S8 18.627 8 12C8 5.373 13.373 0 20 0z" fill="`+color+`"/>
+        <circle cx="20" cy="12" r="6.2" fill="#fff"/>
+        <circle cx="20" cy="12" r="3.2" fill="`+color+`"/>
+      </g>
+    </svg>`;
+  return L.divIcon({
+    className: '',
+    html: svg,
+    iconSize: [40,52],
+    iconAnchor: [20,52],
+    popupAnchor: [0,-52]
+  });
+}
+
 function openMap(){
   document.getElementById('mapPopup').style.display='flex';
   if(!map){
+    // create map with white/road tiles (Carto Positron light)
     map=L.map('map',{preferCanvas:true}).setView(accraCenter,12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/">OSM</a> &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
 
-    const redIcon=L.icon({iconUrl:'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png',iconSize:[32,32]});
-    const blueIcon=L.icon({iconUrl:'https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png',iconSize:[32,32]});
+    // modern iOS-style soft pins (same shape, different colors)
+    const redIcon = createSoftPinIcon('#e53935');   // red
+    const blueIcon = createSoftPinIcon('#1e88e5');  // blue
 
     userMarker=L.marker(accraCenter,{draggable:true,icon:redIcon}).addTo(map).bindPopup('Delivery location');
     marketMarker=L.marker(accraCenter,{draggable:true,icon:blueIcon}).addTo(map).bindPopup('Market');
@@ -647,6 +689,7 @@ function openMap(){
     });
 
     map.on('click', function(e){
+      // set delivery marker where user clicks
       userMarker.setLatLng(e.latlng);
       selectedLatLng={lat:parseFloat(e.latlng.lat),lng:parseFloat(e.latlng.lng)};
       reverseLookup(selectedLatLng,'location');
@@ -654,6 +697,7 @@ function openMap(){
       updateTotals();
     });
   } else {
+    // if map already initialized, just refresh size so it displays
     setTimeout(()=>map.invalidateSize(),100);
   }
 }
@@ -752,8 +796,8 @@ if(marketInput){
 
 // hide suggestion boxes when clicking outside
 document.addEventListener('click', (e)=>{
-  if(!userSugBox.contains(e.target) && e.target !== userInput) userSugBox.style.display='none';
-  if(!marketSugBox.contains(e.target) && e.target !== marketInput) marketSugBox.style.display='none';
+  if(userSugBox && !userSugBox.contains(e.target) && e.target !== userInput) userSugBox.style.display='none';
+  if(marketSugBox && !marketSugBox.contains(e.target) && e.target !== marketInput) marketSugBox.style.display='none';
 });
 
 // Reverse geocoding (keeps location input in sync with chosen marker)
@@ -775,47 +819,26 @@ function reverseLookup(latlng, field){
     }).catch(()=>{ /* ignore errors */ });
 }
 
-// Improved detectLocation: collect multiple samples for up to 5s and pick the most accurate
+// Faster detectLocation that prioritizes instant accurate result
 function detectLocation(){
   if(!navigator.geolocation){ alert('Geolocation not supported.'); return; }
   if(!map) openMap();
 
   const detectBtn = document.getElementById('detectBtn');
   detectBtn.disabled = true;
-  detectBtn.textContent = 'Detecting (please wait 5s)...';
+  detectBtn.textContent = 'Detecting...';
 
-  let samples = [];            // will hold Position objects
+  // First try a fast getCurrentPosition (instant if possible)
   let finished = false;
 
-  function finishWithPosition(finalPos){
+  function finishWithCoords(lat, lon, accuracy){
     if(finished) return;
     finished = true;
-
-    // choose best sample (lowest accuracy); if none, fallback to finalPos
-    let best = finalPos;
-    if(samples.length){
-      best = samples.reduce((acc, cur) => {
-        if(!acc) return cur;
-        if(!cur || !cur.coords) return acc;
-        return (cur.coords.accuracy < acc.coords.accuracy) ? cur : acc;
-      }, best);
-    }
-
-    if(!best || !best.coords){
-      alert('Unable to obtain location.');
-      detectBtn.disabled = false;
-      detectBtn.textContent = 'Detect My Location';
-      return;
-    }
-
-    const lat = best.coords.latitude;
-    const lon = best.coords.longitude;
 
     try {
       userMarker.setLatLng([lat, lon]);
     } catch(e){
-      // if userMarker isn't set for any reason, create it
-      const redIcon = L.icon({ iconUrl:'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png', iconSize:[32,32] });
+      const redIcon = createSoftPinIcon('#e53935');
       userMarker = L.marker([lat,lon],{draggable:true, icon: redIcon}).addTo(map).bindPopup('Delivery location');
       userMarker.on('dragend', e => {
         const p = e.target.getLatLng();
@@ -832,7 +855,6 @@ function detectLocation(){
     drawRouteIfReady();
     updateTotals();
 
-    // restore button
     detectBtn.disabled = false;
     detectBtn.textContent = 'Detect My Location';
   }
@@ -840,57 +862,38 @@ function detectLocation(){
   function handleError(err){
     if(finished) return;
     finished = true;
-    // stop watch handled elsewhere
-    alert('Failed to detect location: ' + (err && err.message ? err.message : 'error'));
     detectBtn.disabled = false;
     detectBtn.textContent = 'Detect My Location';
-    if(watchId != null) navigator.geolocation.clearWatch(watchId);
-    if(timeoutId) clearTimeout(timeoutId);
+    alert('Failed to detect location: ' + (err && err.message ? err.message : 'error') + '\nPlease ensure location permission is allowed and try again.');
   }
 
-  // start watching
-  const watchId = navigator.geolocation.watchPosition(
+  // Try getCurrentPosition first (fast on many mobile devices)
+  navigator.geolocation.getCurrentPosition(
     (pos) => {
-      // collect sample
-      samples.push(pos);
-
-      // if very accurate sample arrives, finish early
-      if(pos.coords && typeof pos.coords.accuracy === 'number' && pos.coords.accuracy <= 20){
-        finishWithPosition(pos);
-        if(watchId != null) navigator.geolocation.clearWatch(watchId);
-        if(timeoutId) clearTimeout(timeoutId);
-      }
-      // else keep collecting until timeout
+      finishWithCoords(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
     },
     (err) => {
-      // if watchPosition errors (permission denied, etc.)
-      handleError(err);
+      // if getCurrentPosition fails, try watchPosition for a better fix
+      try {
+        const watchId = navigator.geolocation.watchPosition(
+          (pos) => {
+            finishWithCoords(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
+            try { navigator.geolocation.clearWatch(watchId); } catch(e){}
+          },
+          (werr) => {
+            handleError(werr);
+            try { navigator.geolocation.clearWatch(watchId); } catch(e){}
+          },
+          { enableHighAccuracy: true, maximumAge: 0, timeout: 7000 }
+        );
+        // fallback timeout
+        setTimeout(()=>{ try{ navigator.geolocation.clearWatch(watchId); }catch(e){}; if(!finished) handleError({message:'timeout'}); },7000);
+      } catch(e){
+        handleError(e);
+      }
     },
-    { enableHighAccuracy: true, maximumAge: 0, timeout: 7000 }
+    { enableHighAccuracy: true, timeout: 4000, maximumAge: 0 }
   );
-
-  // stop after 5 seconds and pick the best we collected
-  const timeoutId = setTimeout(() => {
-    try {
-      if(watchId != null) navigator.geolocation.clearWatch(watchId);
-    } catch(e){}
-    // pick most accurate sample (if any)
-    if(samples.length){
-      const bestSample = samples.reduce((acc, cur) => {
-        if(!acc) return cur;
-        if(!cur || !cur.coords) return acc;
-        return (cur.coords.accuracy < acc.coords.accuracy) ? cur : acc;
-      }, samples[0]);
-      finishWithPosition(bestSample);
-    } else {
-      // try a one-off getCurrentPosition as fallback
-      navigator.geolocation.getCurrentPosition(
-        (pos) => finishWithPosition(pos),
-        (err) => handleError(err),
-        { enableHighAccuracy:true, timeout:5000, maximumAge:0 }
-      );
-    }
-  }, 5000);
 }
 
 // Draw route (routing machine uses current selectedLatLng & selectedMarketLatLng)
@@ -900,8 +903,8 @@ function drawRouteIfReady(){
     routingControl = null;
   }
   if(selectedLatLng && selectedMarketLatLng){
-    const redIcon=L.icon({iconUrl:'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png',iconSize:[32,32]});
-    const blueIcon=L.icon({iconUrl:'https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png',iconSize:[32,32]});
+    const redIcon=createSoftPinIcon('#e53935');
+    const blueIcon=createSoftPinIcon('#1e88e5');
     routingControl = L.Routing.control({
       waypoints: [
         L.latLng(selectedMarketLatLng.lat, selectedMarketLatLng.lng),
@@ -968,6 +971,3 @@ function sendMessage(){
 
 </body>
 </html>
-
-
-
