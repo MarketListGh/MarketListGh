@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Accra Market Navigator — Light Road Map</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    :root { --accent: #00a859; --bg: #f7f7f7; }
+    html,body,#map { height:100%; margin:0; padding:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; }
+    #map { width:100%; height:100vh; background:var(--bg); }
+
+    /* top controls */
+    .topbar {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      top: 12px;
+      z-index: 1400;
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .search-box {
+      display:flex;
+      gap:8px;
+      align-items:center;
+      background:#fff;
+      padding:8px;
+      border-radius:10px;
+      box-shadow:0 6px 22px rgba(0,0,0,0.09);
+    }
+    .search-box input {
+      border:0; outline:0; font-size:14px; padding:6px 8px; width:220px;
+    }
+    .btn {
+      padding:8px 12px; border-radius:8px; border:0; cursor:pointer; background:var(--accent); color:#fff; font-weight:600;
+      box-shadow:0 6px 18px rgba(0,168,89,0.12);
+    }
+    .btn.secondary { background:#1976d2; }
+
+    /* suggestions dropdown */
+    .suggestions {
+      position:absolute;
+      top:44px;
+      left:0;
+      width:100%;
+      max-height:220px;
+      overflow:auto;
+      background:#fff;
+      box-shadow:0 8px 30px rgba(0,0,0,0.12);
+      border-radius:8px;
+      display:none;
+      z-index:1500;
+    }
+    .suggestion { padding:8px 10px; cursor:pointer; border-bottom:1px solid #eee; font-size:14px; }
+    .suggestion:hover { background:#f0fff0; }
+
+    /* legend/status */
+    .status {
+      position:absolute;
+      left:12px;
+      bottom:12px;
+      background:rgba(255,255,255,0.95);
+      padding:8px 12px;
+      border-radius:10px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.08);
+      z-index:1400;
+      font-size:13px;
+    }
+
+    /* small popup nav button */
+    .popup-nav {
+      margin-top:8px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .nav-btn { padding:6px 10px; background:#1976d2; color:#fff; border-radius:8px; cursor:pointer; border:0; font-weight:600; }
+    .zoom-btn { padding:6px 10px; background:#00a859; color:#fff; border-radius:8px; cursor:pointer; border:0; font-weight:600; }
+
+    /* icons legend */
+    .legend {
+      position:absolute;
+      right:12px;
+      bottom:12px;
+      z-index:1400;
+      background:rgba(255,255,255,0.95);
+      padding:8px 12px;
+      border-radius:10px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.08);
+      font-size:13px;
+    }
+    .legend .item { display:flex; gap:6px; align-items:center; margin-bottom:6px; }
+    .emoji { font-size:18px; line-height:1; display:inline-block; width:22px; text-align:center; }
+    /* small responsive */
+    @media (max-width:700px){
+      .search-box input { width:140px; }
+      .topbar { left:8px; right:8px; top:8px; }
+    }
+
+    /* small map popup styling override so popups align nicely */
+    .leaflet-popup-content { font-size:14px; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="search-box" id="placeSearchWrap" style="position:relative;">
+      <input id="placeSearch" placeholder="Search markets / malls (e.g., Makola, Accra Mall)" autocomplete="off">
+      <div id="placeSug" class="suggestions" aria-hidden="true"></div>
+      <button class="btn secondary" id="findPlacesBtn" title="Load nearby places">Load Nearby Places</button>
+    </div>
+
+    <div class="search-box" id="userSearchWrap" style="position:relative;">
+      <input id="userSearch" placeholder="Search your location (e.g., Mamobi)" autocomplete="off">
+      <div id="userSug" class="suggestions" aria-hidden="true"></div>
+      <button class="btn" id="locateBtn" title="Detect my location">Detect Me</button>
+    </div>
+
+    <button class="btn" id="clearRouteBtn" title="Clear route">Clear Route</button>
+  </div>
+
+  <div id="map" role="application" aria-label="Map container"></div>
+
+  <div class="status" id="status">Loading map — centering on Accra...</div>
+
+  <div class="legend" aria-hidden="true">
+    <div class="item"><span class="emoji">📍</span> <strong>User (you)</strong></div>
+    <div class="item"><span class="emoji">🧺</span> Market</div>
+    <div class="item"><span class="emoji">🛍️</span> Mall</div>
+    <div class="item"><span class="emoji">🛒</span> Supermarket / Store</div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+  (function(){
+    // ---------------- CONFIG ----------------
+    const API_KEY_GEOAPIFY = '0bf67747adfd4bb9bfab74ec373372fb'; // your Geoapify key
+    const ACCRA = [5.6037, -0.1870];
+    const INITIAL_ZOOM = 13;
+    const PLACE_FETCH_RADIUS = 15000; // meters (15 km)
+    const MAX_PLACES = 180; // safety cap
+
+    // ----------------- MAP INIT -----------------
+    const map = L.map('map', {preferCanvas:true, zoomControl:true}).setView(ACCRA, INITIAL_ZOOM);
+
+    // Light street / white road style: CartoDB Positron (free)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 20,
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    }).addTo(map);
+
+    // small static emoji icons (no bounce)
+    function createStaticDivIcon(emoji, bg='#1976d2', size=30){
+      const html = `
+        <div style="display:flex;align-items:center;justify-content:center;
+          width:${size}px;height:${size}px;border-radius:50%;
+          background:transparent;border:0;font-size:18px;line-height:1.0;">
+          ${emoji}
+        </div>`;
+      return L.divIcon({ html, className: '', iconSize: [size,size], iconAnchor: [Math.round(size/2), size - 6] });
+    }
+
+    const userIcon = createStaticDivIcon('📍', '#d32f2f', 28);
+    const marketIcon = createStaticDivIcon('🧺', '#1976d2', 22);
+    const mallIcon = createStaticDivIcon('🛍️', '#1976d2', 22);
+    const shopIcon = createStaticDivIcon('🛒', '#1976d2', 22);
+
+    // user marker (start at Accra until detected)
+    let userLatLng = { lat: ACCRA[0], lng: ACCRA[1] };
+    let userMarker = L.marker([userLatLng.lat, userLatLng.lng], { icon: userIcon, draggable:true }).addTo(map).bindPopup('Your location (drag to adjust)');
+
+    userMarker.on('dragend', (e) => {
+      const p = e.target.getLatLng();
+      userLatLng = { lat: +p.lat, lng: +p.lng };
+      updateStatus(`User pin moved to ${userLatLng.lat.toFixed(5)}, ${userLatLng.lng.toFixed(5)}`);
+      if (currentRouteTarget) drawRouteTo(currentRouteTarget);
+    });
+
+    // places layer group
+    const placesLayer = L.layerGroup().addTo(map);
+
+    // route layer and current target
+    let routeLayer = null;
+    let currentRouteTarget = null;
+
+    // status updater
+    const statusEl = document.getElementById('status');
+    function updateStatus(text){ statusEl.textContent = text; }
+
+    // ----------------- OVERPASS QUERY (on demand) -----------------
+    // Build Overpass query to find markets, malls, supermarkets within radius of ACCRA center
+    function overpassQuery(centerLat, centerLon, radius){
+      return `
+        [out:json][timeout:25];
+        (
+          node["amenity"="marketplace"](around:${radius},${centerLat},${centerLon});
+          way["amenity"="marketplace"](around:${radius},${centerLat},${centerLon});
+          node["shop"="supermarket"](around:${radius},${centerLat},${centerLon});
+          way["shop"="supermarket"](around:${radius},${centerLat},${centerLon});
+          node["shop"="mall"](around:${radius},${centerLat},${centerLon});
+          way["shop"="mall"](around:${radius},${centerLat},${centerLon});
+          node["shop"="department_store"](around:${radius},${centerLat},${centerLon});
+          way["shop"="department_store"](around:${radius},${centerLat},${centerLon});
+          node["shop"="convenience"](around:${radius},${centerLat},${centerLon});
+          way["shop"="convenience"](around:${radius},${centerLat},${centerLon});
+        );
+        out center ${MAX_PLACES};
+      `;
+    }
+
+    // fetch places when user clicks the button (Option C)
+    async function fetchPlacesAndShow(){
+      updateStatus('Fetching nearby markets & malls (OSM)...');
+      placesLayer.clearLayers();
+      currentRouteTarget = null;
+      if(routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
+
+      try{
+        const q = overpassQuery(ACCRA[0], ACCRA[1], PLACE_FETCH_RADIUS);
+        const resp = await fetch('https://overpass-api.de/api/interpreter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+          body: 'data=' + encodeURIComponent(q)
+        });
+        if(!resp.ok) throw new Error('Overpass fetch failed: ' + resp.status);
+        const data = await resp.json();
+        if(!data.elements || !data.elements.length){
+          updateStatus('No nearby places found.');
+          return;
+        }
+
+        // add markers (limit to avoid clutter)
+        let count = 0;
+        for(const el of data.elements){
+          if(count >= MAX_PLACES) break;
+          let lat = el.lat, lon = el.lon;
+          if(!lat && el.center){ lat = el.center.lat; lon = el.center.lon; }
+          if(!lat || !lon) continue;
+
+          const tags = el.tags || {};
+          let placeType = 'market';
+          if (tags.shop === 'supermarket' || tags.shop === 'department_store' || tags.shop === 'convenience') placeType = 'supermarket';
+          if (tags.shop === 'mall') placeType = 'mall';
+          if (tags.amenity === 'marketplace') placeType = 'market';
+
+          let icon = marketIcon;
+          if(placeType === 'mall') icon = mallIcon;
+          if(placeType === 'supermarket') icon = shopIcon;
+
+          const title = tags.name || tags['name:en'] || (placeType === 'market' ? 'Market' : placeType === 'mall' ? 'Mall' : 'Store');
+
+          const marker = L.marker([lat, lon], { icon }).addTo(placesLayer);
+          // no floating labels; use tooltip on hover
+          marker.bindTooltip(title, {permanent:false, direction:'top', offset:[0,-10]});
+
+          marker.on('click', () => {
+            // compute haversine quick distance for immediate display if route not ready
+            const distKm = haversineKm(userLatLng.lat, userLatLng.lng, lat, lon);
+            const popupHtml = `
+              <div style="min-width:200px;">
+                <strong>${escapeHtml(title)}</strong><br>
+                <small>${placeType.toUpperCase()}</small>
+                <div style="margin-top:6px;">Distance: <strong id="popupDistance">${distKm.toFixed(2)} km</strong></div>
+                <div class="popup-nav">
+                  <button class="nav-btn" id="navHereBtn">Navigate Here</button>
+                  <button class="zoom-btn" id="zoomHereBtn">Zoom</button>
+                </div>
+              </div>`;
+            marker.bindPopup(popupHtml).openPopup();
+
+            // attach listeners after popup rendered
+            setTimeout(() => {
+              const navBtn = document.getElementById('navHereBtn');
+              const zoomBtn = document.getElementById('zoomHereBtn');
+              if(navBtn) navBtn.addEventListener('click', () => {
+                currentRouteTarget = { lat, lng: lon, title };
+                // call draw route (Geoapify)
+                drawRouteTo({ lat, lng: lon, title });
+              });
+              if(zoomBtn) zoomBtn.addEventListener('click', () => {
+                map.setView([lat, lon], 17, { animate:true });
+              });
+            }, 120);
+          });
+
+          count++;
+        }
+
+        updateStatus(`Loaded ${count} places around Accra.`);
+      } catch(err){
+        console.error(err);
+        updateStatus('Failed to load places (Overpass). Try again later.');
+      }
+    }
+
+    document.getElementById('findPlacesBtn').addEventListener('click', fetchPlacesAndShow);
+
+    // ----------------- SEARCH (Nominatim suggestions) -----------------
+    function attachSearch(inputEl, sugEl, isPlaceSearch=false){
+      let timer = null;
+      inputEl.addEventListener('input', () => {
+        const q = inputEl.value.trim();
+        clearTimeout(timer);
+        if(!q){ sugEl.style.display = 'none'; sugEl.innerHTML=''; return; }
+        timer = setTimeout(async () => {
+          try{
+            let qParam = q;
+            if(isPlaceSearch){
+              // narrow to markets/malls by hinting
+              qParam = q + ' market OR mall OR supermarket OR "market center"';
+            }
+            const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&q=' + encodeURIComponent(qParam);
+            const r = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+            const results = await r.json();
+            sugEl.innerHTML = '';
+            if(results && results.length){
+              results.forEach(res => {
+                const name = res.display_name || (res.address && Object.values(res.address).join(', ')) || 'Unknown';
+                const div = document.createElement('div');
+                div.className = 'suggestion';
+                div.textContent = name;
+                div.addEventListener('click', () => {
+                  sugEl.style.display = 'none';
+                  inputEl.value = name;
+                  if(isPlaceSearch){
+                    // show a temporary marker for preview and allow navigation
+                    const lat = parseFloat(res.lat), lon = parseFloat(res.lon);
+                    const tmpIcon = (res.type && res.type.toLowerCase().includes('mall')) ? mallIcon : marketIcon;
+                    const tmp = L.marker([lat, lon], { icon: tmpIcon }).addTo(map);
+                    tmp.bindPopup(`<strong>${escapeHtml(name)}</strong><div style="margin-top:8px;"><button class="nav-btn" id="navTmpBtn">Navigate Here</button></div>`).openPopup();
+                    map.setView([lat, lon], 16);
+                    setTimeout(() => {
+                      const navTmp = document.getElementById('navTmpBtn');
+                      if(navTmp) navTmp.addEventListener('click', () => {
+                        currentRouteTarget = { lat, lng: lon, title: name };
+                        drawRouteTo({ lat, lng: lon, title: name });
+                        map.closePopup();
+                      });
+                    }, 150);
+                    // remove tmp after 12s
+                    setTimeout(()=>{ try{ map.removeLayer(tmp); }catch(e){} }, 12000);
+                  } else {
+                    // user search -> set user marker
+                    const lat = parseFloat(res.lat), lon = parseFloat(res.lon);
+                    userLatLng = { lat, lng: lon };
+                    userMarker.setLatLng([lat, lon]);
+                    map.setView([lat, lon], 16);
+                    updateStatus(`User location set to: ${name}`);
+                    if(currentRouteTarget) drawRouteTo(currentRouteTarget);
+                    sugEl.style.display = 'none';
+                  }
+                });
+                sugEl.appendChild(div);
+              });
+              sugEl.style.display = 'block';
+            } else {
+              sugEl.style.display = 'none';
+            }
+          }catch(e){
+            console.error(e);
+            sugEl.style.display = 'none';
+          }
+        }, 220);
+      });
+      // hide suggestions on outside click
+      document.addEventListener('click', (ev) => {
+        if(!inputEl.contains(ev.target) && !sugEl.contains(ev.target)) sugEl.style.display = 'none';
+      });
+    }
+
+    attachSearch(document.getElementById('userSearch'), document.getElementById('userSug'), false);
+    attachSearch(document.getElementById('placeSearch'), document.getElementById('placeSug'), true);
+
+    // ----------------- ROUTING (Geoapify) -----------------
+    // Draw route from user's current position to target {lat,lng}
+    async function drawRouteTo(target){
+      if(!target || !userLatLng) {
+        updateStatus('No target or user location.');
+        return;
+      }
+      updateStatus('Calculating route...');
+      // clear existing route
+      if(routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
+
+      // Geoapify routing expects waypoints as lat,lon|lat,lon
+      const from = `${userLatLng.lat},${userLatLng.lng}`;
+      const to = `${target.lat},${target.lng}`;
+      // request geojson format
+      const url = `https://api.geoapify.com/v1/routing?waypoints=${encodeURIComponent(from)}|${encodeURIComponent(to)}&mode=drive&format=geojson&details=distance&apiKey=${API_KEY_GEOAPIFY}`;
+
+      try{
+        const r = await fetch(url);
+        if(!r.ok) throw new Error('Routing failed: ' + r.status);
+        const j = await r.json();
+        // Geoapify returns features array; geometry usually in features[0].geometry
+        const feat = (j.features && j.features[0]) ? j.features[0] : null;
+        if(!feat || !feat.geometry){
+          updateStatus('No route returned by Geoapify.');
+          return;
+        }
+
+        // parse coordinates (might be MultiLineString or LineString)
+        let coords = [];
+        if(feat.geometry.type === 'MultiLineString'){
+          // flatten
+          feat.geometry.coordinates.forEach(arr => { arr.forEach(c => coords.push(c)); });
+        } else if(feat.geometry.type === 'LineString'){
+          coords = feat.geometry.coordinates.slice();
+        } else {
+          updateStatus('Unexpected route geometry.');
+          return;
+        }
+        // coords are [lon,lat]
+        const latlngs = coords.map(c => [c[1], c[0]]);
+
+        // add polyline
+        routeLayer = L.polyline(latlngs, { color:'#00a859', weight:6, opacity:0.95, lineJoin:'round' }).addTo(map);
+        map.fitBounds(routeLayer.getBounds(), { padding:[40,40] });
+
+        // distance: try properties or compute from geometry if necessary
+        let distMeters = null;
+        if(feat.properties && typeof feat.properties.distance === 'number') distMeters = feat.properties.distance;
+        else if(j.properties && typeof j.properties.distance === 'number') distMeters = j.properties.distance;
+        // fallback: estimate via haversine sum (less accurate)
+        if(distMeters == null){
+          distMeters = 0;
+          for(let i=1;i<latlngs.length;i++){
+            distMeters += haversineKm(latlngs[i-1][0], latlngs[i-1][1], latlngs[i][0], latlngs[i][1]) * 1000;
+          }
+        }
+        const distKm = distMeters / 1000;
+        updateStatus(`Route drawn — ${distKm.toFixed(2)} km`);
+        // update popup distance if open
+        const popupDistanceEl = document.getElementById('popupDistance');
+        if(popupDistanceEl) popupDistanceEl.textContent = `${distKm.toFixed(2)} km`;
+      }catch(err){
+        console.error(err);
+        updateStatus('Routing error — try again.');
+      }
+    }
+
+    // clear route button
+    document.getElementById('clearRouteBtn').addEventListener('click', () => {
+      if(routeLayer){ map.removeLayer(routeLayer); routeLayer = null; updateStatus('Route cleared'); }
+      currentRouteTarget = null;
+    });
+
+    // ----------------- AUTO-TRACK USER MOVEMENT -----------------
+    let geoWatchId = null;
+    function startWatchPosition(){
+      if(!navigator.geolocation) { updateStatus('Geolocation unavailable'); return; }
+      try{
+        geoWatchId = navigator.geolocation.watchPosition(pos => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          // compute movement in meters
+          const d = haversineKm(userLatLng.lat, userLatLng.lng, lat, lng) * 1000;
+          userLatLng = { lat, lng };
+          userMarker.setLatLng([lat, lng]);
+          // if user moved enough and a route is active, redraw
+          if(currentRouteTarget && d > 20) drawRouteTo(currentRouteTarget);
+          updateStatus(`You: ${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+        }, err => {
+          console.warn('watchPosition error', err);
+          updateStatus('Unable to watch position: ' + (err.message || 'error'));
+        }, { enableHighAccuracy:true, maximumAge:2000, timeout:8000 });
+      }catch(e){
+        console.warn('startWatchPosition failed', e);
+      }
+    }
+
+    // Detect button: single-shot getCurrentPosition then start watch
+    document.getElementById('locateBtn').addEventListener('click', () => {
+      if(!navigator.geolocation){ alert('Geolocation not supported'); return; }
+      updateStatus('Detecting location...');
+      navigator.geolocation.getCurrentPosition(pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        userLatLng = { lat, lng };
+        userMarker.setLatLng([lat, lng]);
+        map.setView([lat, lng], 16);
+        updateStatus(`Detected: ${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+        if(geoWatchId === null) startWatchPosition();
+      }, err => {
+        console.warn(err);
+        alert('Unable to detect location: ' + (err.message || 'error') + '. You can search manually.');
+        updateStatus('Detection failed; please search or drag the red pin.');
+      }, { enableHighAccuracy:true, timeout:8000, maximumAge:60000 });
+    });
+
+    // Permission pre-check: if granted, start watch automatically
+    if(navigator.permissions){
+      try{
+        navigator.permissions.query({ name:'geolocation' }).then(p => {
+          if(p.state === 'granted') startWatchPosition();
+        }).catch(()=>{ /* ignore */ });
+      }catch(e){ /* ignore */ }
+    }
+
+    // ----------------- UTILS -----------------
+    function haversineKm(aLat,aLng,bLat,bLng){
+      const R=6371;
+      const dLat=(bLat-aLat)*Math.PI/180;
+      const dLng=(bLng-aLng)*Math.PI/180;
+      const A = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+      const C = 2*Math.atan2(Math.sqrt(A), Math.sqrt(1-A));
+      return R*C;
+    }
+
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); }); }
+
+    // ----------------- INITIAL SETUP -----------------
+    map.setView(ACCRA, INITIAL_ZOOM);
+    updateStatus('Map ready — press "Load Nearby Places" to populate markets & malls.');
+
+    // Helpful note: if GPS shows wrong position (phone using WiFi), use the userSearch box to set precise location (you can paste a pluscode like HRV5+8QC too).
+    // End of code.
+  })();
+  </script>
+</body>
+</html>
