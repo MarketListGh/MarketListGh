@@ -7,9 +7,12 @@
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- MarkerCluster CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
   <style>
-    :root { --accent: #00a859; --bg: #f7f7f7; }
+    :root { --accent: #00a859; --bg: #f7f7f7; --blue:#1976d2; --red:#d32f2f; --popup-grad-start:#00a859; --popup-grad-end:#1976d2; }
     html,body,#map { height:100%; margin:0; padding:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; }
     #map { width:100%; height:100vh; background:var(--bg); }
 
@@ -24,6 +27,17 @@
       gap:8px;
       align-items:center;
     }
+
+    .bottombar {
+      position:absolute;
+      left:12px;
+      right:12px;
+      bottom:12px;
+      z-index:1400;
+      display:flex;
+      justify-content:center;
+    }
+
     .search-box {
       display:flex;
       gap:8px;
@@ -32,34 +46,75 @@
       padding:8px;
       border-radius:10px;
       box-shadow:0 6px 22px rgba(0,0,0,0.09);
+      position:relative;
     }
     .search-box input {
       border:0; outline:0; font-size:14px; padding:6px 8px; width:220px;
+      transition: box-shadow .15s, border .15s;
+      border-radius:6px;
     }
     .btn {
       padding:8px 12px; border-radius:8px; border:0; cursor:pointer; background:var(--accent); color:#fff; font-weight:600;
       box-shadow:0 6px 18px rgba(0,168,89,0.12);
+      display:inline-flex; align-items:center; gap:8px; position:relative;
     }
     .btn.secondary { background:#1976d2; }
+    .btn:disabled { opacity:0.6; cursor:not-allowed; }
 
-    /* suggestions dropdown */
+    .spinner {
+      width:16px; height:16px; border-radius:50%;
+      border:2px solid rgba(255,255,255,0.35); border-top-color: white;
+      animation: spin .7s linear infinite; display:none;
+    }
+    .btn.loading .spinner { display:inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* suggestions dropdown (detailed + emoji icons) */
     .suggestions {
       position:absolute;
       top:44px;
       left:0;
       width:100%;
-      max-height:220px;
+      max-height:300px;
       overflow:auto;
       background:#fff;
       box-shadow:0 8px 30px rgba(0,0,0,0.12);
       border-radius:8px;
       display:none;
       z-index:1500;
+      padding:6px 6px;
     }
-    .suggestion { padding:8px 10px; cursor:pointer; border-bottom:1px solid #eee; font-size:14px; }
-    .suggestion:hover { background:#f0fff0; }
+    .suggestion-row {
+      display:flex; gap:8px; padding:8px; cursor:pointer; border-radius:6px; align-items:flex-start;
+    }
+    .suggestion-row:hover { background:#f7fff7; }
+    .suggestion-icon { width:36px; font-size:20px; line-height:1; margin-top:2px; text-align:center; }
+    .suggestion-main { font-weight:700; font-size:14px; color:#111; }
+    .suggestion-sub { font-size:12px; color:#666; margin-top:4px; }
 
-    /* legend/status */
+    /* premium popup */
+    .popup-card {
+      width:260px;
+      border-radius:10px;
+      overflow:hidden;
+      box-shadow:0 12px 30px rgba(0,0,0,0.18);
+      font-family:inherit;
+    }
+    .popup-header {
+      display:flex; gap:8px; align-items:center; padding:10px;
+      background: linear-gradient(90deg, var(--popup-grad-start), var(--popup-grad-end));
+      color:#fff;
+    }
+    .popup-header .icon { font-size:20px; }
+    .popup-header .title { font-weight:800; font-size:15px; }
+    .popup-body { padding:10px; background:#fff; color:#111; }
+    .distance-badge { display:inline-block; padding:6px 8px; border-radius:999px; background:#f3f3f3; font-weight:700; float:right; }
+
+    .popup-actions { display:flex; gap:8px; margin-top:10px; justify-content:space-between; }
+    .popup-btn { flex:1; padding:8px 10px; border-radius:8px; border:0; cursor:pointer; font-weight:700; color:#fff; }
+    .popup-btn.navigate { background:#1976d2; }
+    .popup-btn.zoom { background:#00a859; }
+
     .status {
       position:absolute;
       left:12px;
@@ -72,17 +127,8 @@
       font-size:13px;
     }
 
-    /* small popup nav button */
-    .popup-nav {
-      margin-top:8px;
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-    .nav-btn { padding:6px 10px; background:#1976d2; color:#fff; border-radius:8px; cursor:pointer; border:0; font-weight:600; }
-    .zoom-btn { padding:6px 10px; background:#00a859; color:#fff; border-radius:8px; cursor:pointer; border:0; font-weight:600; }
+    .popup-nav { margin-top:8px; display:flex; gap:8px; align-items:center; }
 
-    /* icons legend */
     .legend {
       position:absolute;
       right:12px;
@@ -96,37 +142,42 @@
     }
     .legend .item { display:flex; gap:6px; align-items:center; margin-bottom:6px; }
     .emoji { font-size:18px; line-height:1; display:inline-block; width:22px; text-align:center; }
-    /* small responsive */
+
     @media (max-width:700px){
       .search-box input { width:140px; }
       .topbar { left:8px; right:8px; top:8px; }
     }
 
-    /* small map popup styling override so popups align nicely */
     .leaflet-popup-content { font-size:14px; }
   </style>
 </head>
 <body>
 
-  <div class="topbar">
+  <div class="topbar" role="navigation" aria-label="Top controls">
     <div class="search-box" id="placeSearchWrap" style="position:relative;">
-      <input id="placeSearch" placeholder="Search markets / malls (e.g., Makola, Accra Mall)" autocomplete="off">
+      <input id="placeSearch" placeholder="Search markets / malls (e.g., Makola, Accra Mall)" autocomplete="off" aria-label="Search markets and malls">
       <div id="placeSug" class="suggestions" aria-hidden="true"></div>
-      <button class="btn secondary" id="findPlacesBtn" title="Load nearby places">Load Nearby Places</button>
+      <button class="btn secondary" id="findPlacesBtn" aria-label="Load nearby places">
+        <span class="spinner" aria-hidden="true"></span>
+        Load Nearby Places
+      </button>
     </div>
 
     <div class="search-box" id="userSearchWrap" style="position:relative;">
-      <input id="userSearch" placeholder="Search your location (e.g., Mamobi or paste plus code)" autocomplete="off">
+      <input id="userSearch" placeholder="Search your location (e.g., Mamobi or plus code)" autocomplete="off" aria-label="Search your location">
       <div id="userSug" class="suggestions" aria-hidden="true"></div>
-      <button class="btn" id="locateBtn" title="Detect my location">Detect Me</button>
+      <button class="btn" id="locateBtn" aria-label="Detect my location">
+        <span class="spinner" aria-hidden="true"></span>
+        Detect Me
+      </button>
     </div>
 
-    <button class="btn" id="clearRouteBtn" title="Clear route">Clear Route</button>
+    <button class="btn" id="clearRouteBtn" aria-label="Clear route">Clear Route</button>
   </div>
 
   <div id="map" role="application" aria-label="Map container"></div>
 
-  <div class="status" id="status">Loading map — centering on Accra...</div>
+  <div class="status" id="status" aria-live="polite">Loading map — centering on Accra...</div>
 
   <div class="legend" aria-hidden="true">
     <div class="item"><span class="emoji">📍</span> <strong>User (you - blue)</strong></div>
@@ -138,70 +189,231 @@
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- MarkerCluster -->
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
   <script>
   (function(){
-    // ---------------- CONFIG ----------------
-    const API_KEY_GEOAPIFY = '0bf67747adfd4bb9bfab74ec373372fb'; // your Geoapify key
+    /* ---------------- CONFIG ---------------- */
+    const API_KEY_GEOAPIFY = '0bf67747adfd4bb9bfab74ec373372fb';
     const ACCRA = [5.6037, -0.1870];
     const INITIAL_ZOOM = 13;
-    const PLACE_FETCH_RADIUS = 15000; // meters (15 km)
-    const MAX_PLACES = 200; // safety cap
-    const PLACES_VISIBLE_ZOOM = 14; // show loaded places only when zoom >= this
+    const PLACE_FETCH_RADIUS = 15000;
+    const MAX_PLACES = 200;
+    const PLACES_VISIBLE_ZOOM = 13; // show places earlier with clustering
+    const AUTOCOMPLETE_LIMIT = 7;
 
-    // ----------------- MAP INIT -----------------
+    /* ---------------- MAP INIT ---------------- */
     const map = L.map('map', {preferCanvas:true, zoomControl:true}).setView(ACCRA, INITIAL_ZOOM);
-
-    // Light street / white road style: CartoDB Positron (free)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 20,
       attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
     }).addTo(map);
 
-    // create small static pin icons (blue for user, red for market)
-    function createPinEmojiIcon(emoji, colorHex, size=28){
-      const html = `
-        <div style="display:flex;align-items:center;justify-content:center;
-          width:${size}px;height:${size}px;border-radius:50%;
-          background:transparent;border:0;font-size:18px;line-height:1.0;">
-          ${emoji}
-        </div>`;
-      // We will rely on emoji glyph for look; colorHex is kept for future use if needed.
-      return L.divIcon({ html, className: '', iconSize: [size,size], iconAnchor: [Math.round(size/2), size - 6] });
+    /* ---------------- ICONS ---------------- */
+    function createSvgPin(color, size = 36) {
+      const svg = encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
+          <defs>
+            <filter id="s" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.25" flood-color="#000"/>
+            </filter>
+          </defs>
+          <path fill="${color}" stroke="#fff" stroke-width="1.2" filter="url(#s)"
+            d="M12 2C8.14 2 5 5.14 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.86-3.14-7-7-7z"/>
+          <circle cx="12" cy="9" r="3" fill="#fff" />
+        </svg>`);
+      return L.divIcon({ html:`<img src="data:image/svg+xml;utf8,${svg}" style="width:${size}px;height:${size}px;transform:translateY(-6px)">`, className:'', iconSize:[size,size], iconAnchor:[Math.round(size/2), size-6]});
     }
 
-    // user = blue pin (📍), market = red pin (📍) visually via emoji; we ensure color meaning in legend and behavior
-    const userIcon = createPinEmojiIcon('📍', '#1976d2', 28);
-    const marketRedIcon = createPinEmojiIcon('📍', '#d32f2f', 26);
-    // small icons for tooltips legend (we keep emoji as small labels)
-    const marketEmojiIcon = createPinEmojiIcon('🧺', '#d32f2f', 22);
-    const mallEmojiIcon = createPinEmojiIcon('🛍️', '#d32f2f', 22);
-    const shopEmojiIcon = createPinEmojiIcon('🛒', '#d32f2f', 22);
+    const userIcon = createSvgPin('#1976d2', 36);
+    const marketRedIcon = createSvgPin('#d32f2f', 34);
 
-    // user marker (start at Accra until detected)
+    function createPinEmojiIcon(emoji, size=22){
+      return L.divIcon({ html:`<div style="width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;font-size:${Math.round(size*0.8)}px">${emoji}</div>`, className:'', iconSize:[size,size], iconAnchor:[Math.round(size/2), size-6]});
+    }
+    const marketEmojiIcon = createPinEmojiIcon('🧺',22);
+    const mallEmojiIcon = createPinEmojiIcon('🛍️',22);
+    const shopEmojiIcon = createPinEmojiIcon('🛒',22);
+
+    /* ---------------- GLOBAL STATE ---------------- */
+    window._ml_state = {
+      userLatLng: { lat: ACCRA[0], lng: ACCRA[1] },
+      currentRouteTarget: null,
+      userMarker: null,
+      dropMarketMarker: null,
+      routeLayer: null,
+      markers: [] // store place markers for clustering
+    };
+
+    /* ---------------- USER MARKER ---------------- */
     let userLatLng = { lat: ACCRA[0], lng: ACCRA[1] };
-    let userMarker = L.marker([userLatLng.lat, userLatLng.lng], { icon: userIcon, draggable:true }).addTo(map).bindPopup('Your location (drag to adjust)');
+    const userMarker = L.marker([userLatLng.lat, userLatLng.lng], { icon:userIcon, draggable:true }).addTo(map).bindPopup('Your location (drag to adjust)');
+    window._ml_state.userMarker = userMarker;
 
     userMarker.on('dragend', (e) => {
       const p = e.target.getLatLng();
-      userLatLng = { lat: +p.lat, lng: +p.lng };
+      userLatLng = { lat:+p.lat, lng:+p.lng };
+      window._ml_state.userLatLng = userLatLng;
       updateStatus(`User pin moved to ${userLatLng.lat.toFixed(5)}, ${userLatLng.lng.toFixed(5)}`);
-      if (currentRouteTarget) drawRouteTo(currentRouteTarget);
+      if(window._ml_state.currentRouteTarget) drawRouteTo(window._ml_state.currentRouteTarget);
     });
 
-    // places layer group (we will add markers here)
-    const placesLayer = L.layerGroup().addTo(map);
-
-    // route layer and current target (market)
-    let routeLayer = null;
-    let currentRouteTarget = null;
-    let dropMarketMarker = null; // red dropped pin for navigated market
-
-    // status updater
     const statusEl = document.getElementById('status');
     function updateStatus(text){ statusEl.textContent = text; }
 
-    // ----------------- OVERPASS QUERY (on demand) -----------------
+    /* ---------------- CLUSTER GROUP (emoji clusters) ---------------- */
+    const markerClusterGroup = L.markerClusterGroup({
+      maxClusterRadius: 40,
+      iconCreateFunction: function(cluster){
+        // compute predominant type in cluster
+        const markers = cluster.getAllChildMarkers();
+        const tally = { market:0, mall:0, supermarket:0, other:0 };
+        markers.forEach(m=>{
+          const t = m.options && m.options.placeType ? m.options.placeType : 'other';
+          tally[t] = (tally[t]||0) + 1;
+        });
+        // pick top type
+        let top = 'market';
+        let topCount = 0;
+        for(const k in tally){
+          if(tally[k] > topCount){ top = k; topCount = tally[k]; }
+        }
+        const emoji = top==='mall' ? '🛍️' : top==='supermarket' ? '🛒' : '🧺';
+        const count = cluster.getChildCount();
+        // cluster HTML: emoji + count
+        const html = `
+          <div style="display:flex;align-items:center;justify-content:center;
+                      width:44px;height:44px;border-radius:22px;background:rgba(0,0,0,0.65);
+                      color:#fff;font-weight:800;font-size:14px;">
+            <div style="font-size:18px;margin-right:4px;">${emoji}</div><div>${count}</div>
+          </div>`;
+        return L.divIcon({ html, className:'custom-cluster', iconSize:[44,44] });
+      }
+    }).addTo(map);
+
+    /* ---------------- AUTOCOMPLETE (Geoapify) ---------------- */
+    async function geoapifyAutocomplete(query, limit=AUTOCOMPLETE_LIMIT){
+      if(!query || !query.trim()) return [];
+      const center = map.getCenter();
+      try{
+        const resp = await fetch(
+          `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&limit=${limit}&bias=proximity:${center.lat},${center.lng}&apiKey=${API_KEY_GEOAPIFY}`
+        );
+        if(!resp.ok) return [];
+        const j = await resp.json();
+        return j.features || [];
+      }catch(e){
+        console.warn('autocomplete error', e);
+        return [];
+      }
+    }
+
+    function classifyGeoapifyFeature(feat){
+      const p = feat.properties || {};
+      const name = (p.name || p.formatted || '').toLowerCase();
+      const cats = (p.categories || '').toLowerCase();
+      if(cats.includes('mall') || name.includes('mall') || (p.type && String(p.type).toLowerCase().includes('mall'))) return { icon:'🛍️', kind:'mall' };
+      if(cats.includes('market') || name.includes('market') || (p.type && String(p.type).toLowerCase().includes('market'))) return { icon:'🧺', kind:'market' };
+      if(cats.includes('supermarket') || name.includes('supermarket') || name.includes('mart') || name.includes('shop')) return { icon:'🛒', kind:'supermarket' };
+      if(name.match(/\b(supermarket|shop|store|market|mall|centre|center)\b/)) {
+        if(name.includes('mall') || name.includes('centre') || name.includes('center')) return { icon:'🛍️', kind:'mall' };
+        if(name.includes('market')) return { icon:'🧺', kind:'market' };
+        return { icon:'🛒', kind:'supermarket' };
+      }
+      return { icon:'🧺', kind:'market' };
+    }
+
+    function buildSuggestionElement(feat){
+      const wrapper = document.createElement('div');
+      wrapper.className = 'suggestion-row';
+      const p = feat.properties || {};
+      const cls = classifyGeoapifyFeature(feat);
+      const icon = document.createElement('div'); icon.className='suggestion-icon'; icon.textContent = cls.icon;
+      const main = document.createElement('div'); main.style.flex='1';
+      const title = document.createElement('div'); title.className='suggestion-main'; title.textContent = p.name || p.formatted || 'Unknown';
+      const sub = document.createElement('div'); sub.className='suggestion-sub'; sub.textContent = (p.formatted || '') + (p.address ? ` — ${p.address}` : '') || cls.kind;
+      main.appendChild(title); main.appendChild(sub);
+      wrapper.appendChild(icon); wrapper.appendChild(main);
+      return { element: wrapper, classified: cls };
+    }
+
+    function attachGeoapifyAutocomplete(inputEl, sugEl, isPlaceSearch=false){
+      let timer = null;
+      inputEl.addEventListener('input', () => {
+        const q = inputEl.value.trim();
+        clearTimeout(timer);
+        if(!q){ sugEl.style.display='none'; sugEl.innerHTML=''; return; }
+        timer = setTimeout(async () => {
+          let features = await geoapifyAutocomplete(q, AUTOCOMPLETE_LIMIT);
+          if(isPlaceSearch){
+            // filter for markets/malls/supermarkets (Option A)
+            const filtered = features.filter(f => {
+              const k = classifyGeoapifyFeature(f).kind;
+              return ['market','mall','supermarket'].includes(k);
+            });
+            if(filtered.length) features = filtered;
+            else features = features.slice(0,3);
+          }
+          sugEl.innerHTML = '';
+          if(!features.length){ sugEl.style.display='none'; return; }
+          for(const f of features){
+            const { element, classified } = buildSuggestionElement(f);
+            element.addEventListener('click', () => {
+              sugEl.style.display='none';
+              inputEl.value = f.properties.name || f.properties.formatted || '';
+              const lat = f.properties.lat || (f.properties && f.properties.lat);
+              const lon = f.properties.lon || (f.properties && f.properties.lon);
+              if(isPlaceSearch){
+                // add temporary marker with popup and navigate button
+                const tmpIcon = classified.kind==='mall'?mallEmojiIcon:(classified.kind==='supermarket'?shopEmojiIcon:marketEmojiIcon);
+                const tmp = L.marker([lat, lon], { icon: tmpIcon }).addTo(map);
+                tmp.bindPopup(`<strong>${escapeHtml(inputEl.value)}</strong><div style="margin-top:8px;"><button class="nav-btn" id="navTmpBtn">Navigate Here</button></div>`).openPopup();
+                // soft zoom (user chose A: soft zoom to level 16)
+                map.flyTo([lat, lon], 16, { duration: 0.9 });
+                // Cancelable removal; store ref
+                let removed = false;
+                const removal = setTimeout(()=>{ if(!removed){ try{ map.removeLayer(tmp); }catch(e){} } }, 15000);
+
+                setTimeout(()=>{
+                  const navTmp = document.getElementById('navTmpBtn');
+                  if(navTmp) navTmp.addEventListener('click', () => {
+                    if(removal) { removed = true; clearTimeout(removal); }
+                    const target = { lat, lng: lon, title: inputEl.value };
+                    window._ml_state.currentRouteTarget = target;
+                    dropRedMarketPin(lat, lon, inputEl.value);
+                    drawRouteTo(target);
+                    try{ map.removeLayer(tmp); }catch(e){}
+                  });
+                }, 120);
+              } else {
+                // user search — set user marker
+                const lat = f.properties.lat;
+                const lon = f.properties.lon;
+                userLatLng = { lat, lng: lon };
+                window._ml_state.userLatLng = userLatLng;
+                userMarker.setLatLng([lat, lon]);
+                map.flyTo([lat, lon], 15, { duration:0.9 });
+                updateStatus(`User location set to: ${inputEl.value}`);
+                if(window._ml_state.currentRouteTarget) drawRouteTo(window._ml_state.currentRouteTarget);
+              }
+            });
+            sugEl.appendChild(element);
+          }
+          sugEl.style.display = 'block';
+        }, 180);
+      });
+
+      // hide suggestions on outside click (improved)
+      document.addEventListener('click', (ev) => {
+        if(!inputEl.contains(ev.target) && !sugEl.contains(ev.target)) sugEl.style.display = 'none';
+      });
+    }
+
+    attachGeoapifyAutocomplete(document.getElementById('userSearch'), document.getElementById('userSug'), false);
+    attachGeoapifyAutocomplete(document.getElementById('placeSearch'), document.getElementById('placeSug'), true);
+
+    /* ---------------- PLACE FETCH (Overpass) ---------------- */
     function overpassQuery(centerLat, centerLon, radius){
       return `
         [out:json][timeout:25];
@@ -221,315 +433,232 @@
       `;
     }
 
-    // store loaded place markers (for zoom show/hide)
-    const loadedPlaceMarkers = [];
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); }); }
 
-    // fetch places when user clicks the button
     async function fetchPlacesAndShow(){
-      updateStatus('Fetching nearby markets & malls (OSM)...');
-      // clear previous places and route
-      placesLayer.clearLayers();
-      loadedPlaceMarkers.length = 0;
-      currentRouteTarget = null;
-      if(routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
-      if(dropMarketMarker){ try{ map.removeLayer(dropMarketMarker); }catch(e){} dropMarketMarker=null; }
+      const btn = document.getElementById('findPlacesBtn');
+      setButtonLoading(btn, true);
+      updateStatus('Fetching nearby places (Overpass)…');
+
+      // clear existing cluster and markers
+      markerClusterGroup.clearLayers();
+      window._ml_state.markers.length = 0;
 
       try{
         const q = overpassQuery(ACCRA[0], ACCRA[1], PLACE_FETCH_RADIUS);
         const resp = await fetch('https://overpass-api.de/api/interpreter', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-          body: 'data=' + encodeURIComponent(q)
+          method:'POST',
+          headers:{ 'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8' },
+          body:'data='+encodeURIComponent(q)
         });
-        if(!resp.ok) throw new Error('Overpass fetch failed: ' + resp.status);
-        const data = await resp.json();
-        if(!data.elements || !data.elements.length){
-          updateStatus('No nearby places found.');
-          return;
-        }
+        if(!resp.ok) throw new Error('Overpass error:'+resp.status);
+        const j = await resp.json();
+        if(!j.elements || !j.elements.length){ updateStatus('No places found.'); setButtonLoading(btn,false); return; }
 
         let count = 0;
-        for(const el of data.elements){
-          if(count >= MAX_PLACES) break;
+        for(const el of j.elements){
+          if(count>=MAX_PLACES) break;
           let lat = el.lat, lon = el.lon;
           if(!lat && el.center){ lat = el.center.lat; lon = el.center.lon; }
           if(!lat || !lon) continue;
-
           const tags = el.tags || {};
           let placeType = 'market';
-          if (tags.shop === 'supermarket' || tags.shop === 'department_store' || tags.shop === 'convenience') placeType = 'supermarket';
-          if (tags.shop === 'mall') placeType = 'mall';
-          if (tags.amenity === 'marketplace') placeType = 'market';
-
-          let icon = marketEmojiIcon;
-          if(placeType === 'mall') icon = mallEmojiIcon;
-          if(placeType === 'supermarket') icon = shopEmojiIcon;
-
-          const title = tags.name || tags['name:en'] || (placeType === 'market' ? 'Market' : placeType === 'mall' ? 'Mall' : 'Store');
-
-          // create marker but don't add permanently to map unless zoom >= threshold
-          const marker = L.marker([lat, lon], { icon, title }).on('click', () => {
-            // quick distance
-            const distKm = haversineKm(userLatLng.lat, userLatLng.lng, lat, lon);
-            const popupHtml = `
-              <div style="min-width:200px;">
-                <strong>${escapeHtml(title)}</strong><br>
-                <small>${placeType.toUpperCase()}</small>
-                <div style="margin-top:6px;">Distance: <strong id="popupDistance">${distKm.toFixed(2)} km</strong></div>
-                <div class="popup-nav">
-                  <button class="nav-btn" id="navHereBtn">Navigate Here</button>
-                  <button class="zoom-btn" id="zoomHereBtn">Zoom</button>
-                </div>
-              </div>`;
-            marker.bindPopup(popupHtml).openPopup();
-
-            setTimeout(() => {
-              const navBtn = document.getElementById('navHereBtn');
-              const zoomBtn = document.getElementById('zoomHereBtn');
-              if(navBtn) navBtn.addEventListener('click', () => {
-                currentRouteTarget = { lat: lat, lng: lon, title };
-                dropRedMarketPin(lat, lon, title);
-                drawRouteTo(currentRouteTarget);
-              });
-              if(zoomBtn) zoomBtn.addEventListener('click', () => {
-                map.setView([lat, lon], 17, { animate:true });
-              });
-            }, 120);
-          });
-
-          // keep marker in array
-          loadedPlaceMarkers.push({ marker, lat, lon, title, placeType });
+          if(tags.shop === 'mall') placeType='mall';
+          if(tags.shop === 'supermarket' || tags.shop==='department_store' || tags.shop==='convenience') placeType='supermarket';
+          const icon = placeType==='mall'?mallEmojiIcon:(placeType==='supermarket'?shopEmojiIcon:marketEmojiIcon);
+          const title = tags.name || tags['name:en'] || 'Market';
+          const m = L.marker([lat,lon], { icon, title, placeType });
+          m.bindPopup(buildPremiumPopupHtml(title, placeType, lat, lon));
+          // store metadata for cluster iconCreateFunction
+          m.options.placeType = placeType;
+          markerClusterGroup.addLayer(m);
+          window._ml_state.markers.push(m);
           count++;
         }
 
-        // show/hide markers depending on current zoom
-        refreshPlaceVisibility();
-
-        updateStatus(`Loaded ${loadedPlaceMarkers.length} places (markers will show when zoomed in).`);
-      } catch(err){
-        console.error(err);
-        updateStatus('Failed to load places (Overpass). Try again later.');
+        updateStatus(`Loaded ${window._ml_state.markers.length} places.`);
+      }catch(e){
+        console.warn('fetchPlaces error', e);
+        updateStatus('Failed to load nearby places. Try again later.');
+      } finally {
+        setButtonLoading(btn, false);
       }
     }
 
     document.getElementById('findPlacesBtn').addEventListener('click', fetchPlacesAndShow);
 
-    // show / hide markers on zoom
-    function refreshPlaceVisibility(){
-      if(map.getZoom() >= PLACES_VISIBLE_ZOOM){
-        // add markers to placesLayer if not already added
-        loadedPlaceMarkers.forEach(p => {
-          if(!placesLayer.hasLayer(p.marker)) placesLayer.addLayer(p.marker);
-        });
-      } else {
-        // remove all from placesLayer
-        loadedPlaceMarkers.forEach(p => {
-          if(placesLayer.hasLayer(p.marker)) placesLayer.removeLayer(p.marker);
-        });
+    /* ---------------- POPUP (premium style) ---------------- */
+    function buildPremiumPopupHtml(title, placeType, lat, lon){
+      const icon = placeType==='mall' ? '🛍️' : placeType==='supermarket' ? '🛒' : '🧺';
+      return `
+        <div class="popup-card" role="dialog" aria-label="${escapeHtml(title)}">
+          <div class="popup-header">
+            <div class="icon">${icon}</div>
+            <div style="flex:1;">
+              <div class="title">${escapeHtml(title)}</div>
+            </div>
+            <div class="distance-badge" id="pop-dist">—</div>
+          </div>
+          <div class="popup-body">
+            <div class="popup-actions">
+              <button class="popup-btn navigate" data-lat="${lat}" data-lng="${lon}">Navigate</button>
+              <button class="popup-btn zoom" data-lat="${lat}" data-lng="${lon}">Zoom</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Listen for popupopen to wire actions and compute distance
+    map.on('popupopen', (e) => {
+      const popupNode = e.popup.getElement();
+      if(!popupNode) return;
+      // set distance
+      const badge = popupNode.querySelector('#pop-dist');
+      const navBtn = popupNode.querySelector('.popup-btn.navigate');
+      const zoomBtn = popupNode.querySelector('.popup-btn.zoom');
+      // compute distance if user location known
+      if(window._ml_state.userLatLng && badge){
+        const lat = parseFloat(navBtn.getAttribute('data-lat'));
+        const lng = parseFloat(navBtn.getAttribute('data-lng'));
+        const dkm = haversineKm(window._ml_state.userLatLng.lat, window._ml_state.userLatLng.lng, lat, lng);
+        badge.textContent = `${dkm.toFixed(2)} km`;
       }
-    }
-    map.on('zoomend', refreshPlaceVisibility);
+      if(navBtn){
+        navBtn.addEventListener('click', () => {
+          const lat = parseFloat(navBtn.getAttribute('data-lat'));
+          const lng = parseFloat(navBtn.getAttribute('data-lng'));
+          const title = e.popup.getContent().match(/<div class="title">([^<]+)<\/div>/);
+          const t = title && title[1] ? title[1] : 'Target';
+          window._ml_state.currentRouteTarget = { lat, lng, title: t };
+          dropRedMarketPin(lat, lng, t);
+          drawRouteTo(window._ml_state.currentRouteTarget);
+          map.closePopup();
+        }, { once:true });
+      }
+      if(zoomBtn){
+        zoomBtn.addEventListener('click', () => {
+          const lat = parseFloat(zoomBtn.getAttribute('data-lat'));
+          const lng = parseFloat(zoomBtn.getAttribute('data-lng'));
+          map.flyTo([lat, lng], 16, { duration:0.8 });
+        }, { once:true });
+      }
+    });
 
-    // ----------------- SEARCH (Nominatim suggestions) -----------------
-    function attachSearch(inputEl, sugEl, isPlaceSearch=false){
-      let timer = null;
-      inputEl.addEventListener('input', () => {
-        const q = inputEl.value.trim();
-        clearTimeout(timer);
-        if(!q){ sugEl.style.display = 'none'; sugEl.innerHTML=''; return; }
-        timer = setTimeout(async () => {
-          try{
-            let qParam = q;
-            if(isPlaceSearch){
-              qParam = q + ' market OR mall OR supermarket OR "market center"';
-            }
-            const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&q=' + encodeURIComponent(qParam);
-            const r = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-            const results = await r.json();
-            sugEl.innerHTML = '';
-            if(results && results.length){
-              results.forEach(res => {
-                const name = res.display_name || (res.address && Object.values(res.address).join(', ')) || 'Unknown';
-                const div = document.createElement('div');
-                div.className = 'suggestion';
-                div.textContent = name;
-                div.addEventListener('click', () => {
-                  sugEl.style.display = 'none';
-                  inputEl.value = name;
-                  if(isPlaceSearch){
-                    // preview place search selection (temporary marker)
-                    const lat = parseFloat(res.lat), lon = parseFloat(res.lon);
-                    const tmpIcon = (res.type && res.type.toLowerCase().includes('mall')) ? mallEmojiIcon : marketEmojiIcon;
-                    const tmp = L.marker([lat, lon], { icon: tmpIcon }).addTo(map);
-                    tmp.bindPopup(`<strong>${escapeHtml(name)}</strong><div style="margin-top:8px;"><button class="nav-btn" id="navTmpBtn">Navigate Here</button></div>`).openPopup();
-                    map.setView([lat, lon], 16);
-                    setTimeout(() => {
-                      const navTmp = document.getElementById('navTmpBtn');
-                      if(navTmp) navTmp.addEventListener('click', () => {
-                        currentRouteTarget = { lat: lat, lng: lon, title: name };
-                        dropRedMarketPin(lat, lon, name);
-                        drawRouteTo(currentRouteTarget);
-                        map.closePopup();
-                      });
-                    }, 150);
-                    // remove tmp after 12s
-                    setTimeout(()=>{ try{ map.removeLayer(tmp); }catch(e){} }, 12000);
-                  } else {
-                    // user search -> set user marker
-                    const lat = parseFloat(res.lat), lon = parseFloat(res.lon);
-                    userLatLng = { lat, lng: lon };
-                    userMarker.setLatLng([lat, lon]);
-                    map.setView([lat, lon], 16);
-                    updateStatus(`User location set to: ${name}`);
-                    if(currentRouteTarget) drawRouteTo(currentRouteTarget);
-                    sugEl.style.display = 'none';
-                  }
-                });
-                sugEl.appendChild(div);
-              });
-              sugEl.style.display = 'block';
-            } else {
-              sugEl.style.display = 'none';
-            }
-          }catch(e){
-            console.error(e);
-            sugEl.style.display = 'none';
-          }
-        }, 220);
-      });
-      // hide suggestions on outside click
-      document.addEventListener('click', (ev) => {
-        if(!inputEl.contains(ev.target) && !sugEl.contains(ev.target)) sugEl.style.display = 'none';
-      });
-    }
-
-    attachSearch(document.getElementById('userSearch'), document.getElementById('userSug'), false);
-    attachSearch(document.getElementById('placeSearch'), document.getElementById('placeSug'), true);
-
-    // ----------------- ROUTING (Geoapify) -----------------
+    /* ---------------- ROUTING (Geoapify) ---------------- */
     async function drawRouteTo(target){
-      if(!target || !userLatLng) {
+      if(!target || !window._ml_state.userLatLng){
         updateStatus('No target or user location.');
         return;
       }
       updateStatus('Calculating route...');
-      // clear existing route
-      if(routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
-
-      const from = `${userLatLng.lat},${userLatLng.lng}`;
+      // remove existing route
+      if(window._ml_state.routeLayer){
+        try{ map.removeLayer(window._ml_state.routeLayer); }catch(e){}
+        window._ml_state.routeLayer = null;
+      }
+      const from = `${window._ml_state.userLatLng.lat},${window._ml_state.userLatLng.lng}`;
       const to = `${target.lat},${target.lng}`;
       const url = `https://api.geoapify.com/v1/routing?waypoints=${encodeURIComponent(from)}|${encodeURIComponent(to)}&mode=drive&format=geojson&apiKey=${API_KEY_GEOAPIFY}`;
-
       try{
         const r = await fetch(url);
-        if(!r.ok) throw new Error('Routing failed: ' + r.status);
+        if(!r.ok) throw new Error('Routing failed: '+r.status);
         const j = await r.json();
         const feat = (j.features && j.features[0]) ? j.features[0] : null;
-        if(!feat || !feat.geometry){
-          updateStatus('No route returned by Geoapify.');
-          return;
-        }
-
-        // get coords
+        if(!feat || !feat.geometry) { updateStatus('No route returned.'); return; }
         let coords = [];
-        if(feat.geometry.type === 'MultiLineString'){
-          feat.geometry.coordinates.forEach(arr => arr.forEach(c => coords.push(c)));
-        } else if(feat.geometry.type === 'LineString'){
-          coords = feat.geometry.coordinates.slice();
-        } else {
-          updateStatus('Unexpected route geometry.');
-          return;
-        }
+        if(feat.geometry.type === 'LineString') coords = feat.geometry.coordinates;
+        else if(feat.geometry.type === 'MultiLineString') coords = feat.geometry.coordinates.flat();
+        else { updateStatus('Unexpected route geometry.'); return; }
         const latlngs = coords.map(c => [c[1], c[0]]);
-
-        routeLayer = L.polyline(latlngs, { color:'#00a859', weight:6, opacity:0.95, lineJoin:'round' }).addTo(map);
-        map.fitBounds(routeLayer.getBounds(), { padding:[40,40] });
-
-        // try properties distance
+        const poly = L.polyline(latlngs, { color:'#00a859', weight:6, opacity:0.95, lineJoin:'round' }).addTo(map);
+        window._ml_state.routeLayer = poly;
+        map.fitBounds(poly.getBounds(), { padding:[40,40] });
+        // compute distance
         let distMeters = null;
         if(feat.properties && typeof feat.properties.distance === 'number') distMeters = feat.properties.distance;
         else if(j.properties && typeof j.properties.distance === 'number') distMeters = j.properties.distance;
-        // fallback estimate:
         if(distMeters == null){
           distMeters = 0;
           for(let i=1;i<latlngs.length;i++){
             distMeters += haversineKm(latlngs[i-1][0], latlngs[i-1][1], latlngs[i][0], latlngs[i][1]) * 1000;
           }
         }
-        const distKm = distMeters / 1000;
-        updateStatus(`Route drawn — ${distKm.toFixed(2)} km`);
-        const popupDistanceEl = document.getElementById('popupDistance');
-        if(popupDistanceEl) popupDistanceEl.textContent = `${distKm.toFixed(2)} km`;
-      }catch(err){
-        console.error(err);
+        updateStatus(`Route drawn — ${(distMeters/1000).toFixed(2)} km`);
+      }catch(e){
+        console.warn('drawRoute error', e);
         updateStatus('Routing error — try again.');
       }
     }
 
-    // drop red market pin when navigating
     function dropRedMarketPin(lat, lng, title){
-      if(dropMarketMarker){ try{ map.removeLayer(dropMarketMarker); } catch(e){} dropMarketMarker=null; }
-      dropMarketMarker = L.marker([lat, lng], { icon: marketRedIcon }).addTo(map).bindPopup(`<strong>${escapeHtml(title || 'Market')}</strong>`).openPopup();
+      if(window._ml_state.dropMarketMarker){
+        try{ map.removeLayer(window._ml_state.dropMarketMarker); }catch(e){}
+        window._ml_state.dropMarketMarker = null;
+      }
+      window._ml_state.dropMarketMarker = L.marker([lat, lng], { icon: marketRedIcon }).addTo(map).bindPopup(buildPremiumPopupHtml(title, 'market', lat, lng)).openPopup();
+      // visually highlight place input
+      const placeInput = document.getElementById('placeSearch');
+      if(placeInput) placeInput.style.boxShadow = "0 0 0 3px rgba(211,47,47,0.12)";
+      window._ml_state.currentRouteTarget = { lat, lng, title };
+      autoZoomBoth();
     }
 
-    // clear route button
     document.getElementById('clearRouteBtn').addEventListener('click', () => {
-      if(routeLayer){ map.removeLayer(routeLayer); routeLayer = null; updateStatus('Route cleared'); }
-      if(dropMarketMarker){ try{ map.removeLayer(dropMarketMarker); }catch(e){} dropMarketMarker=null; }
-      currentRouteTarget = null;
+      if(window._ml_state.routeLayer){ try{ map.removeLayer(window._ml_state.routeLayer); }catch(e){} window._ml_state.routeLayer = null; }
+      if(window._ml_state.dropMarketMarker){ try{ map.removeLayer(window._ml_state.dropMarketMarker); }catch(e){} window._ml_state.dropMarketMarker = null; }
+      window._ml_state.currentRouteTarget = null;
+      // clear visual highlights
+      const pi = document.getElementById('placeSearch'); if(pi) pi.style.boxShadow='none';
+      const ui = document.getElementById('userSearch'); if(ui) ui.style.boxShadow='none';
+      updateStatus('Route cleared');
     });
 
-    // ----------------- AUTO-TRACK USER MOVEMENT -----------------
+    /* ---------------- GEOLOCATION WATCH ---------------- */
     let geoWatchId = null;
     function startWatchPosition(){
       if(!navigator.geolocation) { updateStatus('Geolocation unavailable'); return; }
       try{
-        geoWatchId = navigator.geolocation.watchPosition(pos => {
+        geoWatchId = navigator.geolocation.watchPosition(pos=>{
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
-          const d = haversineKm(userLatLng.lat, userLatLng.lng, lat, lng) * 1000;
-          userLatLng = { lat, lng };
+          const d = haversineKm(window._ml_state.userLatLng.lat, window._ml_state.userLatLng.lng, lat, lng) * 1000;
+          window._ml_state.userLatLng = { lat, lng };
           userMarker.setLatLng([lat, lng]);
-          if(currentRouteTarget && d > 20) drawRouteTo(currentRouteTarget);
+          if(window._ml_state.currentRouteTarget && d > 20) drawRouteTo(window._ml_state.currentRouteTarget);
           updateStatus(`You: ${lat.toFixed(5)}, ${lng.toFixed(5)}`);
-        }, err => {
+        }, err=>{
           console.warn('watchPosition error', err);
-          updateStatus('Unable to watch position: ' + (err.message || 'error'));
         }, { enableHighAccuracy:true, maximumAge:2000, timeout:8000 });
-      }catch(e){
-        console.warn('startWatchPosition failed', e);
-      }
+      }catch(e){ console.warn(e); }
     }
 
     // Detect button
     document.getElementById('locateBtn').addEventListener('click', () => {
-      if(!navigator.geolocation){ alert('Geolocation not supported'); return; }
+      const btn = document.getElementById('locateBtn'); setButtonLoading(btn, true);
+      if(!navigator.geolocation){ alert('Geolocation not supported'); setButtonLoading(btn,false); return; }
       updateStatus('Detecting location...');
-      navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        userLatLng = { lat, lng };
+      navigator.geolocation.getCurrentPosition(pos=>{
+        const lat = pos.coords.latitude; const lng = pos.coords.longitude;
+        window._ml_state.userLatLng = { lat, lng };
         userMarker.setLatLng([lat, lng]);
-        map.setView([lat, lng], 16);
-        updateStatus(`Detected: ${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+        map.flyTo([lat, lng], 15, { duration:0.8 });
         if(geoWatchId === null) startWatchPosition();
-      }, err => {
-        console.warn(err);
+        setButtonLoading(btn, false);
+        updateStatus(`Detected: ${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+      }, err=>{
+        console.warn('detect error', err);
         alert('Unable to detect location: ' + (err.message || 'error') + '. Use the search box to correct position.');
+        setButtonLoading(btn, false);
         updateStatus('Detection failed; please search or drag the pin.');
-      }, { enableHighAccuracy:true, timeout:8000, maximumAge:60000 });
+      }, { enableHighAccuracy:true, timeout:10000, maximumAge:60000 });
     });
 
-    // Permission pre-check
     if(navigator.permissions){
-      try{
-        navigator.permissions.query({ name:'geolocation' }).then(p => {
-          if(p.state === 'granted') startWatchPosition();
-        }).catch(()=>{ /* ignore */ });
-      }catch(e){ /* ignore */ }
+      try{ navigator.permissions.query({ name:'geolocation' }).then(p => { if(p.state === 'granted') startWatchPosition(); }); }catch(e){}
     }
 
-    // ----------------- UTILS -----------------
+    /* ---------------- HELPERS ---------------- */
     function haversineKm(aLat,aLng,bLat,bLng){
       const R=6371;
       const dLat=(bLat-aLat)*Math.PI/180;
@@ -538,87 +667,74 @@
       const C = 2*Math.atan2(Math.sqrt(A), Math.sqrt(1-A));
       return R*C;
     }
-    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); }); }
 
-    // ----------------- INITIAL SETUP -----------------
+    /* ---------------- BUTTON LOADING HELPERS (single shared impl) ---------------- */
+    function setButtonLoading(btn, isLoading){
+      if(!btn) return;
+      if(isLoading){
+        btn.classList.add('loading');
+        btn.setAttribute('aria-busy','true');
+        btn.disabled = true;
+      } else {
+        btn.classList.remove('loading');
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+      }
+    }
+
+    function setElementLoading(el, isLoading){
+      if(!el) return;
+      if(isLoading){
+        el.dataset.prev = el.innerHTML;
+        el.innerHTML = `<span class="spinner" style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;"></span>` + (el.textContent || '');
+        el.disabled = true;
+      } else {
+        if(el.dataset.prev) el.innerHTML = el.dataset.prev;
+        el.disabled = false;
+      }
+    }
+
+    /* ---------------- SAVE / REDIRECT ---------------- */
+    // Save button at bottom saves user + market + distanceKm and redirects to index.html
+    const saveBtn = document.getElementById('saveLocationBtn');
+    saveBtn.addEventListener('click', () => {
+      setButtonLoading(saveBtn, true);
+      const state = window._ml_state || {};
+      const user = state.userLatLng;
+      const target = state.currentRouteTarget;
+      if(!user || !target || !('lat' in target)){
+        alert('Please click "Navigate" on a market/mall before saving.');
+        setButtonLoading(saveBtn, false);
+        return;
+      }
+      const dist = haversineKm(user.lat, user.lng, target.lat, target.lng);
+      const payload = { userLat: user.lat, userLng: user.lng, marketLat: target.lat, marketLng: target.lng, distanceKm: dist.toFixed(2), savedAt: Date.now() };
+      localStorage.setItem('ml_saved_location', JSON.stringify(payload));
+      // tiny delay for UX
+      setTimeout(()=>{ setButtonLoading(saveBtn, false); window.location.href = 'index.html'; }, 450);
+    });
+
+    /* ---------------- INITIAL STATES ---------------- */
+    window._ml_state.userLatLng = { lat: userLatLng.lat, lng: userLatLng.lng };
     map.setView(ACCRA, INITIAL_ZOOM);
     updateStatus('Map ready — press "Load Nearby Places" to populate markets & malls.');
 
-    // Helpful note shown for users:
-    // If GPS shows wrong position on phone (WiFi-based), use userSearch box to set exact location or paste your plus code (e.g., HRV5+8QC Accra).
-
-    // Expose fetchPlaces & drawRoute to console for debugging
+    /* expose helpers for debugging */
     window._fetchPlacesAndShow = fetchPlacesAndShow;
     window._drawRouteTo = drawRouteTo;
+    window._markerClusterGroup = markerClusterGroup;
 
-    // End of main map IIFE
+    /* End IIFE */
   })();
   </script>
 
-  <!-- Save button area (keeps visual layout same as before) -->
-  <div class="topbar" style="top:auto;bottom:12px;justify-content:center;">
-    <button class="btn" id="saveLocationBtn">Save Location</button>
+  <!-- SAVE BUTTON (bottom) -->
+  <div class="bottombar" role="region" aria-label="Save location area">
+    <button class="btn" id="saveLocationBtn" aria-label="Save location">
+      <span class="spinner" aria-hidden="true"></span>
+      Save Location
+    </button>
   </div>
-
-  <script>
-  (function(){
-    const saveBtn = document.getElementById('saveLocationBtn');
-
-    saveBtn.addEventListener('click', () => {
-      try {
-        // Retrieve user & market from page variables (they are in parent IIFE scope via closures)
-        // We assume `userLatLng` and `currentRouteTarget` are defined in global closure above.
-        // Access them via window (they were not exported, so re-evaluate: store/read via markers instead)
-        // Safer: read from DOM: user marker position and dropped market marker (if present).
-        // We'll attempt to read from known global objects; if not present fallback to alert.
-
-        // get user marker latlng
-        let user = null;
-        let market = null;
-        // The code above stores userMarker and dropMarketMarker inside IIFE (not global). We'll try to read markers by scanning map layers:
-        // Simpler approach: ask for storage variables that we set when routing - but to avoid complexity, attempt to read window variables; if not available show message.
-
-        if(window.userLatLng && window.currentRouteTarget && window.currentRouteTarget.lat) {
-          user = window.userLatLng;
-          market = { lat: window.currentRouteTarget.lat, lng: window.currentRouteTarget.lng };
-        } else {
-          // Try reading from markers by searching for a red dropped pin (not guaranteed). As a reliable fallback, we prompt the user to ensure they navigated to a place first.
-          alert('Please click Navigate Here on a market/mall to set the target, then try Save Location.');
-          return;
-        }
-
-        const distKm = (function(){
-          const R=6371;
-          const dLat=(market.lat-user.lat)*Math.PI/180;
-          const dLng=(market.lng-user.lng)*Math.PI/180;
-          const A = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(user.lat*Math.PI/180)*Math.cos(market.lat*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
-          const C = 2*Math.atan2(Math.sqrt(A), Math.sqrt(1-A));
-          return R*C;
-        })();
-
-        const payload = {
-          userLat: user.lat,
-          userLng: user.lng,
-          marketLat: market.lat,
-          marketLng: market.lng,
-          distanceKm: distKm.toFixed(2),
-          savedAt: Date.now()
-        };
-
-        // Save to localStorage so index.html can read it
-        localStorage.setItem('ml_saved_location', JSON.stringify(payload));
-
-        // Optionally redirect to index.html (as you requested)
-        // If you prefer staying on map, comment out the next line.
-        window.location.href = 'index.html';
-
-      } catch (err) {
-        console.error(err);
-        alert('Failed to save location. Make sure you clicked "Navigate Here" on a market first.');
-      }
-    });
-  })();
-  </script>
 
 </body>
 </html>
