@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Deliverer Map — Live Navigation</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    :root{
+      --bg:#f7f7f7;
+      --accent:#00a859;
+      --accent-dark:#1976d2;
+      --success:#27ae60;
+      --danger:#d32f2f;
+      --card:#ffffff;
+    }
+    html,body,#map{height:100%;margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    body{background:var(--bg);display:flex;flex-direction:column;height:100vh}
+    #map{flex:1}
+    header{background:linear-gradient(90deg,var(--accent),#ff9b21);padding:12px 14px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    header .left{display:flex;gap:10px;align-items:center}
+    header h1{font-size:16px;margin:0;font-weight:800}
+    header .small{font-size:12px;opacity:0.95}
+    .top-info{padding:10px 14px;background:rgba(255,255,255,0.95);box-shadow:0 6px 20px rgba(0,0,0,0.06);display:flex;gap:12px;align-items:center;justify-content:space-between}
+    .info-left{display:flex;flex-direction:column}
+    .dest-name{font-weight:800;font-size:16px}
+    .dest-addr{font-size:13px;color:#555;margin-top:4px}
+    .info-right{text-align:right;min-width:160px}
+    .metric{font-weight:900;font-size:18px}
+    .meta{font-size:12px;color:#666}
+    /* floating controls */
+    .controls{position:absolute;right:12px;top:120px;display:flex;flex-direction:column;gap:10px;z-index:1400}
+    .control-btn{background:var(--card);border-radius:12px;padding:12px 14px;box-shadow:0 8px 26px rgba(0,0,0,0.12);border:0;display:flex;align-items:center;gap:8px;cursor:pointer;min-width:52px;justify-content:center}
+    .control-btn.call{background:linear-gradient(90deg,#00a859,#1976d2);color:#fff}
+    .control-btn.primary{background:var(--accent);color:#fff}
+    .control-btn.warn{background:#ff7043;color:#fff}
+    .control-btn.large{padding:14px 16px;border-radius:14px}
+    .bottom-actions{position:absolute;left:12px;right:12px;bottom:18px;display:flex;gap:10px;z-index:1400;justify-content:space-between}
+    .btn-wide{flex:1;padding:12px;border-radius:12px;border:0;font-weight:800;cursor:pointer}
+    .btn-deliver{background:var(--success);color:#fff}
+    .btn-center{background:#fff;color:#111;border:1px solid #eee}
+    /* delivered popup (center card) */
+    .delivered-modal{position:fixed;left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:2000;opacity:0;pointer-events:none;transition:opacity .18s}
+    .delivered-modal.show{opacity:1;pointer-events:auto}
+    .delivered-card{background:#fff;border-radius:12px;padding:22px 20px;width:92%;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+    .check{width:84px;height:84px;border-radius:50%;background:linear-gradient(90deg,var(--accent),#ffd06b);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:36px;color:#fff}
+    .delivered-title{font-weight:900;font-size:20px;margin-bottom:6px}
+    .delivered-sub{color:#555;font-size:14px;margin-bottom:12px}
+    .delivered-time{font-size:13px;color:#777}
+    /* small devices */
+    @media (max-width:700px){
+      .controls{right:8px;top:110px}
+      .info-right{min-width:120px}
+      .dest-name{font-size:15px}
+      .metric{font-size:16px}
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="left">
+      <div>
+        <h1>Deliverer Navigation</h1>
+        <div class="small">Live route — auto start</div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="small">Mode: Deliverer</div>
+    </div>
+  </header>
+
+  <div class="top-info" id="topInfo" aria-live="polite">
+    <div class="info-left">
+      <div class="dest-name" id="destName">Loading destination…</div>
+      <div class="dest-addr" id="destAddr">Waiting for data</div>
+    </div>
+    <div class="info-right">
+      <div class="metric" id="distanceRem">-- km</div>
+      <div class="meta" id="etaText">ETA: --</div>
+      <div class="meta" id="speedText">Speed: --</div>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="controls" aria-hidden="false">
+    <button class="control-btn call" id="callBtn" title="Call customer">📞</button>
+    <button class="control-btn" id="recenterBtn" title="Re-center">🎯</button>
+    <button class="control-btn" id="refreshBtn" title="Refresh route">🔁</button>
+  </div>
+
+  <div class="bottom-actions">
+    <button class="btn-wide btn-center" id="openGoogleBtn">Open in Google Maps</button>
+    <button class="btn-wide btn-deliver" id="markDeliveredBtn">Mark Delivered</button>
+  </div>
+
+  <!-- delivered modal -->
+  <div id="deliveredModal" class="delivered-modal" role="dialog" aria-hidden="true">
+    <div class="delivered-card" role="document">
+      <div class="check">✔</div>
+      <div class="delivered-title" id="deliveredTitle">Delivery Completed</div>
+      <div class="delivered-sub" id="deliveredSub">Thanks — returning to orders...</div>
+      <div class="delivered-time" id="deliveredTime"></div>
+    </div>
+  </div>
+
+  <!-- Leaflet -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+  (function(){
+    // ---------------- CONFIG ----------------
+    const GEOAPIFY_KEY = '0bf67747adfd4bb9bfab74ec373372fb'; // use your key
+    const START_CENTER = [5.6037, -0.1870];
+    const START_ZOOM = 13;
+    const ROUTE_REFRESH_MS = 9000; // refresh route periodically while moving
+    const ETA_SPEED_DEFAULT_KMH = 40; // fallback speed for ETA if route time not provided
+    const STATE = {
+      user: null,
+      destination: null,
+      trackingId: null,
+      customerName: null,
+      customerPhone: null,
+      map: null,
+      userMarker: null,
+      destMarker: null,
+      routeLayer: null,
+      watchId: null,
+      lastRouteFetch: 0,
+      lastCoords: null,
+      lastSpeed: 0
+    };
+
+    // ----------------- MAP INIT -----------------
+    const map = L.map('map', { preferCanvas:true }).setView(START_CENTER, START_ZOOM);
+    STATE.map = map;
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      maxZoom: 20
+    }).addTo(map);
+
+    // icons
+    function svgIcon(color,size=40){
+      const svg = encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24"><path fill="${color}" stroke="#fff" stroke-width="1" d="M12 2C8.14 2 5 5.14 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.86-3.14-7-7-7z"/><circle fill="#fff" cx="12" cy="9" r="3"/></svg>`);
+      return L.divIcon({ html:`<img src="data:image/svg+xml;utf8,${svg}" style="width:${size}px;height:${size}px;transform:translateY(-6px)"/>`, iconSize:[size,size], iconAnchor:[Math.round(size/2), size-6] });
+    }
+    const userIcon = svgIcon('#1976d2',44); // blue
+    const destIcon = svgIcon('#27ae60',40); // green
+
+    // user marker (placeholder)
+    STATE.userMarker = L.marker(START_CENTER, { icon: userIcon, draggable:false }).addTo(map);
+    STATE.destMarker = null;
+
+    // UI refs
+    const destNameEl = document.getElementById('destName');
+    const destAddrEl = document.getElementById('destAddr');
+    const distanceRemEl = document.getElementById('distanceRem');
+    const etaTextEl = document.getElementById('etaText');
+    const speedTextEl = document.getElementById('speedText');
+    const callBtn = document.getElementById('callBtn');
+    const recenterBtn = document.getElementById('recenterBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const openGoogleBtn = document.getElementById('openGoogleBtn');
+    const markDeliveredBtn = document.getElementById('markDeliveredBtn');
+    const deliveredModal = document.getElementById('deliveredModal');
+    const deliveredTitle = document.getElementById('deliveredTitle');
+    const deliveredSub = document.getElementById('deliveredSub');
+    const deliveredTime = document.getElementById('deliveredTime');
+
+    // ----------------- UTILS -----------------
+    function toFixedNumber(n, digits=2){ return Number.parseFloat(n||0).toFixed(digits); }
+    function haversineKm(aLat,aLon,bLat,bLon){
+      // compute step-by-step to avoid mistakes
+      const R = 6371;
+      const toRad = Math.PI/180;
+      const dLat = (bLat - aLat) * toRad;
+      const dLon = (bLon - aLon) * toRad;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(aLat*toRad) * Math.cos(bLat*toRad) * Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function formatKm(n){ return `${toFixedNumber(n,2)} km`; }
+    function formatMinutes(min){ return `${Math.round(min)} min`; }
+
+    // read params from URL or from localStorage.deliverer_navigation if present
+    function readNavigationPayload(){
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const pLat = params.get('lat');
+        const pLng = params.get('lng');
+        const pName = params.get('name');
+        const pPhone = params.get('phone');
+        const pTracking = params.get('tracking');
+
+        // try localStorage fallback
+        let stored = null;
+        try { stored = JSON.parse(localStorage.getItem('deliverer_navigation') || 'null'); } catch(e){ stored = null; }
+
+        const out = {
+          lat: (pLat != null ? parseFloat(pLat) : (stored && stored.customer_lat ? parseFloat(stored.customer_lat) : null)),
+          lng: (pLng != null ? parseFloat(pLng) : (stored && stored.customer_lng ? parseFloat(stored.customer_lng) : null)),
+          name: pName || (stored && stored.customer_label) || (stored && stored.tracking) || (params.get('name') || 'Customer'),
+          phone: pPhone || (stored && stored.customer_phone) || null,
+          tracking: pTracking || (stored && stored.tracking) || null
+        };
+        return out;
+      } catch(e){ return { lat:null,lng:null,name:'Customer',phone:null,tracking:null }; }
+    }
+
+    // update top info UI
+    function updateTopInfo(){
+      destNameEl.textContent = STATE.customerName || 'Customer';
+      destAddrEl.textContent = STATE.destination && STATE.destination.addr ? STATE.destination.addr : (STATE.destination && STATE.destination.lat ? `${toFixedNumber(STATE.destination.lat,5)}, ${toFixedNumber(STATE.destination.lng,5)}` : 'No destination set');
+      distanceRemEl.textContent = STATE.distanceRemainingKm != null ? formatKm(STATE.distanceRemainingKm) : '-- km';
+      etaTextEl.textContent = STATE.etaMin != null ? `ETA: ${formatMinutes(STATE.etaMin)}` : 'ETA: --';
+      speedTextEl.textContent = STATE.lastSpeedKmh != null ? `Speed: ${toFixedNumber(STATE.lastSpeedKmh,1)} km/h` : 'Speed: --';
+    }
+
+    // set destination marker
+    function setDestination(lat,lng,label){
+      if(STATE.destMarker){ try{ map.removeLayer(STATE.destMarker); }catch(e){} STATE.destMarker=null; }
+      STATE.destMarker = L.marker([lat,lng], { icon: destIcon }).addTo(map).bindPopup(`${label || 'Destination'}`).openPopup();
+      STATE.destination = { lat, lng, addr: label || '' };
+    }
+
+    // draw route using Geoapify
+    async function requestRoute(fromLat, fromLng, toLat, toLng){
+      const now = Date.now();
+      // rate limit small: don't request too frequently
+      if(now - STATE.lastRouteFetch < 2500) return null;
+      STATE.lastRouteFetch = now;
+      const url = `https://api.geoapify.com/v1/routing?waypoints=${encodeURIComponent(fromLat+','+fromLng)}|${encodeURIComponent(toLat+','+toLng)}&mode=drive&format=geojson&apiKey=${GEOAPIFY_KEY}`;
+      try {
+        const res = await fetch(url);
+        if(!res.ok) throw new Error('route fail '+res.status);
+        const j = await res.json();
+        return j;
+      } catch(e){
+        console.warn('requestRoute error', e);
+        return null;
+      }
+    }
+
+    function clearRouteLayer(){
+      if(STATE.routeLayer){ try{ map.removeLayer(STATE.routeLayer); }catch(e){} STATE.routeLayer = null; }
+    }
+
+    async function drawRouteAndUpdateInfo(){
+      if(!STATE.user || !STATE.destination) return;
+      const fromLat = STATE.user.lat, fromLng = STATE.user.lng;
+      const toLat = STATE.destination.lat, toLng = STATE.destination.lng;
+
+      // request route geojson
+      const j = await requestRoute(fromLat, fromLng, toLat, toLng);
+      if(!j || !j.features || !j.features.length){
+        // fallback to direct haversine distance + crude ETA
+        const dkm = haversineKm(fromLat, fromLng, toLat, toLng);
+        STATE.distanceRemainingKm = dkm;
+        STATE.etaMin = (dkm / (ETA_SPEED_DEFAULT_KMH/60));
+        updateTopInfo();
+        return;
+      }
+      const feat = j.features[0];
+      let coords = [];
+      if(feat.geometry.type === 'MultiLineString'){
+        feat.geometry.coordinates.forEach(arr => arr.forEach(c => coords.push(c)));
+      } else if(feat.geometry.type === 'LineString'){
+        coords = feat.geometry.coordinates.slice();
+      } else {
+        // unexpected
+        const dkm = haversineKm(fromLat, fromLng, toLat, toLng);
+        STATE.distanceRemainingKm = dkm;
+        STATE.etaMin = (dkm / (ETA_SPEED_DEFAULT_KMH/60));
+        updateTopInfo();
+        return;
+      }
+      const latlngs = coords.map(c => [c[1], c[0]]);
+
+      // remove old
+      clearRouteLayer();
+      STATE.routeLayer = L.polyline(latlngs, { color: '#1976d2', weight:6, opacity:0.95, lineJoin:'round' }).addTo(map);
+      // update metrics
+      let distMeters = null;
+      if(feat.properties && typeof feat.properties.distance === 'number') distMeters = feat.properties.distance;
+      else if(j.properties && typeof j.properties.distance === 'number') distMeters = j.properties.distance;
+      if(distMeters == null){
+        // compute from latlngs
+        distMeters = 0;
+        for(let i=1;i<latlngs.length;i++){
+          distMeters += haversineKm(latlngs[i-1][0], latlngs[i-1][1], latlngs[i][0], latlngs[i][1]) * 1000;
+        }
+      }
+      const distKm = distMeters / 1000;
+      STATE.distanceRemainingKm = distKm;
+
+      // ETA: try properties (time in seconds)
+      let etaMin = null;
+      if(feat.properties && typeof feat.properties.time === 'number') etaMin = feat.properties.time / 60;
+      else if(j.properties && typeof j.properties.time === 'number') etaMin = j.properties.time / 60;
+      if(etaMin == null){
+        // estimate: use lastSpeed (km/h)
+        const sp = STATE.lastSpeedKmh && STATE.lastSpeedKmh > 1 ? STATE.lastSpeedKmh : ETA_SPEED_DEFAULT_KMH;
+        etaMin = (distKm / sp) * 60;
+      }
+      STATE.etaMin = etaMin;
+      updateTopInfo();
+
+      // adjust map view to show both
+      try {
+        const group = L.featureGroup([ L.marker([fromLat,fromLng]), L.marker([toLat,toLng]) ]);
+        map.fitBounds(group.getBounds(), { padding:[40,40] });
+      } catch(e){}
+    }
+
+    // ----------------- GEO WATCH + movement -----------------
+    function handlePosition(pos){
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const speedMps = pos.coords.speed != null ? pos.coords.speed : null; // m/s
+      const time = pos.timestamp || Date.now();
+
+      // compute speed from last coords if browser speed not available
+      if(STATE.lastCoords && STATE.lastCoords.lat != null){
+        const dkm = haversineKm(STATE.lastCoords.lat, STATE.lastCoords.lng, lat, lng); // km
+        const dt = Math.max((time - (STATE.lastCoords.time || time)) / 1000, 0.5); // sec
+        const kmh = dt > 0 ? (dkm / (dt/3600)) : null;
+        if(kmh != null && isFinite(kmh)) STATE.lastSpeedKmh = kmh;
+      } else {
+        STATE.lastSpeedKmh = speedMps != null && !isNaN(speedMps) ? speedMps * 3.6 : null;
+      }
+
+      if(!STATE.lastSpeedKmh && speedMps != null && !isNaN(speedMps)) STATE.lastSpeedKmh = speedMps * 3.6;
+
+      STATE.user = { lat, lng, time };
+      STATE.lastCoords = { lat, lng, time };
+
+      // update user marker
+      try {
+        STATE.userMarker.setLatLng([lat,lng]);
+      } catch(e){}
+
+      // update metrics display
+      updateTopInfo();
+
+      // refresh route periodically
+      const now = Date.now();
+      if(!STATE.lastRouteFetch || (now - STATE.lastRouteFetch) > ROUTE_REFRESH_MS){
+        drawRouteAndUpdateInfo();
+      }
+    }
+
+    function startWatch(){
+      if(!navigator.geolocation){
+        alert('Geolocation not available on this device.');
+        return;
+      }
+      if(STATE.watchId) return;
+      STATE.watchId = navigator.geolocation.watchPosition(handlePosition, err => {
+        console.warn('watchPosition error', err);
+      }, { enableHighAccuracy:true, maximumAge:2000, timeout:8000 });
+    }
+
+    // quick single-shot get
+    function oneShotLocate(){
+      return new Promise((resolve,reject) => {
+        if(!navigator.geolocation) return reject(new Error('no geo'));
+        navigator.geolocation.getCurrentPosition(pos => { handlePosition(pos); resolve(pos); }, err => reject(err), { enableHighAccuracy:true, timeout:8000, maximumAge:60000 });
+      });
+    }
+
+    // ----------------- UI actions -----------------
+    callBtn.addEventListener('click', () => {
+      if(!STATE.customerPhone){ alert('No customer phone available'); return; }
+      // open dialer
+      window.location.href = `tel:${STATE.customerPhone.replace(/\s/g,'')}`;
+    });
+    recenterBtn.addEventListener('click', () => {
+      if(STATE.user) map.setView([STATE.user.lat, STATE.user.lng], 16, { animate:true });
+    });
+    refreshBtn.addEventListener('click', () => {
+      drawRouteAndUpdateInfo();
+    });
+
+    openGoogleBtn.addEventListener('click', () => {
+      if(!STATE.destination || !STATE.destination.lat) { alert('No destination'); return; }
+      const dlat = STATE.destination.lat, dlng = STATE.destination.lng;
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${dlat},${dlng}`, '_blank');
+    });
+
+    markDeliveredBtn.addEventListener('click', async () => {
+      // mark delivered flow: show modal, record in localStorage
+      const accept = confirm('Mark this order as DELIVERED?');
+      if(!accept) return;
+      // store delivered record
+      const deliveredAt = Date.now();
+      try {
+        const key = 'marketOrders';
+        const arr = JSON.parse(localStorage.getItem(key) || '[]');
+        // find by tracking ID
+        let found = null;
+        if(STATE.trackingId) found = arr.find(x=> x.tracking && String(x.tracking).toUpperCase() === String(STATE.trackingId).toUpperCase());
+        if(found){
+          found.status = 'Delivered';
+          found.deliveredAt = deliveredAt;
+        } else {
+          // create lightweight delivered record
+          arr.push({ tracking: STATE.trackingId || ('manual-'+deliveredAt), status:'Delivered', name: STATE.customerName, phone: STATE.customerPhone, customerLat: STATE.destination ? STATE.destination.lat : null, customerLng: STATE.destination ? STATE.destination.lng : null, deliveredAt });
+        }
+        localStorage.setItem(key, JSON.stringify(arr));
+      } catch(e){ console.warn('mark save failed', e); }
+
+      // show delivered modal (center popup)
+      deliveredTitle.textContent = 'Delivery Completed';
+      deliveredSub.textContent = STATE.customerName ? `${STATE.customerName} — ${STATE.trackingId || ''}` : 'Order delivered';
+      deliveredTime.textContent = new Date(deliveredAt).toLocaleString();
+      deliveredModal.classList.add('show');
+      deliveredModal.setAttribute('aria-hidden','false');
+
+      // after 5 seconds redirect back to tracking page
+      setTimeout(()=> {
+        deliveredModal.classList.remove('show');
+        deliveredModal.setAttribute('aria-hidden','true');
+        // return to tracking page
+        try {
+          window.location.href = 'Tracking.html';
+        } catch(e){
+          // fallback: try tracking lowercase
+          window.location.href = 'tracking.html';
+        }
+      }, 5000);
+    });
+
+    // ----------------- BOOTSTRAP: read payload and start -----------------
+    async function bootstrap(){
+      const payload = readNavigationPayload();
+      if(payload){
+        STATE.destination = payload.lat != null && payload.lng != null ? { lat: payload.lat, lng: payload.lng, addr: payload.name || '' } : null;
+        STATE.customerName = payload.name || 'Customer';
+        STATE.customerPhone = payload.phone || null;
+        STATE.trackingId = payload.tracking || null;
+      }
+
+      // update UI
+      updateTopInfo();
+
+      // set destination marker if available
+      if(STATE.destination && STATE.destination.lat != null){
+        setDestination(STATE.destination.lat, STATE.destination.lng, STATE.destination.addr);
+      } else {
+        destNameEl.textContent = 'No destination found';
+      }
+
+      // try to pick initial location for user (oneShot)
+      try {
+        await oneShotLocate();
+      } catch(e){
+        console.warn('oneShot failed', e);
+      }
+
+      // start continuous watch (live tracking)
+      startWatch();
+
+      // auto start route drawing if we have both user and destination
+      if(STATE.user && STATE.destination){
+        // initial draw
+        drawRouteAndUpdateInfo();
+        // ensure periodic re-draws while moving
+        setInterval(()=> {
+          if(STATE.user && STATE.destination) drawRouteAndUpdateInfo();
+        }, Math.max(ROUTE_REFRESH_MS, 6000));
+      }
+
+      // show final updated UI
+      updateTopInfo();
+    }
+
+    // kickstart
+    bootstrap().catch(e => console.error('bootstrap err', e));
+
+    // expose for debugging
+    window._ml_track_state = STATE;
+    window._ml_track_helpers = { drawRouteAndUpdateInfo, setDestination };
+
+  })();
+  </script>
+</body>
+</html>
