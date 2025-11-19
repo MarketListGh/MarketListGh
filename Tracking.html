@@ -1,869 +1,437 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Track Your Order — MarketList</title>
-
-<!-- Leaflet (for deliverer map) -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-* { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
-
-/* Header and Menu (same as index.html) */
-.headerbar {
-  background:#00a859; 
-  color:#fff; 
-  padding:10px 20px;
-}
-.headerbar .inner {
-  display:flex; 
-  align-items:center; 
-  justify-content: space-between;
-}
-.headerbar .brand { display:flex; align-items:center; cursor:pointer; }
-.headerbar .brand img { width:40px; margin-right:10px; }
-.headerbar .brand .title { font-size:20px; font-weight:normal; color:#fff; }
-.headerbar nav a {
-  color:#fff; margin-left:20px; text-decoration:none;
-  font-weight:bold; font-size:13.5px;
-}
-.headerbar nav a:hover { opacity:0.9; text-decoration:none; }
-
-body {
-  background: linear-gradient(135deg, #00a859, #ff8c00);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-main.container {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 30px;
-}
-.card {
-  background: #fff;
-  color: #000;
-  width: 100%;
-  max-width: 500px;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-  text-align: center;
-}
-
-/* Buttons */
-.track-btns {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-.track-btns button {
-  background-color: #00a859;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background 0.3s;
-}
-.track-btns button:hover { background-color: #028f4a; }
-
-.hidden-section { display: none; margin-top: 15px; }
-.hidden-section.active { display: block; }
-
-label {
-  display: block;
-  text-align: left;
-  margin-top: 12px;
-  margin-bottom: 6px;
-  font-weight: bold;
-  color: #222;
-  font-size: 14.5px;
-}
-input[type="text"] {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 15px;
-}
-button.submit {
-  width: 100%;
-  margin-top: 15px;
-  background-color: #ff8c00;
-  color: white;
-  border: none;
-  padding: 12px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-button.submit:hover { background-color: #e57a00; }
-.result {
-  margin-top: 18px;
-  font-weight: bold;
-  font-size: 15px;
-  color: #333;
-}
-
-/* Popup (for both Deliverer & Customer) */
-.popup-overlay {
-  position: fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background: rgba(0,0,0,0.42);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(3px);
-  z-index: 10000;
-  animation: fadeIn 0.25s ease;
-}
-.popup {
-  background: #fff;
-  border-radius: 15px;
-  box-shadow: 0 5px 25px rgba(0,0,0,0.3);
-  max-width: 460px;
-  width: 92%;
-  padding: 22px;
-  text-align: left;
-  animation: slideUp 0.28s ease;
-}
-.popup h3 { color: #00a859; margin-bottom: 12px; text-align:center; }
-.popup p { margin: 8px 0; font-size: 15px; color: #333; }
-.popup .muted { color:#666; font-size:13px; margin-top:6px; }
-
-/* popup buttons */
-.popup-buttons {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 18px;
-}
-.popup-buttons button {
-  padding: 10px 12px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-}
-.popup-buttons .accept { background:#00a859; color:#fff; }
-.popup-buttons .cancel { background:#f44336; color:#fff; }
-.popup-buttons .secondary { background:#ddd; color:#000; }
-
-/* small success popup */
-.small-toast {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 30px;
-  background: #00a859;
-  color: #fff;
-  padding: 12px 18px;
-  border-radius: 999px;
-  box-shadow: 0 6px 25px rgba(0,0,0,0.25);
-  z-index: 11000;
-  display: none;
-}
-
-/* Map inside deliverer panel */
-.deliverer-map {
-  width: 100%;
-  height: 260px;
-  border-radius: 10px;
-  margin-top: 12px;
-  border: 1px solid #ddd;
-  overflow: hidden;
-}
-
-/* animations */
-@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
-@keyframes slideUp { from {transform:translateY(18px); opacity:0;} to {transform:translateY(0); opacity:1;} }
-
-/* Footer */
-footer.footer {
-  text-align:center;
-  padding:15px;
-  background:#eee;
-}
-
-/* Chatbot */
-.chatbot-btn {
-  position: fixed; bottom: 25px; right: 25px;
-  width: 60px; height: 60px;
-  background: #fff; color: #00a859;
-  border-radius: 50%;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 28px; cursor: pointer;
-  animation: bounce 2s infinite; z-index: 10001;
-}
-@keyframes bounce {
-  0%,20%,50%,80%,100%{transform:translateY(0);}
-  40%{transform:translateY(-12px);}
-  60%{transform:translateY(-6px);}
-}
-.chat-overlay {
-  display: none; position: fixed;
-  bottom: 100px; right: 30px;
-  width: 320px; height: 400px;
-  background: rgba(255,255,255,0.95);
-  border-radius: 15px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  z-index: 10002;
-  flex-direction: column; overflow: hidden;
-}
-.chat-header { background:#00a859; color:#fff; padding:10px; text-align:center; font-weight:bold; }
-.chat-body { flex:1; padding:10px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
-.chat-message { padding:8px 10px; border-radius:10px; max-width:80%; word-wrap:break-word; }
-.user-msg{background:#f2f2f2; align-self:flex-end;}
-.bot-msg{background:#d8ecff; align-self:flex-start;}
-.chat-input { display:flex; border-top:1px solid #ddd; }
-.chat-input input { flex:1; border:none; padding:14px; outline:none; }
-.chat-input button { background:#00a859; color:#fff; border:none; padding:10px 15px; cursor:pointer; }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MarketList — Deliverer Tracking</title>
+  <style>
+    :root{ --g1:#00a859; --g2:#ff8c00; --card-bg:#fff; --muted:#666; --accent:#1976d2; }
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:0;padding:0}
+    body{background:#fafafa;color:#111;min-height:100vh;display:flex;flex-direction:column}
+    header{background:linear-gradient(135deg,var(--g1),var(--g2));padding:14px 18px;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.08)}
+    header .wrap{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    header .brand{display:flex;align-items:center;gap:10px;cursor:pointer}
+    header .brand img{width:44px;height:44px;border-radius:8px}
+    header h1{font-size:18px;margin:0}
+    main{max-width:900px;margin:18px auto;padding:18px;width:100%}
+    .card{background:var(--card-bg);border-radius:12px;padding:18px;box-shadow:0 6px 22px rgba(0,0,0,0.08);margin-bottom:18px}
+    .small{font-size:13px;color:var(--muted)}
+    .muted{color:var(--muted)}
+    .row{display:flex;gap:12px;align-items:center}
+    .col{flex:1}
+    label{display:block;font-weight:700;margin-bottom:6px}
+    input[type="text"], input[type="tel"], input[type="number"], select{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e6e6;font-size:15px}
+    button.btn{background:var(--g1);color:#fff;padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+    button.ghost{background:#fff;color:var(--g1);border:1px solid rgba(0,0,0,0.06)}
+    .btn.warn{background:#ff7043}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .order-meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+    .meta-pill{background:#f3f3f3;padding:8px 10px;border-radius:8px;font-weight:700;color:#222}
+    .status-badge{display:inline-block;padding:6px 10px;border-radius:10px;color:#fff;font-weight:800}
+    .status-pending{background:#666}
+    .status-accepted{background:var(--accent)}
+    .status-delivering{background:var(--g1)}
+    .status-delivered{background:green}
+    .info-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+    .info-left{flex:1}
+    .info-right{text-align:right;min-width:150px}
+    .large{font-size:18px;font-weight:800;color:#111}
+    .muted-small{font-size:13px;color:#666}
+    footer{max-width:900px;margin:24px auto;padding:12px;text-align:center;color:#666;font-size:13px}
+    @media (max-width:700px){ .row{flex-direction:column} .info-right{text-align:left} }
+  </style>
 </head>
-
 <body>
 
-<header class="headerbar">
-  <div class="inner">
+<header>
+  <div class="wrap">
     <div class="brand" onclick="window.location.href='index.html'">
-      <img src="logo.png" alt="MarketList Logo">
-      <span class="title">MarketList</span>
+      <img src="logo.png" alt="logo">
+      <div>
+        <h1>MarketList — Deliverer</h1>
+        <div style="font-size:12px;opacity:0.95">Accept, Navigate & Deliver</div>
+      </div>
     </div>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="reviews.html">Reviews</a>
-      <a href="assistant.html">Assistant</a>
-      <a href="Tracking.html" class="active">Track Order</a>
-       <a href="FAQ.html">FAQ</a>
-    </nav>
+    <div>
+      <button class="btn" id="openOrdersBtn">My Orders</button>
+    </div>
   </div>
 </header>
 
-<!-- Main -->
-<main class="container">
-  <section class="card">
-    <h2>Track Your Order</h2>
-    <p style="margin: 8px 0 20px;">Select your role to continue:</p>
-
-    <div class="track-btns">
-      <button onclick="showSection('customer')">Customer</button>
-      <button onclick="showSection('deliverer')">Deliverer</button>
+<main>
+  <!-- Tracking code loader -->
+  <div class="card" id="loaderCard" aria-live="polite">
+    <label for="trackInput">Enter Tracking Code</label>
+    <div class="row">
+      <div class="col">
+        <input id="trackInput" type="text" placeholder="ML-123456 or paste tracking code">
+      </div>
+      <div style="width:160px">
+        <button id="loadOrderBtn" class="btn">Load Order</button>
+      </div>
     </div>
-
-    <div id="customerSection" class="hidden-section">
-      <input type="text" id="customerCode" placeholder="Enter your tracking number">
-      <button class="submit" onclick="trackOrder()">Track Order</button>
-      <div id="customerResult" class="result"></div>
-    </div>
-
-    <div id="delivererSection" class="hidden-section">
-      <!-- This content will be replaced with the order-panel after Accept -->
-      <label>Enter Delivery Tracking Code:</label>
-      <input type="text" id="delivererCode" placeholder="e.g. ML-12345">
-      <label>Your Full Name:</label>
-      <input type="text" id="delivererName" placeholder="Enter full name">
-      <label>Contact Number:</label>
-      <input type="text" id="delivererContact" placeholder="e.g. 0537351866">
-      <button class="submit" id="delivererReviewBtn" onclick="reviewOrder()">Review Order</button>
-      <div id="delivererResult" class="result"></div>
-    </div>
-  </section>
-</main>
-
-<footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
-
-<!-- Deliverer Popup -->
-<div id="delivererPopup" class="popup-overlay" aria-hidden="true">
-  <div class="popup" role="dialog" aria-modal="true" aria-labelledby="delivererTitle">
-    <h3 id="delivererTitle">Order Review</h3>
-    <div id="delivererPopupContent"></div>
-    <div class="popup-buttons">
-      <button class="accept" id="popupAcceptBtn" onclick="popupAccept()">Accept Order</button>
-      <button class="secondary" onclick="closePopup('delivererPopup')">Close</button>
-    </div>
+    <div style="margin-top:10px" class="small muted">Tip: You can also scan or paste a tracking code from the customer or your dashboard.</div>
   </div>
-</div>
 
-<!-- Customer Popup -->
-<div id="customerPopup" class="popup-overlay" aria-hidden="true">
-  <div class="popup" role="dialog" aria-modal="true" aria-labelledby="customerTitle">
-    <h3 id="customerTitle">Order Details</h3>
-    <div id="customerPopupContent"></div>
-    <div class="popup-buttons">
-      <button class="secondary" onclick="closePopup('customerPopup')">Close</button>
-    </div>
-  </div>
-</div>
+  <!-- Order card (populated after load) -->
+  <div class="card" id="orderCard" style="display:none;" aria-live="polite">
+    <div class="row">
+      <div class="col">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--g1),var(--g2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800">D</div>
+          <div>
+            <div id="custName" style="font-size:16px;font-weight:800">Customer Name</div>
+            <div class="muted-small" id="custPhone">+233XXXXXXXXX</div>
+          </div>
+        </div>
 
-<!-- Small toast -->
-<div id="smallToast" class="small-toast">Action successful</div>
+        <div style="margin-top:12px">
+          <label style="font-size:13px;color:#444;margin-bottom:6px">Location</label>
+          <div id="custLocation" class="small muted">Loading address...</div>
+        </div>
 
-<!-- Chatbot -->
-<div class="chatbot-btn" onclick="toggleChat()">💬</div>
-<div class="chat-overlay" id="chatOverlay">
-  <div class="chat-header">Chat with MarketList AI</div>
-  <div class="chat-body" id="chatBody">
-    <div class="chat-message bot-msg">Hello 👋, welcome to <strong>MarketList!</strong> How can I help today?</div>
-  </div>
-  <div class="chat-input">
-    <input id="chatInput" placeholder="Type your message...">
-    <button onclick="sendMessage()">Send</button>
-  </div>
-</div>
+        <div style="margin-top:12px">
+          <label style="font-size:13px;color:#444;margin-bottom:6px">Order Status</label>
+          <div id="orderStatusWrap"><span id="orderStatusBadge" class="status-badge status-pending">Pending</span></div>
+        </div>
 
-<!-- Leaflet JS (no routing network calls; straight-line polyline only) -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+      </div>
 
-<script>
-/* ======= Configuration ======= */
-const COMPANY_WA = '233537351866'; // company whatsapp (no +). Change if needed.
-const GEOAPIFY_KEY = 'efc8ef712d1a4cc3b5224e429987da3b'; // used only for geocoding if no coords stored (silent)
+      <div class="info-right">
+        <div class="muted-small">Delivery Fee</div>
+        <div class="large" id="displayDeliveryFee">₵0.00</div>
 
-/* ======= Helpers ======= */
-function showToast(msg, ms=2000){
-  const t = document.getElementById('smallToast');
-  t.textContent = msg;
-  t.style.display = 'block';
-  setTimeout(()=> t.style.display='none', ms);
-}
-function openPopup(id){ const el=document.getElementById(id); el.style.display='flex'; el.setAttribute('aria-hidden','false'); }
-function closePopup(id){ const el=document.getElementById(id); el.style.display='none'; el.setAttribute('aria-hidden','true'); }
+        <div style="margin-top:12px" class="muted-small">Customer Budget / Cash</div>
+        <div class="large" id="displayBudget">₵0.00</div>
 
-/* keep layout unchanged: show/hide sections */
-function showSection(type){
-  document.getElementById('customerSection').classList.remove('active');
-  document.getElementById('delivererSection').classList.remove('active');
-  if(type==='customer') document.getElementById('customerSection').classList.add('active');
-  else document.getElementById('delivererSection').classList.add('active');
-}
+        <div style="margin-top:12px" class="muted-small">Tracking</div>
+        <div id="displayTracking" class="muted-small">ML-000000</div>
 
-/* ======= Utility: distance & fee rules ======= */
-function calcDeliveryFee(km){
-  if(km <= 10) return 20;
-  return 20 + 2 * Math.round(km - 10);
-}
-function calcEstimatedMinutes(km){
-  return km * 2.5;
-}
-
-/* ======= Customer Tracking ======= */
-function trackOrder(){
-  const code = document.getElementById('customerCode').value.trim();
-  if(!code){ alert('Please enter a tracking number.'); return; }
-
-  const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
-  const found = orders.find(o=>o.tracking === code);
-  if(!found){ alert('❌ No order found with this tracking number.'); return; }
-
-  // Build popup content
-  const delivery = found.delivery || null;
-  const km = found.distance || (found.kmEstimate || null);
-  const minutes = km ? calcEstimatedMinutes(km) : null;
-  const deliveryFee = km ? calcDeliveryFee(km) : (found.deliveryFee || 0);
-  const totalAmount = (found.total || 0) + (deliveryFee || 0);
-
-  let delivererHtml = 'Not yet assigned';
-  if(delivery && typeof delivery === 'object'){
-    delivererHtml = `${delivery.name} (${delivery.contact})`;
-  } else if (delivery && typeof delivery === 'string'){
-    delivererHtml = delivery;
-  }
-
-  const popup = document.getElementById('customerPopupContent');
-  popup.innerHTML = `
-    <p><strong>Customer Name:</strong> ${found.name}</p>
-    <p><strong>Market:</strong> ${found.market}</p>
-    <p><strong>Category:</strong> ${found.category}</p>
-    <p><strong>Total Amount (items):</strong> ₵${(found.total||0).toFixed(2)}</p>
-    <p><strong>Delivery Fee:</strong> ₵${(deliveryFee||0).toFixed(2)}</p>
-    <p><strong>Total (items + delivery):</strong> ₵${(totalAmount||0).toFixed(2)}</p>
-    <p><strong>Estimated Delivery Time:</strong> ${minutes ? minutes.toFixed(0) + ' mins' : 'Pending'}</p>
-    <p><strong>Distance:</strong> ${km ? km + ' km' : 'Pending'}</p>
-    <p><strong>Deliverer:</strong> ${delivererHtml}</p>
-    <div class="muted">If you received your order, tap "Order Received" to notify the company.</div>
-    <div style="margin-top:12px; display:flex; gap:8px; justify-content:center;">
-      <button class="accept" id="customerReceivedBtn" style="display:none;" onclick="customerReceived('${found.tracking}')">Order Received</button>
-    </div>
-  `;
-
-  // show Order Received button only if deliverer assigned and not canceled/delivered
-  if(found.delivery && typeof found.delivery === 'object' && !found.status){
-    document.getElementById('customerReceivedBtn').style.display = 'inline-block';
-  } else {
-    const btn = document.getElementById('customerReceivedBtn');
-    if(btn) btn.style.display = 'none';
-  }
-
-  openPopup('customerPopup');
-}
-
-/* Customer pressed Order Received -> opens WhatsApp message to company */
-function customerReceived(tracking){
-  const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
-  const found = orders.find(o=>o.tracking === tracking);
-  if(!found) return alert('Order not found.');
-
-  const delivery = found.delivery || {};
-  const msg = `Customer ${found.name} (${found.phone || 'no-phone'}) has RECEIVED order ${found.tracking}. Delivered by ${delivery.name || 'N/A'} (${delivery.contact || 'N/A'}). Items total: ₵${(found.total||0).toFixed(2)}.`;
-  const url = `https://wa.me/${COMPANY_WA}?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank');
-  showToast('WhatsApp opened to notify company', 1800);
-  closePopup('customerPopup');
-
-  // mark as received in storage (optional)
-  found.status = found.status || {};
-  found.status.received = { at: Date.now(), byCustomer: true };
-  localStorage.setItem('marketOrders', JSON.stringify(orders));
-}
-
-/* ======= Deliverer flow ======= */
-
-/* open review popup (original Review Order button) */
-function reviewOrder(){
-  const code = document.getElementById('delivererCode').value.trim();
-  const name = document.getElementById('delivererName').value.trim();
-  const contact = document.getElementById('delivererContact').value.trim();
-
-  if(!code || !name || !contact){
-    alert('Please fill in all fields.');
-    return;
-  }
-
-  const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
-  const found = orders.find(o=>o.tracking === code);
-  if(!found){ alert('❌ No order found with this tracking number.'); return; }
-
-  // store temp deliverer before confirm
-  found.tempDeliverer = { name, contact };
-
-  // Determine km: prefer existing distance, else use existing kmEstimate or generate reasonable estimate
-  let km = found.distance || found.kmEstimate || null;
-  if(!km){
-    // try simple generation based on market/customer names (deterministic-ish) to avoid wildly random values:
-    const hash = Math.abs(String(found.market + '|' + (found.location||'')).split('').reduce((a,c)=>a + c.charCodeAt(0),0));
-    km = 5 + (hash % 30); // 5..34 km
-  }
-
-  // compute fee & eta using your rules
-  const deliveryFee = calcDeliveryFee(km);
-  const etaMinutes = calcEstimatedMinutes(km);
-  const totalAmount = (found.total || 0) + deliveryFee;
-
-  // prepare popup content
-  const content = document.getElementById('delivererPopupContent');
-  content.innerHTML = `
-    <p><strong>Customer:</strong> ${found.name}</p>
-    <p><strong>Location:</strong> ${found.location}</p>
-    <p><strong>Market:</strong> ${found.market}</p>
-    <p><strong>Category:</strong> ${found.category}</p>
-    <p><strong>Amount Paid (items):</strong> ₵${(found.total||0).toFixed(2)}</p>
-    <p><strong>Delivery Fee:</strong> ₵${deliveryFee.toFixed(2)}</p>
-    <p><strong>Total Amount:</strong> ₵${totalAmount.toFixed(2)}</p>
-    <p><strong>Distance:</strong> ${km} km</p>
-    <p><strong>Estimated Time:</strong> ${etaMinutes.toFixed(0)} mins</p>
-    <p><strong>Customer Contact:</strong> ${found.phone || 'N/A'}</p>
-    <div class="muted">Accepting will assign this order to you and notify the company via WhatsApp.</div>
-  `;
-
-  // we attach some computed values to tempDeliverer for later confirmation
-  found.tempDeliverer.km = km;
-  found.tempDeliverer.deliveryFee = deliveryFee;
-  found.tempDeliverer.etaMinutes = etaMinutes;
-  found.tempDeliverer.totalAmount = totalAmount;
-
-  // save back temp (don't overwrite final storage yet)
-  localStorage.setItem('marketOrders', JSON.stringify(orders));
-
-  // show popup
-  openPopup('delivererPopup');
-}
-
-/* When deliverer confirms inside popup */
-function popupAccept(){
-  const code = document.getElementById('delivererCode').value.trim();
-  const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
-  const found = orders.find(o=>o.tracking === code);
-  if(!found || !found.tempDeliverer) { closePopup('delivererPopup'); return; }
-
-  // finalize delivery assignment
-  const d = found.tempDeliverer;
-  found.delivery = {
-    name: d.name,
-    contact: d.contact,
-    acceptedAt: Date.now(),
-    km: d.km,
-    deliveryFee: d.deliveryFee,
-    etaMinutes: d.etaMinutes,
-    totalAmount: d.totalAmount
-  };
-  found.status = found.status || {};
-  found.status.assigned = true;
-
-  // remove temp
-  delete found.tempDeliverer;
-
-  // persist
-  localStorage.setItem('marketOrders', JSON.stringify(orders));
-
-  // close review popup, show small accepted toast
-  closePopup('delivererPopup');
-  showToast('✅ Order Accepted', 1800);
-
-  // send WhatsApp notification to company: Accept
-  const waMsg = `Deliverer ${found.delivery.name} (${found.delivery.contact}) has ACCEPTED order ${found.tracking} for customer ${found.name} (${found.phone || 'no-phone'}). Distance: ${found.delivery.km}km. Fee: ₵${found.delivery.deliveryFee}.`;
-  window.open(`https://wa.me/${COMPANY_WA}?text=${encodeURIComponent(waMsg)}`, '_blank');
-
-  // replace deliverer form with order-panel so deliverer doesn't retype
-  renderDelivererPanel(found);
-}
-
-/* Render deliverer panel after acceptance (replaces inputs) */
-function renderDelivererPanel(order){
-  const container = document.getElementById('delivererSection');
-  // Build a small panel with order info + buttons
-  container.innerHTML = `
-    <div id="delivererPanel">
-      <p><strong>Order:</strong> ${order.tracking}</p>
-      <p><strong>Customer:</strong> ${order.name}</p>
-      <p><strong>Location:</strong> ${order.location}</p>
-      <p><strong>Market:</strong> ${order.market}</p>
-      <p><strong>Distance:</strong> ${order.delivery.km} km</p>
-      <p><strong>Estimated Time:</strong> ${order.delivery.etaMinutes.toFixed(0)} mins</p>
-      <p><strong>Delivery Fee:</strong> ₵${order.delivery.deliveryFee.toFixed(2)}</p>
-      <p><strong>Total (items + delivery):</strong> ₵${(order.delivery.totalAmount||0).toFixed(2)}</p>
-      <p><strong>Deliverer:</strong> ${order.delivery.name} (${order.delivery.contact})</p>
-
-      <!-- Map area (straight-line route) -->
-      <div id="delivererMapWrap">
-        <div id="delivererMap" class="deliverer-map"></div>
-        <div style="display:flex; gap:8px; margin-top:8px;">
-          <button id="navigateBtn" class="submit" style="background:#00a859; width:50%;">Navigate</button>
-          <button id="shareLocationBtn" class="submit" style="background:#028f4a; width:50%;">Share Live Location</button>
+        <div class="order-meta" style="margin-top:12px">
+          <div class="meta-pill" id="displayCategory">—</div>
+          <div class="meta-pill" id="displayTime">—</div>
         </div>
       </div>
-
-      <div style="margin-top:12px; display:flex; gap:8px; justify-content:space-between;">
-        <button id="markDeliveredBtn" class="submit" style="background:#00a859; width:48%;" disabled onclick="markDelivered('${order.tracking}')">Mark as Delivered</button>
-        <button id="cancelOrderBtn" class="submit" style="background:#f44336; width:48%;" onclick="cancelOrder('${order.tracking}')">Cancel Order</button>
-      </div>
-      <div id="delivererPanelInfo" class="muted" style="margin-top:10px;">You will be able to mark delivered after the estimated time has passed.</div>
     </div>
-  `;
 
-  // Start map for deliverer (straight-line)
-  initDelivererMap(order);
+    <div class="actions">
+      <button id="acceptBtn" class="btn">Accept Order</button>
+      <button id="navigateBtn" class="btn" style="background:var(--accent)">Navigate Now</button>
+      <button id="callBtn" class="ghost" style="border:1px solid #ddd">Call Customer</button>
+      <button id="shareBtn" class="ghost" style="border:1px solid #ddd">Share (WhatsApp)</button>
+      <button id="deliveredBtn" class="btn warn" style="display:none">Mark Delivered</button>
+    </div>
 
-  // Start a timer to check when to enable Mark as Delivered button
-  checkEnableDelivered(order.tracking);
-}
+    <div style="margin-top:12px" class="small muted" id="orderNotes">Order loaded — review and accept to navigate.</div>
+  </div>
 
-/* ======= Map / Deliverer live helpers (straight-line route, no routing API) ======= */
+  <!-- Quick fallback / no-order card -->
+  <div id="emptyCard" class="card" style="display:none">
+    <div class="small muted">No order loaded. Enter a tracking code above or open an order from <strong>My Orders</strong>.</div>
+  </div>
+</main>
 
-/**
- * initDelivererMap(order)
- * - shows customer pin (geocoded if needed)
- * - attempts to get deliverer's live GPS (blue marker)
- * - draws a straight green polyline between deliverer and customer
- */
-async function initDelivererMap(order){
-  const mapEl = document.getElementById('delivererMap');
-  if(!mapEl) return;
+<footer>
+  © 2025 MarketList — Deliverer • Built to work with map.html & index.html
+</footer>
 
-  // default center (Accra)
-  const defaultCenter = [5.6037, -0.1870];
-  // create map (if previously created, remove)
-  if(window._delivererMapInstance){
-    try { window._delivererMapInstance.remove(); } catch(e){ /* ignore */ }
-    window._delivererMapInstance = null;
+<script>
+  // Utilities
+  function qs(id){ return document.getElementById(id); }
+  function formatGhs(n){ return '₵' + (parseFloat(n||0).toFixed(2)); }
+  function nowHuman(ts){ try{ const d = ts ? new Date(ts) : new Date(); return d.toLocaleString(); }catch(e){return ''} }
+
+  // DOM references
+  const loadOrderBtn = qs('loadOrderBtn');
+  const trackInput = qs('trackInput');
+  const orderCard = qs('orderCard');
+  const emptyCard = qs('emptyCard');
+  const orderNotes = qs('orderNotes');
+
+  const custName = qs('custName');
+  const custPhone = qs('custPhone');
+  const custLocation = qs('custLocation');
+  const displayDeliveryFee = qs('displayDeliveryFee');
+  const displayBudget = qs('displayBudget');
+  const displayTracking = qs('displayTracking');
+  const displayCategory = qs('displayCategory');
+  const displayTime = qs('displayTime');
+
+  const acceptBtn = qs('acceptBtn');
+  const navigateBtn = qs('navigateBtn');
+  const deliveredBtn = qs('deliveredBtn');
+  const callBtn = qs('callBtn');
+  const shareBtn = qs('shareBtn');
+
+  let currentOrder = null;
+
+  // Load orders from localStorage
+  function readStoredOrders(){
+    try {
+      return JSON.parse(localStorage.getItem('marketOrders') || '[]');
+    } catch(e){ return []; }
+  }
+  function saveStoredOrders(arr){
+    try { localStorage.setItem('marketOrders', JSON.stringify(arr || [])); } catch(e){}
   }
 
-  const map = L.map('delivererMap', { attributionControl:false, zoomControl:true }).setView(defaultCenter, 12);
-  window._delivererMapInstance = map;
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-
-  // helper to get customer coords: prefer order fields 'lat','lng' or 'customerLat/customerLng' or order.location via geocoding
-  let custLat = order.customerLat || order.lat || (order.locationLat || null);
-  let custLng = order.customerLng || order.lng || (order.locationLng || null);
-
-  async function geocodeAddress(addr){
+  function findOrderByTracking(code){
+    if(!code) return null;
+    const orders = readStoredOrders();
+    const found = orders.find(o => (o.tracking && String(o.tracking).toUpperCase()===String(code).toUpperCase()));
+    if(found) return found;
+    // fallback: check session last order
     try {
-      const resp = await fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(addr)}&limit=1&format=json&apiKey=${GEOAPIFY_KEY}`);
-      if(!resp.ok) return null;
-      const data = await resp.json();
-      if(data.features && data.features.length){
-        const p = data.features[0].properties;
-        return { lat: p.lat, lng: p.lon };
-      }
-    } catch(e){ /* ignore errors */ }
+      const last = JSON.parse(sessionStorage.getItem('ml_last_order') || 'null');
+      if(last && last.tracking && String(last.tracking).toUpperCase()===String(code).toUpperCase()) return last;
+    } catch(e){}
     return null;
   }
 
-  if((custLat == null || custLng == null) && order.location){
-    // perform geocode (silent) - only if we don't already have coords
-    const g = await geocodeAddress(order.location);
-    if(g){ custLat = g.lat; custLng = g.lng; }
-    // store for future (so geocoding not repeated)
-    if(custLat && custLng){
-      // attach to order & persist
-      const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
-      const found = orders.find(o=>o.tracking === order.tracking);
-      if(found){
-        found.lat = custLat;
-        found.lng = custLng;
-        localStorage.setItem('marketOrders', JSON.stringify(orders));
-      }
+  function showOrder(o){
+    if(!o){ orderCard.style.display='none'; emptyCard.style.display='block'; return; }
+    currentOrder = o;
+    orderCard.style.display='block';
+    emptyCard.style.display='none';
+
+    // customer info
+    custName.textContent = o.name || 'Customer';
+    custPhone.textContent = o.phone || '';
+    displayTracking.textContent = o.tracking || '';
+
+    // location: prefer available coords -> try ml_saved_location if not present inside order
+    let userLabel = o.location || '';
+    let addrShown = userLabel || 'Unknown location';
+    if(o.customerLat && o.customerLng && (!userLabel || userLabel==='')){
+      addrShown = `${parseFloat(o.customerLat).toFixed(5)}, ${parseFloat(o.customerLng).toFixed(5)}`;
+    } else if(!userLabel){
+      // try shared ml_saved_location
+      try {
+        const saved = JSON.parse(localStorage.getItem('ml_saved_location') || 'null');
+        if(saved && saved.userLabel) addrShown = saved.userLabel;
+        else if(saved && saved.userLat && saved.userLng) addrShown = `${parseFloat(saved.userLat).toFixed(5)}, ${parseFloat(saved.userLng).toFixed(5)}`;
+      } catch(e){}
+    }
+    custLocation.textContent = addrShown;
+
+    // financials
+    displayDeliveryFee.textContent = formatGhs(o.deliveryFee || o.deliveryFee === 0 ? o.deliveryFee : (o.deliveryFee || 0));
+    displayBudget.textContent = formatGhs(o.total || o.budget || 0);
+
+    // category & time
+    displayCategory.textContent = (o.category && o.category.length) ? o.category : '—';
+    displayTime.textContent = nowHuman(o.createdAt || o.savedAt || Date.now());
+
+    // status
+    setStatus(o.status || 'Pending');
+
+    // call/share buttons
+    callBtn.onclick = () => {
+      if(!o.phone){ alert('No phone number for customer'); return; }
+      window.location.href = `tel:${o.phone}`;
+    };
+    shareBtn.onclick = () => {
+      const msg = `Order: ${o.tracking}\nCustomer: ${o.name}\nPhone: ${o.phone}\nLocation: ${addrShown}\nTotal: ${formatGhs(o.total || o.budget || 0)}\nDelivery Fee: ${formatGhs(o.deliveryFee || 0)}`;
+      const wa = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+      window.open(wa, '_blank');
+    };
+
+    // delivered button show/hide depending status
+    if((o.status || '').toLowerCase() === 'delivered'){
+      deliveredBtn.style.display='none';
+      acceptBtn.style.display='none';
+      navigateBtn.style.display='inline-block';
+    } else {
+      deliveredBtn.style.display='inline-block';
+      acceptBtn.style.display='inline-block';
+      navigateBtn.style.display='inline-block';
     }
   }
 
-  // place customer marker (red)
-  let customerMarker = null;
-  if(custLat && custLng){
-    customerMarker = L.marker([custLat, custLng], { title: 'Customer', icon: L.icon({
-      iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png',
-      iconSize: [28,28]
-    }) }).addTo(map).bindPopup('Customer location');
-    map.setView([custLat, custLng], 13);
+  function setStatus(status){
+    const badge = qs('orderStatusBadge');
+    if(!badge) return;
+    const s = (status || '').toString().toLowerCase();
+    badge.className = 'status-badge';
+    badge.textContent = (status || '').toString();
+    if(s === 'pending') badge.classList.add('status-pending');
+    else if(s === 'accepted') badge.classList.add('status-accepted');
+    else if(s === 'delivering') badge.classList.add('status-delivering');
+    else if(s === 'delivered') badge.classList.add('status-delivered');
+    else badge.classList.add('status-pending');
   }
 
-  // place deliverer marker (blue) - try to get current position
-  let delivererMarker = null;
-  function placeDeliverer(lat, lng){
-    if(!lat || !lng) return;
-    if(delivererMarker) delivererMarker.setLatLng([lat,lng]);
-    else {
-      delivererMarker = L.marker([lat,lng], { title: 'You (Deliverer)', icon: L.icon({
-        iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png',
-        iconSize: [28,28]
-      }) }).addTo(map).bindPopup('Your location (live)');
-    }
-  }
-
-  // try browser geolocation once, and watch position
-  if(navigator.geolocation){
-    // initial attempt
-    navigator.geolocation.getCurrentPosition(pos=>{
-      const lat = pos.coords.latitude, lng = pos.coords.longitude;
-      placeDeliverer(lat, lng);
-      // fit bounds to show both markers if customer exists
-      if(customerMarker){
-        const bounds = L.latLngBounds([[lat,lng], [custLat, custLng]]);
-        map.fitBounds(bounds, { padding:[60,60] });
-      } else {
-        map.setView([lat, lng], 13);
-      }
-      // draw line
-      drawStraightLine();
-    }, ()=> {
-      // ignore failure
-      drawStraightLine();
-    }, { enableHighAccuracy:true, timeout:7000 });
-    // watch position and update marker + line live
+  // Update order in storage by tracking code
+  function updateOrderInStorage(updatedOrder){
     try {
-      window._delivererGeoWatch = navigator.geolocation.watchPosition(pos=>{
-        const lat = pos.coords.latitude, lng = pos.coords.longitude;
-        placeDeliverer(lat,lng);
-        drawStraightLine();
-      }, ()=>{}, { enableHighAccuracy:true, maximumAge:5000, timeout:10000 });
+      const all = readStoredOrders();
+      const idx = all.findIndex(x => x.tracking && String(x.tracking).toUpperCase()===String(updatedOrder.tracking).toUpperCase());
+      if(idx >= 0){
+        all[idx] = Object.assign({}, all[idx], updatedOrder);
+      } else {
+        all.push(updatedOrder);
+      }
+      saveStoredOrders(all);
+      // keep session as well
+      sessionStorage.setItem('ml_last_order', JSON.stringify(updatedOrder));
+    } catch(e){
+      console.error('updateOrderInStorage', e);
+    }
+  }
+
+  // Load order (button)
+  loadOrderBtn.addEventListener('click', () => {
+    const code = (trackInput.value||'').trim();
+    if(!code){ alert('Enter tracking code'); return; }
+    const found = findOrderByTracking(code);
+    if(!found){ alert('Order not found. Make sure the code is correct and the order exists in the device storage.'); return; }
+    // normalize order
+    if(!found.status) found.status = 'Pending';
+    showOrder(found);
+    orderNotes.textContent = 'Order loaded — review and accept to navigate.';
+  });
+
+  // Accept order
+  acceptBtn.addEventListener('click', ()=>{
+    if(!currentOrder){ alert('Load an order first'); return; }
+    currentOrder.status = 'Accepted';
+    updateOrderInStorage(currentOrder);
+    setStatus('Accepted');
+    orderNotes.textContent = 'Order accepted. Tap Navigate Now to begin delivery.';
+    // optionally open navigation automatically? we wait for deliverer to click Navigate
+  });
+
+  // Mark delivered
+  deliveredBtn.addEventListener('click', ()=>{
+    if(!currentOrder){ alert('Load an order first'); return; }
+    if(!confirm('Mark this order as DELIVERED?')) return;
+    currentOrder.status = 'Delivered';
+    currentOrder.deliveredAt = Date.now();
+    updateOrderInStorage(currentOrder);
+    setStatus('Delivered');
+    orderNotes.textContent = 'Order marked as delivered. Nice work!';
+    // Optionally notify customer via WhatsApp
+    const send = confirm('Send a delivery confirmation to customer via WhatsApp?');
+    if(send){
+      const msg = `Hello ${currentOrder.name}, your order ${currentOrder.tracking} has been delivered. Thank you!`;
+      const wa = `https://wa.me/${currentOrder.phone ? currentOrder.phone.replace(/\D/g,'') : ''}?text=${encodeURIComponent(msg)}`;
+      window.open(wa, '_blank');
+    }
+  });
+
+  // Navigate Now: prepare payload and redirect to map.html in deliverer mode
+  navigateBtn.addEventListener('click', ()=>{
+    if(!currentOrder){ alert('Load an order first'); return; }
+    // ensure customer coordinates exist
+    // Priority: order.customerLat/customerLng -> order.customer coordinates in order object
+    let customerLat = (currentOrder.customerLat != null) ? parseFloat(currentOrder.customerLat) : null;
+    let customerLng = (currentOrder.customerLng != null) ? parseFloat(currentOrder.customerLng) : null;
+    let marketLat = (currentOrder.marketLat != null) ? parseFloat(currentOrder.marketLat) : null;
+    let marketLng = (currentOrder.marketLng != null) ? parseFloat(currentOrder.marketLng) : null;
+
+    // fallback to ml_saved_location
+    try {
+      const saved = JSON.parse(localStorage.getItem('ml_saved_location') || 'null');
+      if((customerLat == null || isNaN(customerLat)) && saved && saved.userLat) customerLat = parseFloat(saved.userLat);
+      if((customerLng == null || isNaN(customerLng)) && saved && saved.userLng) customerLng = parseFloat(saved.userLng);
+      if((marketLat == null || isNaN(marketLat)) && saved && saved.marketLat) marketLat = parseFloat(saved.marketLat);
+      if((marketLng == null || isNaN(marketLng)) && saved && saved.marketLng) marketLng = parseFloat(saved.marketLng);
     } catch(e){ /* ignore */ }
-  } else {
-    drawStraightLine();
-  }
 
-  // draw straight polyline between deliverer and customer
-  let currentLine = null;
-  function drawStraightLine(){
-    // compute latest points
-    const delPos = delivererMarker ? delivererMarker.getLatLng() : null;
-    const custPos = customerMarker ? customerMarker.getLatLng() : (custLat && custLng ? L.latLng(custLat, custLng) : null);
-
-    if(currentLine){
-      try{ map.removeLayer(currentLine); }catch(e){}
-      currentLine = null;
-    }
-    if(delPos && custPos){
-      currentLine = L.polyline([delPos, custPos], { color:'#2ecc71', weight:4, opacity:0.9 }).addTo(map);
-      // fit bounds to show both
-      const bounds = L.latLngBounds([delPos, custPos]);
-      map.fitBounds(bounds, { padding:[60,60] });
-    } else if(custPos){
-      map.setView(custPos, 13);
-    }
-  }
-
-  // click handler for Navigate button (open Google Maps directions to customer)
-  const navigateBtn = document.getElementById('navigateBtn');
-  if(navigateBtn){
-    navigateBtn.onclick = function(){
-      if(!custLat || !custLng){
-        alert('Customer coordinates not available.');
+    if(customerLat == null || customerLng == null){
+      if(!confirm('Customer coordinates are missing. You can still open the map and use the address, but routing may not work. Open map now?')) {
         return;
       }
-      // open google maps directions to customer
-      const gUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(custLat + ',' + custLng)}&travelmode=driving`;
-      window.open(gUrl, '_blank');
-    };
-  }
-
-  // share live location button (copies coords to clipboard / opens share)
-  const shareBtn = document.getElementById('shareLocationBtn');
-  if(shareBtn){
-    shareBtn.onclick = async function(){
-      if(!navigator.geolocation) return alert('Geolocation not supported.');
-      navigator.geolocation.getCurrentPosition(pos=>{
-        const lat = pos.coords.latitude, lng = pos.coords.longitude;
-        const shareText = `Deliverer location: https://maps.google.com/?q=${lat},${lng}`;
-        if(navigator.clipboard) navigator.clipboard.writeText(shareText).then(()=> showToast('Location copied to clipboard',1500));
-        else showToast('Copy this link: ' + shareText, 3000);
-      }, err=> alert('Unable to get your location: ' + (err.message || 'error')));
-    };
-  }
-
-  // cleanup when leaving page (optional)
-  // (we keep watchers in global to reuse or clear later)
-}
-
-/* enable mark delivered only after ETA passed */
-function checkEnableDelivered(tracking){
-  const intervalId = setInterval(()=>{ 
-    const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
-    const found = orders.find(o=>o.tracking === tracking);
-    if(!found || !found.delivery){ clearInterval(intervalId); return; }
-
-    const acceptedAt = found.delivery.acceptedAt;
-    const etaMs = (found.delivery.etaMinutes || 0) * 60 * 1000;
-    const readyAt = acceptedAt + etaMs;
-    const now = Date.now();
-
-    const markBtn = document.getElementById('markDeliveredBtn');
-    const info = document.getElementById('delivererPanelInfo');
-
-    if(now >= readyAt){
-      if(markBtn){ markBtn.disabled = false; info.textContent = 'You can now mark this order as delivered.'; }
-      clearInterval(intervalId);
-    } else {
-      const remaining = Math.max(0, Math.ceil((readyAt - now) / 60000));
-      if(info) info.textContent = `Estimated time remaining: ${remaining} min(s). Mark delivered will enable when time is reached.`;
     }
-  }, 5000); // check every 5s
-}
 
-/* Cancel Order by deliverer */
-function cancelOrder(tracking){
-  if(!confirm('Are you sure you want to cancel this order?')) return;
-  const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
-  const found = orders.find(o=>o.tracking === tracking);
-  if(!found) return alert('Order not found.');
+    // Build navigation payload for map.html
+    const payload = {
+      mode: 'deliverer',
+      tracking: currentOrder.tracking || null,
+      customer_lat: isFinite(customerLat) ? customerLat : null,
+      customer_lng: isFinite(customerLng) ? customerLng : null,
+      market_lat: isFinite(marketLat) ? marketLat : null,
+      market_lng: isFinite(marketLng) ? marketLng : null,
+      // deliverer coords will be picked live by map.html via geolocation
+      createdAt: Date.now()
+    };
+    try {
+      localStorage.setItem('deliverer_navigation', JSON.stringify(payload));
+    } catch(e){ console.error('failed write deliverer_navigation', e); }
 
-  const delivery = found.delivery || {};
-  // mark canceled
-  found.status = found.status || {};
-  found.status.canceled = { by: delivery.name || 'deliverer', contact: delivery.contact || '', at: Date.now() };
-  // optionally remove delivery assignment
-  // delete found.delivery;
+    // update status to Delivering
+    currentOrder.status = 'Delivering';
+    updateOrderInStorage(currentOrder);
+    setStatus('Delivering');
+    orderNotes.textContent = 'Opening navigation...';
 
-  localStorage.setItem('marketOrders', JSON.stringify(orders));
+    // redirect to map.html with mode param
+    window.location.href = 'map.html?mode=deliverer';
+  });
 
-  // WhatsApp notify company
-  const msg = `Deliverer ${delivery.name || 'N/A'} (${delivery.contact || 'N/A'}) has CANCELED order ${found.tracking} for ${found.name}.`;
-  window.open(`https://wa.me/${COMPANY_WA}?text=${encodeURIComponent(msg)}`, '_blank');
-
-  showToast('Order canceled and company notified', 1800);
-
-  // revert deliverer panel to inputs so another deliverer can take it
-  setTimeout(()=>{
-    location.reload(); // simplest: reload page to restore original form (keeps everything else unchanged)
-  }, 800);
-}
-
-/* Mark Delivered */
-function markDelivered(tracking){
-  const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
-  const found = orders.find(o=>o.tracking === tracking);
-  if(!found || !found.delivery){ return alert('Order not assigned.'); }
-
-  // verify ETA passed
-  const acceptedAt = found.delivery.acceptedAt;
-  const etaMs = (found.delivery.etaMinutes || 0) * 60 * 1000;
-  if(Date.now() < acceptedAt + etaMs){
-    return alert('Cannot mark delivered before estimated time has passed.');
+ // "My Orders" quick open - shows local storage list in a new window
+qs('openOrdersBtn').addEventListener('click', () => {
+  const orders = readStoredOrders();
+  if (!orders || !orders.length) {
+    alert('No stored orders on this device.');
+    return;
   }
 
-  found.status = found.status || {};
-  found.status.delivered = { at: Date.now(), by: found.delivery.name || 'deliverer' };
+  const w = window.open('', '_blank', 'width=600,height=800');
+  w.document.write('<h3>Stored Orders</h3><ul>');
 
-  localStorage.setItem('marketOrders', JSON.stringify(orders));
+  orders.forEach(o => {
+    w.document.write(`
+      <li style="margin:8px 0;padding:6px;border-bottom:1px solid #eee">
+        <strong>${o.tracking || ''}</strong> —
+        ${o.name || ''} —
+        ${o.phone || ''} —
+        <button onclick="window.opener.loadTrackingFromPopup('${o.tracking}'); window.close();">Open</button>
+      </li>
+    `);
+  });
 
-  // WhatsApp notify company
-  const msg = `Deliverer ${found.delivery.name} (${found.delivery.contact}) has DELIVERED order ${found.tracking} to ${found.name} (${found.phone || 'no-phone'}). Total: ₵${(found.delivery.totalAmount||0).toFixed(2)}.`;
-  window.open(`https://wa.me/${COMPANY_WA}?text=${encodeURIComponent(msg)}`, '_blank');
-
-  showToast('Order marked delivered and company notified', 1800);
-
-  // update UI: disable buttons, show delivered message
-  const markBtn = document.getElementById('markDeliveredBtn');
-  const cancelBtn = document.getElementById('cancelOrderBtn');
-  if(markBtn) { markBtn.disabled = true; markBtn.textContent = 'Delivered'; }
-  if(cancelBtn) { cancelBtn.disabled = true; }
-  const info = document.getElementById('delivererPanelInfo');
-  if(info) info.textContent = 'Order delivered. Thank you!';
-}
-
-/* Render deliverer panel on load if there is an assigned order matching inputs (useful after reload) */
-function tryRestoreDelivererPanel(){
-  const codeInput = document.getElementById('delivererCode');
-  if(!codeInput) return;
-  const code = codeInput.value.trim();
-  if(!code) return;
-  const orders = JSON.parse(localStorage.getItem('marketOrders') || '[]');
-  const found = orders.find(o=>o.tracking === code);
-  if(found && found.delivery && !found.status?.delivered && !found.status?.canceled){
-    // replace form
-    renderDelivererPanel(found);
-  }
-}
-
-/* ======= Chatbot (unchanged) ======= */
-const overlay = document.getElementById('chatOverlay');
-const chatBody = document.getElementById('chatBody');
-const input = document.getElementById('chatInput');
-function toggleChat(){ overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex'; overlay.style.flexDirection = 'column'; }
-input.addEventListener('keypress', e => { if(e.key === 'Enter'){ e.preventDefault(); sendMessage(); }});
-function sendMessage(){
-  const msg = input.value.trim(); if(!msg) return;
-  const userMsg = document.createElement('div'); userMsg.className = 'chat-message user-msg'; userMsg.textContent = msg; chatBody.appendChild(userMsg);
-  input.value = ''; chatBody.scrollTop = chatBody.scrollHeight;
-  setTimeout(()=>{ const botMsg = document.createElement('div'); botMsg.className='chat-message bot-msg'; botMsg.textContent = getAIResponse(msg); chatBody.appendChild(botMsg); chatBody.scrollTop = chatBody.scrollHeight; }, 700);
-}
-function getAIResponse(msg){
-  let q = msg.toLowerCase(), ans = "Please contact support at 0537351866 for further help.";
-  if(q.includes("what is marketlist")) ans = "MarketList is your trusted service for getting items delivered from local markets.";
-  else if(q.includes("how much is delivery")) ans = "Delivery fees depend on your distance, starting at ₵20 for up to 10km.";
-  else if(q.includes("how do i pay")) ans = "Payments can be made via MoMo or Paystack safely.";
-  return ans;
-}
-
-/* ======= Initialize: if deliverer already assigned for value in input, show panel ======= */
-document.addEventListener('DOMContentLoaded', ()=>{
-  // No structural changes except deliverer panel restore if applicable
-  tryRestoreDelivererPanel();
+  w.document.write('</ul>');
+  w.document.close();
 });
+
+  // Called from popup to load tracking code
+  function loadTrackingFromPopup(code){
+    trackInput.value = code;
+    loadOrderBtn.click();
+  }
+
+  window.loadTrackingFromPopup = loadTrackingFromPopup;
+  window.selectTracking = loadTrackingFromPopup;
+
+  // If page opened with ?t=ML-12345 param then auto-load
+  (function handleQueryParamLoad(){
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const t = params.get('t') || params.get('tracking') || null;
+      if(t){
+        trackInput.value = t;
+        setTimeout(() => loadOrderBtn.click(), 250);
+      }
+    } catch(e){}
+  })();
+
+  // On load, if there's session last order prefill
+  (function tryPrefillFromSession(){
+    try {
+      const last = JSON.parse(sessionStorage.getItem('ml_last_order') || 'null');
+      if(last && last.tracking){
+        trackInput.value = last.tracking;
+      }
+    } catch(e){}
+  })();
+
+  // Expose small debug tools
+  window._ml_tracking_debug = {
+    findOrderByTracking,
+    readStoredOrders
+  };
+
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
