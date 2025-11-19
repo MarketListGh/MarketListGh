@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>MarketList — Home</title>
-
-<!-- Leaflet CSS (added for popup map) -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
 
 <style>
 * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
@@ -126,7 +122,7 @@ main.container { max-width:700px; margin:40px auto; padding:20px; }
 .header-main h1 { margin:0; }
 .slogan { font-style: normal; font-size:0.9em; }
 
-form label { display:block; margin-top:15px; font-weight:bold; }
+form label { display:block; margin-top:15px; font-weight:bold; color:#fff; }
 form input, form select, form textarea { width:100%; padding:10px; margin-top:5px; border:none; border-radius:8px; font-size:15px; }
 textarea { height:80px; resize:vertical; }
 
@@ -142,105 +138,28 @@ textarea { height:80px; resize:vertical; }
   text-decoration:none; transition: background-color 0.3s ease;
 }
 .send-whatsapp:hover { background-color:#1ebe5b; }
-footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40px; }
+footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40px; color:#333; }
 
-/* Map popup (kept your green style and layout) */
-#mapPopup {
-  display:none;
-  position:fixed;
-  top:0; left:0; width:100%; height:100%;
-  background:rgba(0,0,0,0.5);
-  z-index:20000;
-  justify-content:center;
-  align-items:center;
-}
-#mapBox {
-  width:90%; max-width:600px;
-  background:#00a859;
-  border-radius:12px;
-  overflow:hidden;
-  position:relative;
-  padding:10px;
-  display:flex;
-  flex-direction: column;
-  gap:10px;
-}
-/* map container inside popup */
-#mapBox #map { width:100%; height:300px; border-radius:8px; }
-
-/* Buttons inside popup */
-#mapBox button { padding:10px; border:none; border-radius:6px; cursor:pointer; color:#fff; font-weight:bold; }
-#detectBtn { background:#ff8c00; }
-#saveBtn { background:#1b5e20; }
-
-/* Close button — changed to be red with X but size unchanged */
-#closeMap { position:absolute; top:8px; right:10px; font-size:22px; background:#e53935; color:#fff; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; }
-
-/* Search suggestions dropdown */
-.suggestions {
-  background:#fff;
-  border-radius:8px;
-  max-height:180px;
-  overflow:auto;
-  box-shadow:0 6px 20px rgba(0,0,0,0.15);
-  margin-top:6px;
-  display:none;
-}
-.suggestion-item { padding:8px 10px; border-bottom:1px solid #eee; cursor:pointer; font-size:14px; }
-.suggestion-item:hover { background:#f0fff0; }
-
-/* Tracking popup (small centered, not fullscreen) */
-#trackingPopup {
-  display: none;
-  position: fixed;
-  left: 0; top: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.4);
-  z-index: 30000;
-  justify-content: center;
-  align-items: center;
-}
-#trackingBox {
-  width: 92%;
-  max-width: 360px;
+/* Saved Location Summary Card */
+#savedCard {
   background: #fff;
-  border-radius: 12px;
-  padding: 18px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  color: #111;
+  padding:14px;
+  border-radius:10px;
+  margin-top:12px;
+  box-shadow:0 8px 26px rgba(0,0,0,0.12);
+  display:none;
 }
-#trackingBox .code {
-  font-size: 20px;
-  color: #00a859;
-  font-weight: 700;
-  margin: 10px 0;
-}
-#trackingBox .small {
-  font-size: 13px;
-  color: #666;
-}
-#trackingBox .continueBtn {
-  margin-top: 14px;
-  background: #00a859;
-  color: #fff;
-  border: none;
-  padding: 10px 12px;
-  border-radius: 8px;
-  width: 100%;
-  cursor: pointer;
-  font-weight: bold;
-}
-#trackingBox .closeBtn {
-  margin-top: 8px;
-  background: #eee;
-  color: #333;
-  border: none;
-  padding: 8px 10px;
-  border-radius: 8px;
-  width: 100%;
-  cursor: pointer;
-}
+#savedCard h3 { margin:0 0 8px 0; color:#00a859; }
+#savedCard .row { display:flex; gap:10px; align-items:center; }
+#savedCard .left { flex:1; }
+#savedCard .right { text-align:right; min-width:180px; }
+#savedCard .distanceBadge { font-weight:800; color:#333; }
 
-/* Floating Chat Bot */
+/* compact hidden fields */
+.hidden { display:none !important; }
+
+/* Chatbot */
 .chatbot-btn { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; background: #fff; color: #00a859; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; animation: bounce 2s infinite; z-index: 10000; }
 @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-12px); } 60% { transform: translateY(-6px); } }
 
@@ -254,20 +173,24 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
 .chat-input input { flex: 1; border: none; padding: 14px; font-size: 14px; outline: none; }
 .chat-input button { background: #00a859; color: #fff; border: none; padding: 10px 15px; cursor: pointer; }
 
+/* small responsiveness */
+@media (max-width:700px){
+  .row { flex-direction:column; }
+}
 </style>
 </head>
 <body>
 
 <!-- Preloader -->
-<div id="preloader">
-  <div class="loader-ring">
-    <div class="ring"></div>
+<div id="preloader" role="status" aria-live="polite">
+  <div class="loader-ring" aria-hidden="true">
+    <div class="ring" aria-hidden="true"></div>
     <img src="logo.png" alt="MarketList Logo">
   </div>
 </div>
 
 <!-- Splash -->
-<div id="splash">
+<div id="splash" aria-hidden="true">
   <div>Welcome to <strong>MarketList</strong></div>
   <div>Bringing Market to Your Doorstep</div>
 </div>
@@ -284,7 +207,7 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
       <a href="reviews.html">Reviews</a>
       <a href="assistant.html">Assistant</a>
       <a href="Tracking.html">Track Order</a>
-       <a href="FAQ.html">FAQ</a>
+      <a href="FAQ.html">FAQ</a>
     </nav>
   </div>
 </header>
@@ -292,14 +215,14 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
 <!-- Slider -->
 <div class="slider-box">
   <div class="slider" id="mainSlider">
-    <div class="slide active"><img src="pexels-kampus-8476600.jpg" alt="pexels-kampus-8476600"></div>
-    <div class="slide"><img src="pexels-kenzero14-21582444.jpg" alt="pexels-kenzero14-21582444"></div>
-    <div class="slide"><img src="pexels-ninthgrid-2149521550-30688912.jpg" alt="pexels-ninthgrid-2149521550-30688912"></div>
-    <div class="slide"><img src="pexels-omotayo-tajudeen-1650120-3213283.jpg" alt="pexels-omotayo-tajudeen-1650120-3213283"></div>
-    <div class="slide"><img src="pexels-barrytheoctopus-33624055.jpg" alt="pexels-barrytheoctopus-33624055"></div>
-    <div class="slide"><img src="pexels-made-by-pixels-133605980-33364793.jpg" alt="pexels-made-by-pixels-133605980-33364793"></div>
+    <div class="slide active"><img src="pexels-kampus-8476600.jpg" alt=""></div>
+    <div class="slide"><img src="pexels-kenzero14-21582444.jpg" alt=""></div>
+    <div class="slide"><img src="pexels-ninthgrid-2149521550-30688912.jpg" alt=""></div>
+    <div class="slide"><img src="pexels-omotayo-tajudeen-1650120-3213283.jpg" alt=""></div>
+    <div class="slide"><img src="pexels-barrytheoctopus-33624055.jpg" alt=""></div>
+    <div class="slide"><img src="pexels-made-by-pixels-133605980-33364793.jpg" alt=""></div>
   </div>
-  <div class="slider-dot-container">
+  <div class="slider-dot-container" aria-hidden="true">
     <span class="slider-dot active"></span>
     <span class="slider-dot"></span>
     <span class="slider-dot"></span>
@@ -310,53 +233,98 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
 </div>
 
 <main class="container">
-  <section class="card">
+  <section class="card" role="form" aria-labelledby="formTitle">
     <div class="header-main">
       <img src="logo.png" alt="logo">
       <div>
-        <h1>MarketList</h1>
+        <h1 id="formTitle">MarketList</h1>
         <div class="slogan">Bringing Market to Your Doorstep</div>
       </div>
     </div>
 
-    <form id="orderForm" onsubmit="return false;">
+    <form id="orderForm" onsubmit="return false;" aria-describedby="formHelp">
       <label for="name">Full Name</label>
       <input id="name" type="text" placeholder="Enter your full name" required>
 
       <label for="contact">Contact Number</label>
       <input id="contact" type="tel" placeholder="055XXXXXXXX" required>
 
-      <label for="location">Delivery Location</label>
-      <div style="display:flex; gap:5px;">
-        <input id="location" type="text" placeholder="e.g., East Legon, Accra" required>
-        <button type="button" onclick="openMap()" style="padding:10px;background:#00a859;color:#fff;border:none;border-radius:6px;cursor:pointer;">Select on Map</button>
+      <!-- Saved Location Summary Card -->
+      <div id="savedCard" role="region" aria-live="polite">
+        <h3>Saved Location</h3>
+        <div class="row">
+          <div class="left">
+            <div><strong>Your Location</strong></div>
+            <div id="savedUser" style="margin-top:6px;color:#444;">—</div>
+            <div style="margin-top:10px;"><strong>Market</strong></div>
+            <div id="savedMarket" style="margin-top:6px;color:#444;">—</div>
+          </div>
+          <div class="right">
+            <div style="font-size:12px;color:#666;">Distance</div>
+            <div class="distanceBadge" id="savedDistanceText">—</div>
+            <div style="margin-top:8px; display:flex; gap:8px; justify-content:center;">
+              <button type="button" class="send-whatsapp" style="background:#1976d2;padding:8px;border-radius:8px;font-weight:700;" id="selectOnMapBtn">Select on Map</button>
+              <button type="button" class="send-whatsapp" style="background:#00a859;padding:8px;border-radius:8px;font-weight:700;" id="trackLocationBtn">Track Your Location</button>
+            </div>
+            <div style="margin-top:8px;">
+              <button type="button" class="send-whatsapp" style="background:#ff7043;padding:8px;border-radius:8px;font-weight:700;" id="changeLocationBtn">Change Location</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distance input inside the card (readonly) -->
+        <div style="margin-top:12px;">
+          <label for="distanceKm" style="color:#333;">Distance (KM)</label>
+          <input id="distanceKm" type="text" readonly placeholder="Distance (KM)" style="background:#f7f7f7;color:#111;">
+        </div>
       </div>
 
-      <div class="row">
+      <!-- Hidden fields to keep compatibility with existing form code -->
+      <input id="locationHidden" class="hidden" type="text">
+      <input id="marketHidden" class="hidden" type="text">
+
+      <!-- Category dropdown replaced by the professional Ghana list -->
+      <div class="row" style="margin-top:12px;">
         <div class="col">
-          <label for="market">Select Market</label>
-          <!-- Replaced dropdown with search input (maps + autocomplete + pin) -->
-          <input id="market" type="text" placeholder="Search market (e.g., Makola Market)" />
-        </div>
-        <div class="col">
-          <label for="category">Category</label>
-          <select id="category">
+          <label for="category" style="color:#fff;">Category</label>
+          <select id="category" aria-label="Category">
             <option value="">-- Select Category --</option>
-            <option>Groceries / Food Stuffs</option>
-            <option>Home Appliances</option>
-            <option>Electrical Appliances</option>
-            <option>Clothes</option>
+            <option value="malls">🛍️ Malls & Shopping Centres</option>
+            <option value="markets">🧺 Markets</option>
+            <option value="supermarkets">🛒 Supermarkets</option>
+            <option value="restaurants">🍽 Restaurants & Food</option>
+            <option value="electronics">🎧 Electronics & Gadgets</option>
+            <option value="clothing">👗 Clothing & Fashion</option>
+            <option value="shoes">👟 Shoes & Accessories</option>
+            <option value="baby">🍼 Baby & Kids</option>
+            <option value="home">🏠 Home & Furniture</option>
+            <option value="beauty">💄 Beauty & Cosmetics</option>
+            <option value="hardware">🔧 Hardware & Building Materials</option>
+            <option value="convenience">🧃 Drinks & Convenience Stores</option>
+            <option value="pharmacy">💊 Pharmacy & Health</option>
+            <option value="party">🎉 Party & Event Supplies</option>
+            <option value="books">📚 Books & Stationery</option>
           </select>
         </div>
+
+        <div class="col">
+          <label for="budget" style="color:#fff;">Budget (₵)</label>
+          <input id="budget" type="number" min="0" placeholder="Enter budget amount">
+        </div>
       </div>
 
+<div class="row" style="margin-top:10px;">
+  <div class="col">
+    <div id="selectedCategoryDisplay" 
+         style="background:#ffffff15;padding:10px;border-radius:8px;color:#fff;font-weight:600;">
+      Selected Category: <span id="selectedCategoryText">None</span>
+    </div>
+  </div>
+</div>
       <label for="items">Item List (name — quantity — price)</label>
       <textarea id="items" placeholder="Rice — 2 — 120 Ghs"></textarea>
 
-      <label for="budget">Budget (₵)</label>
-      <input id="budget" type="number" min="0" placeholder="Enter budget amount">
-
-      <div class="transparent-box">
+      <div class="transparent-box" aria-live="polite">
         <div>Service Fee (20%): ₵<span id="serviceFee">0.00</span></div>
         <div>Delivery Fee: ₵<span id="deliveryFee">0.00</span></div>
         <div>Total (Budget + Service Fee + Delivery Fee): ₵<span id="totalAmount">0.00</span></div>
@@ -376,42 +344,8 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
 
 <footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
 
-<!-- Map Popup (kept buttons, colors and layout exactly as requested) -->
-<div id="mapPopup">
-  <div id="mapBox">
-    <button id="closeMap" onclick="closeMap()">×</button>
-
-    <!-- Search fields at top of popup -->
-    <div style="display:flex;flex-direction:column;gap:6px;">
-      <div style="position:relative;">
-        <input id="searchUser" class="search-input" placeholder="Search Delivery Location" autocomplete="off">
-        <div id="userSuggestions" class="suggestions"></div>
-      </div>
-      <div style="position:relative;">
-        <input id="searchMarket" class="search-input" placeholder="Search Market Location" autocomplete="off">
-        <div id="marketSuggestions" class="suggestions"></div>
-      </div>
-
-      <!-- ✅ Single disclaimer under both search fields -->
-      <div style="color:#fff;font-size:12px;margin-top:4px;">
-        ⚠️ If automatic detection seems inaccurate, please search and select your correct location manually.
-      </div>
-
-      <div style="font-size:13px;color:#fff;margin-top:4px;">
-        <span id="routeDistance">Distance: N/A</span>
-      </div>
-    </div>
-
-    <div id="map"></div>
-    <div style="display:flex; gap:8px;">
-      <button id="detectBtn" onclick="detectLocation()">Detect My Location</button>
-      <button id="saveBtn" onclick="saveLocation()">Save Location</button>
-    </div>
-  </div>
-</div>
-
 <!-- Tracking Popup (small centered) -->
-<div id="trackingPopup">
+<div id="trackingPopup" style="display:none;">
   <div id="trackingBox" role="dialog" aria-modal="true" aria-labelledby="trackingTitle">
     <div id="trackingTitle"><strong>Order Started!</strong></div>
     <p class="small">Your tracking code is:</p>
@@ -424,7 +358,7 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
 
 <!-- Floating Chatbot -->
 <div class="chatbot-btn" onclick="toggleChat()">💬</div>
-<div class="chat-overlay" id="chatOverlay">
+<div class="chat-overlay" id="chatOverlay" aria-hidden="true">
   <div class="chat-header">Chat with MarketList AI</div>
   <div class="chat-body" id="chatBody">
     <div class="chat-message bot-msg">
@@ -438,28 +372,47 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
   </div>
 </div>
 
-<!-- Leaflet JS (added for popup map) -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
-
 <script>
-// -----------------------------
-// Keep original behaviors above
-// -----------------------------
+/* ============================
+   Config & Helper utilities
+   ============================ */
 
-// Splash + preloader (unchanged behavior)
+// Geoapify key (used for reverse geocoding). Using the same key that was in your map file.
+// Replace if you prefer a different key.
+const GEOAPIFY_KEY = "efc8ef712d1a4cc3b5224e429987da3b";
+
+// Safe DOM helpers
+function qs(id){ return document.getElementById(id); }
+function show(el){ if(!el) return; el.style.display = 'block'; }
+function hide(el){ if(!el) return; el.style.display = 'none'; }
+
+/* ============================
+   Preloader & Splash (robust)
+   ============================ */
 window.addEventListener('load', () => {
-  sessionStorage.clear();
-  const preloader = document.getElementById('preloader');
-  const splash = document.getElementById('splash');
-  setTimeout(() => {
-    preloader.classList.add('hidden');
-    splash.classList.add('visible');
-  }, 2000);
-  setTimeout(() => { splash.style.display='none'; }, 4000);
+  try {
+    try { sessionStorage.clear(); } catch(e){}
+    const preloader = qs('preloader');
+    const splash = qs('splash');
+
+    setTimeout(() => {
+      if(preloader) preloader.classList.add('hidden');
+      if(splash) splash.classList.add('visible');
+    }, 1200);
+
+    setTimeout(() => {
+      if(splash) splash.style.display = 'none';
+    }, 3200);
+  } catch (e) {
+    console.error('Preloader error', e);
+    const preloader = qs('preloader'); if(preloader) preloader.style.display='none';
+    const splash = qs('splash'); if(splash) splash.style.display='none';
+  }
 });
 
-// Slider (unchanged)
+/* ============================
+   Slider (unchanged)
+   ============================ */
 let sliderIndex = 0;
 const slides = document.querySelectorAll('.slide');
 const dots = document.querySelectorAll('.slider-dot');
@@ -468,44 +421,80 @@ function showSlide(n){
   dots.forEach((d,i)=>d.classList.toggle('active',i===n));
 }
 function nextSlide(){ sliderIndex=(sliderIndex+1)%slides.length; showSlide(sliderIndex); }
-setInterval(nextSlide,4000);
-showSlide(sliderIndex);
+if(slides.length) setInterval(nextSlide,4000);
+if(slides.length) showSlide(sliderIndex);
 dots.forEach((dot,i)=>dot.addEventListener('click',()=>{sliderIndex=i;showSlide(i);}))
 
-// Totals
-let selectedLatLng = null;
-let selectedMarketLatLng = null;
-let selectedUserName = '';
-let selectedMarketName = '';
+/* ============================
+   Totals & Distance helpers
+   ============================ */
+let selectedLatLng = null;         // customer coordinates
+let selectedMarketLatLng = null;   // market coordinates
+let selectedUserName = '';         // readable name
+let selectedMarketName = '';       // readable name
+
+function haversineKm(lat1,lng1,lat2,lng2){
+  const R = 6371;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLon = (lng2-lng1) * Math.PI/180;
+  const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  const c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
 
 function getDistanceFromLatLonInKm(lat1,lng1,lat2,lng2){
-  const R=6371;
-  const dLat=(lat2-lat1)*Math.PI/180;
-  const dLon=(lng2-lng1)*Math.PI/180;
-  const a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
-  const c=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-  return R*c;
+  return haversineKm(lat1,lng1,lat2,lng2);
 }
-const budgetEl=document.getElementById('budget');
-const serviceEl=document.getElementById('serviceFee');
-const deliveryEl=document.getElementById('deliveryFee');
-const totalEl=document.getElementById('totalAmount');
-function updateTotals(){
-  const budget=parseFloat(budgetEl.value)||0;
-  const service=budget*0.2;
-  let delivery=0;
-  if(selectedLatLng && selectedMarketLatLng){
-    const distance=getDistanceFromLatLonInKm(selectedMarketLatLng.lat,selectedMarketLatLng.lng,selectedLatLng.lat,selectedLatLng.lng);
-    document.getElementById('routeDistance').textContent=`Distance: ${distance.toFixed(2)} km`;
-    delivery=distance<=10?20:20+Math.ceil(distance-10)*2;
-  } else document.getElementById('routeDistance').textContent=`Distance: N/A`;
-  serviceEl.textContent=service.toFixed(2);
-  deliveryEl.textContent=delivery.toFixed(2);
-  totalEl.textContent=(budget+service+delivery).toFixed(2);
-}
-budgetEl.addEventListener('input',updateTotals);
 
- // ✅ Add this helper near the top of your script (above prepareAndOpenWhatsApp)
+const budgetEl = qs('budget');
+const serviceEl = qs('serviceFee');
+const deliveryEl = qs('deliveryFee');
+const totalEl = qs('totalAmount');
+const savedDistanceText = qs('savedDistanceText');
+const distanceInput = qs('distanceKm');
+
+function updateTotals(){
+  try {
+    const budget = parseFloat(budgetEl.value) || 0;
+    const service = budget * 0.2;
+    let delivery = 0;
+    let distance = null;
+
+    // First prefer stored distance if available (in km)
+    const stored = (function(){
+      try { return JSON.parse(localStorage.getItem('ml_saved_location') || 'null'); } catch(e){ return null; }
+    })();
+
+    if(stored && stored.distanceKm != null){
+      distance = parseFloat(stored.distanceKm);
+    } else if(selectedLatLng && selectedMarketLatLng){
+      distance = getDistanceFromLatLonInKm(selectedMarketLatLng.lat, selectedMarketLatLng.lng, selectedLatLng.lat, selectedLatLng.lng);
+    }
+
+    if(distance != null && !isNaN(distance)){
+      savedDistanceText.textContent = `${distance.toFixed(2)} km`;
+      if(distanceInput) distanceInput.value = distance.toFixed(2);
+      // Delivery fee rule: distance <= 10km -> 20 ; else 20 + ceil(distance-10)*2
+      delivery = (distance <= 10) ? 20 : 20 + Math.ceil(distance - 10) * 2;
+    } else {
+      savedDistanceText.textContent = 'N/A';
+      if(distanceInput) distanceInput.value = '';
+      delivery = 0;
+    }
+
+    serviceEl.textContent = service.toFixed(2);
+    deliveryEl.textContent = delivery.toFixed(2);
+    totalEl.textContent = (budget + service + delivery).toFixed(2);
+  } catch (e) {
+    console.error('updateTotals error', e);
+  }
+}
+
+if(budgetEl) budgetEl.addEventListener('input', updateTotals);
+
+/* ============================
+   Storage helpers for orders
+   ============================ */
 function saveOrderToLocalStorage(order){
   try{
     const existing = JSON.parse(localStorage.getItem('marketOrders') || '[]');
@@ -518,455 +507,316 @@ function saveOrderToLocalStorage(order){
   }
 }
 
-// WhatsApp integration (updated)
+/* ============================
+   WhatsApp & Order flow (adapted)
+   ============================ */
 let lastWhatsAppMessage='';
 
 function prepareAndOpenWhatsApp(e){
   e.preventDefault();
 
-  const name=document.getElementById('name').value.trim();
-  const contact=document.getElementById('contact').value.trim();
-  const location=document.getElementById('location').value.trim();
-  if(!name||!contact||!location){
-    alert("Please fill in your information first!");
+  const name = (qs('name') && qs('name').value.trim()) || '';
+  const contact = (qs('contact') && qs('contact').value.trim()) || '';
+
+  const saved = (function(){
+    try { return JSON.parse(localStorage.getItem('ml_saved_location') || 'null'); } catch(e){ return null; }
+  })();
+
+  if(!name || !contact){
+    alert("Please fill in your name and contact number first!");
     return;
   }
 
-  const market=document.getElementById('market').value;
-  const category=document.getElementById('category').value;
-  const items=document.getElementById('items').value;
-  const budget=parseFloat(document.getElementById('budget').value)||0;
-  const service=serviceEl.textContent;
-  const delivery=deliveryEl.textContent;
-  const total=totalEl.textContent;
+  if(!saved || (!saved.userLat && !saved.marketLat)){
+    alert("Please select your location and market on the map (Select on Map) or Track Your Location.");
+    return;
+  }
 
-  lastWhatsAppMessage=`Hello, I want to place an order:\nName: ${name}\nContact: ${contact}\nLocation: ${location}\nMarket: ${market}\nCategory: ${category}\nItems:\n${items}\nBudget: ₵${budget}\nService Fee: ₵${service}\nDelivery Fee: ₵${delivery}\nTotal: ₵${total}`;
+  const locationName = qs('locationHidden') ? qs('locationHidden').value : (saved.userName || '');
+  const marketName = qs('marketHidden') ? qs('marketHidden').value : (saved.marketName || '');
+  const category = qs('category') ? qs('category').value : '';
+  const items = qs('items') ? qs('items').value : '';
+  const budget = parseFloat(qs('budget') ? qs('budget').value : 0) || 0;
+  const service = parseFloat(qs('serviceFee') ? qs('serviceFee').textContent : 0) || 0;
+  const delivery = parseFloat(qs('deliveryFee') ? qs('deliveryFee').textContent : 0) || 0;
+  const total = parseFloat(qs('totalAmount') ? qs('totalAmount').textContent : 0) || 0;
 
-  // ✅ Generate tracking code
-  const code=generateTrackingCode();
+  lastWhatsAppMessage=`Hello, I want to place an order:\nName: ${name}\nContact: ${contact}\nLocation: ${locationName}\nMarket: ${marketName}\nCategory: ${category}\nItems:\n${items}\nBudget: ₵${budget}\nService Fee: ₵${service}\nDelivery Fee: ₵${delivery}\nTotal: ₵${total}`;
 
-  // ✅ Build order object and save to localStorage
+  const code = generateTrackingCode();
+
   const orderObj = {
     tracking: code,
     name: name,
     phone: contact,
-    location: location,
-    market: market,
+    location: locationName,
+    market: marketName,
     category: category,
     items: items,
     budget: budget,
-    serviceFee: parseFloat(service)||0,
-    deliveryFee: parseFloat(delivery)||0,
-    total: parseFloat(total)||0,
+    serviceFee: service,
+    deliveryFee: delivery,
+    total: total,
     createdAt: Date.now(),
-
-    // ✅ Include coordinates for the tracking map
-    customerLat: selectedLatLng ? selectedLatLng.lat : null,
-    customerLng: selectedLatLng ? selectedLatLng.lng : null,
-    marketLat: selectedMarketLatLng ? selectedMarketLatLng.lat : null,
-    marketLng: selectedMarketLatLng ? selectedMarketLatLng.lng : null
+    customerLat: saved ? saved.userLat : null,
+    customerLng: saved ? saved.userLng : null,
+    marketLat: saved ? saved.marketLat : null,
+    marketLng: saved ? saved.marketLng : null
   };
 
   saveOrderToLocalStorage(orderObj);
-
-  // ✅ Store in session for immediate access
   sessionStorage.setItem('ml_tracking_code', code);
   sessionStorage.setItem('ml_last_order', JSON.stringify(orderObj));
 
-  // ✅ Show popup with tracking code
-  document.getElementById('trackingCode').textContent=code;
-  document.getElementById('trackingPopup').style.display='flex';
+  if(qs('trackingCode')) qs('trackingCode').textContent = code;
+  if(qs('trackingPopup')) qs('trackingPopup').style.display = 'flex';
 }
 
 function generateTrackingCode(){
-  const n=Math.floor(100000+Math.random()*900000);
+  const n = Math.floor(100000 + Math.random()*900000);
   return `ML-${n}`;
 }
 
-document.getElementById('continueWhatsAppBtn').addEventListener('click',()=>{
-  const code=sessionStorage.getItem('ml_tracking_code')||document.getElementById('trackingCode').textContent;
-  const messageWithCode=lastWhatsAppMessage+`\nTracking Code: ${code}`;
-  const waUrl=`https://wa.me/233537351866?text=${encodeURIComponent(messageWithCode)}`;
-  document.getElementById('trackingPopup').style.display='none';
-  window.open(waUrl,'_blank');
-});
-
-document.getElementById('closeTrackingBtn').addEventListener('click',()=>{
-  document.getElementById('trackingPopup').style.display='none';
-});
-
-function generateTrackingCode(){
-  const n=Math.floor(100000+Math.random()*900000);
-  return `ML-${n}`;
+if(qs('continueWhatsAppBtn')){
+  qs('continueWhatsAppBtn').addEventListener('click', ()=>{
+    const code = sessionStorage.getItem('ml_tracking_code') || (qs('trackingCode') && qs('trackingCode').textContent);
+    const messageWithCode = lastWhatsAppMessage + `\nTracking Code: ${code}`;
+    const waUrl = `https://wa.me/233537351866?text=${encodeURIComponent(messageWithCode)}`;
+    if(qs('trackingPopup')) qs('trackingPopup').style.display = 'none';
+    window.open(waUrl,'_blank');
+  });
 }
-
-document.getElementById('continueWhatsAppBtn').addEventListener('click',()=>{
-  const code=sessionStorage.getItem('ml_tracking_code')||document.getElementById('trackingCode').textContent;
-  const messageWithCode=lastWhatsAppMessage+`\nTracking Code: ${code}`;
-  const waUrl=`https://wa.me/233537351866?text=${encodeURIComponent(messageWithCode)}`;
-  document.getElementById('trackingPopup').style.display='none';
-  window.open(waUrl,'_blank');
-});
-
-document.getElementById('closeTrackingBtn').addEventListener('click',()=>{
-  document.getElementById('trackingPopup').style.display='none';
-});
-
-// -----------------------------
-// Map section (ONLY this was updated)
-// - White road map tiles (Carto Positron / light_all)
-// - iOS-style soft pins implemented as inline SVG via divIcon
-// - Detect location uses getCurrentPosition (fast) then falls back to watchPosition
-// -----------------------------
-
-// Map fixes with red/blue markers and correct autocomplete handling
-let map,userMarker,marketMarker,routingControl;
-const apiKey="efc8ef712d1a4cc3b5224e429987da3b";
-const accraCenter=[5.6037,-0.1870];
-
-// Helper: create an iOS-style soft-pin SVG as a divIcon
-function createSoftPinIcon(color){
-  // color: hex (e.g. '#e53935' or '#1e88e5')
-  const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="52" viewBox="0 0 40 52">
-      <defs>
-        <filter id="s" x="-50%" y="-50%" width="200%" height="200%">
-          <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.16"/>
-        </filter>
-      </defs>
-      <g filter="url(#s)">
-        <path d="M20 0c6.627 0 12 5.373 12 12 0 6.627-12 28-12 28S8 18.627 8 12C8 5.373 13.373 0 20 0z" fill="`+color+`"/>
-        <circle cx="20" cy="12" r="6.2" fill="#fff"/>
-        <circle cx="20" cy="12" r="3.2" fill="`+color+`"/>
-      </g>
-    </svg>`;
-  return L.divIcon({
-    className: '',
-    html: svg,
-    iconSize: [40,52],
-    iconAnchor: [20,52],
-    popupAnchor: [0,-52]
+if(qs('closeTrackingBtn')){
+  qs('closeTrackingBtn').addEventListener('click', ()=> {
+    if(qs('trackingPopup')) qs('trackingPopup').style.display = 'none';
   });
 }
 
-function openMap(){
-  document.getElementById('mapPopup').style.display='flex';
-  if(!map){
-    // create map with white/road tiles (Carto Positron light)
-    map=L.map('map',{preferCanvas:true}).setView(accraCenter,12);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/">OSM</a> &copy; CARTO',
-      subdomains: 'abcd',
-      maxZoom: 19
-    }).addTo(map);
+/* ============================
+   UI: Select on Map, Change Location, Track Your Location
+   ============================ */
+if(qs('selectOnMapBtn')){
+  qs('selectOnMapBtn').addEventListener('click', ()=>{
+    window.location.href = 'map.html';
+  });
+}
+if(qs('changeLocationBtn')){
+  qs('changeLocationBtn').addEventListener('click', ()=> {
+    window.location.href = 'map.html';
+  });
+}
 
-    // modern iOS-style soft pins (same shape, different colors)
-    const redIcon = createSoftPinIcon('#e53935');   // red
-    const blueIcon = createSoftPinIcon('#1e88e5');  // blue
-
-    userMarker=L.marker(accraCenter,{draggable:true,icon:redIcon}).addTo(map).bindPopup('Delivery location');
-    marketMarker=L.marker(accraCenter,{draggable:true,icon:blueIcon}).addTo(map).bindPopup('Market');
-
-    // initial selected to current inputs if any
-    const locVal = document.getElementById('location').value.trim();
-    const mkVal = document.getElementById('market').value.trim();
-    if(locVal && !selectedLatLng){ /* keep as text until user picks or detect */ }
-    if(mkVal && !selectedMarketLatLng){ /* same */ }
-
-    userMarker.on('dragend',e=>{
-      const p=e.target.getLatLng();
-      selectedLatLng={lat:parseFloat(p.lat),lng:parseFloat(p.lng)};
-      reverseLookup(selectedLatLng,'location');
-      drawRouteIfReady();
-      updateTotals();
-    });
-    marketMarker.on('dragend',e=>{
-      const p=e.target.getLatLng();
-      selectedMarketLatLng={lat:parseFloat(p.lat),lng:parseFloat(p.lng)};
-      reverseLookup(selectedMarketLatLng,'market');
-      drawRouteIfReady();
-      updateTotals();
-    });
-
-    map.on('click', function(e){
-      // set delivery marker where user clicks
-      userMarker.setLatLng(e.latlng);
-      selectedLatLng={lat:parseFloat(e.latlng.lat),lng:parseFloat(e.latlng.lng)};
-      reverseLookup(selectedLatLng,'location');
-      drawRouteIfReady();
-      updateTotals();
-    });
-  } else {
-    // if map already initialized, just refresh size so it displays
-    setTimeout(()=>map.invalidateSize(),100);
+/* Track user location (geolocation) */
+async function reverseGeocode(lat, lon){
+  try{
+    if(lat == null || lon == null) return null;
+    const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&apiKey=${GEOAPIFY_KEY}`;
+    const res = await fetch(url);
+    if(!res.ok) return null;
+    const j = await res.json();
+    if(j && j.features && j.features.length){
+      // pick short formatted piece if possible
+      const props = j.features[0].properties || {};
+      if(props.formatted) return props.formatted;
+      if(props.name) return props.name;
+      return JSON.stringify(props);
+    }
+    return null;
+  } catch(e){
+    console.warn('reverseGeocode error', e);
+    return null;
   }
 }
 
-// Autocomplete: uses Geoapify autocomplete endpoint and reads geometry coordinates reliably
-const userInput = document.getElementById('searchUser');
-const marketInput = document.getElementById('searchMarket');
-const userSugBox = document.getElementById('userSuggestions');
-const marketSugBox = document.getElementById('marketSuggestions');
+async function handleTrackLocationClick(){
+  if(!navigator.geolocation){
+    alert('Geolocation is not supported by your browser.');
+    return;
+  }
+  const btn = qs('trackLocationBtn');
+  if(btn) { btn.disabled = true; btn.textContent = 'Detecting...'; }
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    try{
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      selectedLatLng = { lat, lng: lon };
 
-function buildSuggestions(container, features, type){
-  container.innerHTML='';
-  features.forEach(f=>{
-    const label = f.properties?.formatted || f.properties?.name || (f.display_name||'');
-    const div=document.createElement('div');
-    div.className='suggestion-item';
-    div.textContent=label;
-    div.addEventListener('click', function(ev){
-      ev.stopPropagation();
-      container.style.display='none';
+      // Try reverse geocode
+      const name = await reverseGeocode(lat, lon) || `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
 
-      let lon=null, lat=null;
-      if(f.geometry && Array.isArray(f.geometry.coordinates)){
-        lon = parseFloat(f.geometry.coordinates[0]);
-        lat = parseFloat(f.geometry.coordinates[1]);
-      } else if(f.properties && (f.properties.lon || f.properties.lat)){
-        lon = parseFloat(f.properties.lon);
-        lat = parseFloat(f.properties.lat);
-      }
+      selectedUserName = name;
+      // Show card and fill fields
+      if(qs('savedCard')) qs('savedCard').style.display = 'block';
+      if(qs('savedUser')) qs('savedUser').textContent = selectedUserName;
+      if(qs('locationHidden')) qs('locationHidden').value = selectedUserName;
 
-      // ✅ Show clicked suggestion in search box too
-      if(type==='user'){
-        document.getElementById('searchUser').value = label;
-        document.getElementById('location').value = label;
-        selectedUserName = label;
-        if(lat && lon){
-          if(!map) openMap();
-          userMarker.setLatLng([lat,lon]);
-          selectedLatLng = { lat: lat, lng: lon };
-          map.setView([lat,lon],14);
-          drawRouteIfReady();
-          updateTotals();
-        }
-      } else {
-        document.getElementById('searchMarket').value = label;
-        document.getElementById('market').value = label;
-        selectedMarketName = label;
-        if(lat && lon){
-          if(!map) openMap();
-          marketMarker.setLatLng([lat,lon]);
-          selectedMarketLatLng = { lat: lat, lng: lon };
-          map.setView([lat,lon],14);
-          drawRouteIfReady();
-          updateTotals();
-        }
-      }
-    });
-    container.appendChild(div);
-  });
-  container.style.display = features.length ? 'block' : 'none';
-}
+      // Save a partial payload so totals can use the distance if market exists later
+      // We save user coords; market may be added later by map.html
+      const existing = (function(){ try{ return JSON.parse(localStorage.getItem('ml_saved_location')||'null'); }catch(e){return null;} })() || {};
+      existing.userLat = lat; existing.userLng = lon; existing.userLabel = selectedUserName;
+      localStorage.setItem('ml_saved_location', JSON.stringify(existing));
 
-let uTimer=null;
-if(userInput){
-  userInput.addEventListener('input', function(){
-    const q = userInput.value.trim();
-    clearTimeout(uTimer);
-    if(!q){ userSugBox.style.display='none'; return; }
-    uTimer = setTimeout(()=>{
-      fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(q)}&limit=6&filter=countrycode:gh&apiKey=${apiKey}`)
-        .then(r=>r.json())
-        .then(data=>{
-          if(data.features && data.features.length) buildSuggestions(userSugBox, data.features, 'user');
-          else userSugBox.style.display='none';
-        }).catch(()=>{ userSugBox.style.display='none'; });
-    }, 220);
-  });
-}
-
-let mTimer=null;
-if(marketInput){
-  marketInput.addEventListener('input', function(){
-    const q = marketInput.value.trim();
-    clearTimeout(mTimer);
-    if(!q){ marketSugBox.style.display='none'; return; }
-    mTimer = setTimeout(()=>{
-      fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(q)}&limit=6&filter=countrycode:gh&apiKey=${apiKey}`)
-        .then(r=>r.json())
-        .then(data=>{
-          if(data.features && data.features.length) buildSuggestions(marketSugBox, data.features, 'market');
-          else marketSugBox.style.display='none';
-        }).catch(()=>{ marketSugBox.style.display='none'; });
-    }, 220);
-  });
-}
-
-// hide suggestion boxes when clicking outside
-document.addEventListener('click', (e)=>{
-  if(userSugBox && !userSugBox.contains(e.target) && e.target !== userInput) userSugBox.style.display='none';
-  if(marketSugBox && !marketSugBox.contains(e.target) && e.target !== marketInput) marketSugBox.style.display='none';
-});
-
-// Reverse geocoding (keeps location input in sync with chosen marker)
-function reverseLookup(latlng, field){
-  if(!latlng || latlng.lat==null || latlng.lng==null) return;
-  const lat = latlng.lat, lon = latlng.lng;
-  fetch(`https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lon}&apiKey=${apiKey}`)
-    .then(r=>r.json()).then(data=>{
-      if(data.features && data.features.length>0){
-        const text = data.features[0].properties.formatted;
-        if(field === 'location'){
-          selectedUserName = text;
-          document.getElementById('location').value = text;
-        } else if(field === 'market'){
-          selectedMarketName = text;
-          document.getElementById('market').value = text;
-        }
-      }
-    }).catch(()=>{ /* ignore errors */ });
-}
-
-// Faster detectLocation that prioritizes instant accurate result
-function detectLocation(){
-  if(!navigator.geolocation){ alert('Geolocation not supported.'); return; }
-  if(!map) openMap();
-
-  const detectBtn = document.getElementById('detectBtn');
-  detectBtn.disabled = true;
-  detectBtn.textContent = 'Detecting...';
-
-  // First try a fast getCurrentPosition (instant if possible)
-  let finished = false;
-
-  function finishWithCoords(lat, lon, accuracy){
-    if(finished) return;
-    finished = true;
-
-    try {
-      userMarker.setLatLng([lat, lon]);
+      // update totals (distance may be N/A until market set)
+      updateTotals();
     } catch(e){
-      const redIcon = createSoftPinIcon('#e53935');
-      userMarker = L.marker([lat,lon],{draggable:true, icon: redIcon}).addTo(map).bindPopup('Delivery location');
-      userMarker.on('dragend', e => {
-        const p = e.target.getLatLng();
-        selectedLatLng = { lat: parseFloat(p.lat), lng: parseFloat(p.lng) };
-        reverseLookup(selectedLatLng,'location');
-        drawRouteIfReady();
-        updateTotals();
-      });
+      console.error('handleTrackLocationClick error', e);
+      alert('Failed to reverse-geocode your location.');
+    } finally {
+      if(btn) { btn.disabled = false; btn.textContent = 'Track Your Location'; }
+    }
+  }, (err) => {
+    if(qs('trackLocationBtn')){ qs('trackLocationBtn').disabled=false; qs('trackLocationBtn').textContent='Track Your Location'; }
+    console.warn('geolocation error', err);
+    alert('Unable to detect location: ' + (err.message || 'error'));
+  }, { enableHighAccuracy:true, timeout:10000, maximumAge:60000 });
+}
+
+if(qs('trackLocationBtn')){
+  qs('trackLocationBtn').addEventListener('click', handleTrackLocationClick);
+}
+
+/* ============================
+   Load Saved Location on page start
+   ============================ */
+async function populateSavedLocationIfExists(){
+  try{
+    const payload = JSON.parse(localStorage.getItem('ml_saved_location') || 'null');
+    if(!payload) {
+      // show empty card area as placeholder so users see where to track or select
+      if(qs('savedCard')) qs('savedCard').style.display = 'block';
+      if(qs('savedUser')) qs('savedUser').textContent = '—';
+      if(qs('savedMarket')) qs('savedMarket').textContent = '—';
+      if(qs('savedDistanceText')) qs('savedDistanceText').textContent = '—';
+      if(qs('distanceKm')) qs('distanceKm').value = '';
+      return;
     }
 
-    selectedLatLng = { lat: parseFloat(lat), lng: parseFloat(lon) };
-    map.setView([lat, lon], 15);
-    reverseLookup(selectedLatLng, 'location');
-    drawRouteIfReady();
+    // Coordinates from payload (numbers expected)
+    const userLat = payload.userLat != null ? parseFloat(payload.userLat) : (payload.userLat == null ? null : parseFloat(payload.userLat));
+    const userLng = payload.userLng != null ? parseFloat(payload.userLng) : (payload.userLng == null ? null : parseFloat(payload.userLng));
+    const marketLat = payload.marketLat != null ? parseFloat(payload.marketLat) : null;
+    const marketLng = payload.marketLng != null ? parseFloat(payload.marketLng) : null;
+    const payloadDistance = (payload.distanceKm != null && payload.distanceKm !== '') ? parseFloat(payload.distanceKm) : null;
+
+    if(!isNaN(userLat) && !isNaN(userLng)){
+      selectedLatLng = { lat: userLat, lng: userLng };
+    }
+    if(!isNaN(marketLat) && !isNaN(marketLng)){
+      selectedMarketLatLng = { lat: marketLat, lng: marketLng };
+    }
+
+    // Reverse geocode (if available)
+    let userName = null, marketName = null;
+    if(selectedLatLng){
+      userName = await reverseGeocode(selectedLatLng.lat, selectedLatLng.lng);
+    }
+    if(selectedMarketLatLng){
+      marketName = await reverseGeocode(selectedMarketLatLng.lat, selectedMarketLatLng.lng);
+    }
+
+    if(!userName && payload.userLabel) userName = payload.userLabel;
+    if(!marketName && payload.marketLabel) marketName = payload.marketLabel;
+
+    if(!userName && selectedLatLng) userName = `${selectedLatLng.lat.toFixed(5)}, ${selectedLatLng.lng.toFixed(5)}`;
+    if(!marketName && selectedMarketLatLng) marketName = `${selectedMarketLatLng.lat.toFixed(5)}, ${selectedMarketLatLng.lng.toFixed(5)}`;
+
+    selectedUserName = userName || '';
+    selectedMarketName = marketName || '';
+
+    // show card and fill fields
+    if(qs('savedCard')) qs('savedCard').style.display = 'block';
+    if(qs('savedUser')) qs('savedUser').textContent = selectedUserName || '—';
+    if(qs('savedMarket')) qs('savedMarket').textContent = selectedMarketName || '—';
+
+    if(qs('locationHidden')) qs('locationHidden').value = selectedUserName || '';
+    if(qs('marketHidden')) qs('marketHidden').value = selectedMarketName || '';
+
+    // Distance: prefer payload distance, otherwise compute
+    let distanceKm = null;
+    if(payloadDistance != null && !isNaN(payloadDistance)){
+      distanceKm = payloadDistance;
+    } else if(selectedLatLng && selectedMarketLatLng){
+      distanceKm = getDistanceFromLatLonInKm(selectedMarketLatLng.lat, selectedMarketLatLng.lng, selectedLatLng.lat, selectedLatLng.lng);
+    }
+
+    if(distanceKm != null && !isNaN(distanceKm)){
+      if(qs('savedDistanceText')) qs('savedDistanceText').textContent = `${distanceKm.toFixed(2)} km`;
+      if(qs('distanceKm')) qs('distanceKm').value = distanceKm.toFixed(2);
+    } else {
+      if(qs('savedDistanceText')) qs('savedDistanceText').textContent = 'N/A';
+      if(qs('distanceKm')) qs('distanceKm').value = '';
+    }
+
+    // After populating, update totals
     updateTotals();
 
-    detectBtn.disabled = false;
-    detectBtn.textContent = 'Detect My Location';
+  } catch (e) {
+    console.error('populateSavedLocationIfExists error', e);
+    // still show an empty card
+    if(qs('savedCard')) qs('savedCard').style.display = 'block';
   }
-
-  function handleError(err){
-    if(finished) return;
-    finished = true;
-    detectBtn.disabled = false;
-    detectBtn.textContent = 'Detect My Location';
-    alert('Failed to detect location: ' + (err && err.message ? err.message : 'error') + '\nPlease ensure location permission is allowed and try again.');
-  }
-
-  // Try getCurrentPosition first (fast on many mobile devices)
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      finishWithCoords(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
-    },
-    (err) => {
-      // if getCurrentPosition fails, try watchPosition for a better fix
-      try {
-        const watchId = navigator.geolocation.watchPosition(
-          (pos) => {
-            finishWithCoords(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
-            try { navigator.geolocation.clearWatch(watchId); } catch(e){}
-          },
-          (werr) => {
-            handleError(werr);
-            try { navigator.geolocation.clearWatch(watchId); } catch(e){}
-          },
-          { enableHighAccuracy: true, maximumAge: 0, timeout: 7000 }
-        );
-        // fallback timeout
-        setTimeout(()=>{ try{ navigator.geolocation.clearWatch(watchId); }catch(e){}; if(!finished) handleError({message:'timeout'}); },7000);
-      } catch(e){
-        handleError(e);
-      }
-    },
-    { enableHighAccuracy: true, timeout: 4000, maximumAge: 0 }
-  );
 }
 
-// Draw route (routing machine uses current selectedLatLng & selectedMarketLatLng)
-function drawRouteIfReady(){
-  if(routingControl){
-    try { routingControl.remove(); } catch(e){}
-    routingControl = null;
-  }
-  if(selectedLatLng && selectedMarketLatLng){
-    const redIcon=createSoftPinIcon('#e53935');
-    const blueIcon=createSoftPinIcon('#1e88e5');
-    routingControl = L.Routing.control({
-      waypoints: [
-        L.latLng(selectedMarketLatLng.lat, selectedMarketLatLng.lng),
-        L.latLng(selectedLatLng.lat, selectedLatLng.lng)
-      ],
-      lineOptions: { addWaypoints: false, styles: [{color: '#00a859', opacity: 0.9, weight: 6}] },
-      show: false,
-      addWaypoints: false,
-      routeWhileDragging: false,
-      fitSelectedRoutes: true,
-      createMarker: function(i, wp) {
-        if(i === 0) return L.marker(wp.latLng, { icon: blueIcon }).bindPopup('Market');
-        if(i === 1) return L.marker(wp.latLng, { icon: redIcon }).bindPopup('Delivery');
-        return null;
-      }
-    }).addTo(map);
+// Call populate on DOM ready
+document.addEventListener('DOMContentLoaded', ()=> {
+  populateSavedLocationIfExists().catch(e => console.error(e));
+});
 
-    routingControl.on('routesfound', function(e){
-      const routes = e.routes;
-      if(routes && routes.length){
-        const meters = routes[0].summary.totalDistance;
-        const km = meters/1000;
-        document.getElementById('routeDistance').textContent = `Distance: ${km.toFixed(2)} km`;
-        updateTotals();
-      }
+/* ============================
+   Patch any leftover openMap() onclicks
+   ============================ */
+(function patchSelectOnMapButtons(){
+  try {
+    const nodes = document.querySelectorAll("[onclick]");
+    nodes.forEach(n=>{
+      try{
+        const attr = n.getAttribute('onclick') || '';
+        if(attr.includes('openMap(') || attr.includes('openMap()')){
+          n.setAttribute('onclick', "window.location.href='map.html'");
+        }
+      }catch(e){}
     });
-  }
-}
+  } catch(e){ console.warn('patchSelectOnMapButtons failed', e); }
+})();
 
-function saveLocation(){
-  // ensure selected names (from suggestion or reverse) are used
-  if(selectedUserName) document.getElementById('location').value = selectedUserName;
-  if(selectedMarketName) document.getElementById('market').value = selectedMarketName;
-  updateTotals();
-  closeMap();
-}
-
-function closeMap(){ document.getElementById('mapPopup').style.display='none'; }
-
-// expose openMap to onclick in HTML
-window.openMap = openMap;
-
-// -----------------------------
-// End map section
-// -----------------------------
-
-/* Chatbot (unchanged) */
+/* ============================
+   Chatbot (unchanged)
+   ============================ */
 function toggleChat(){
-  const overlay=document.getElementById('chatOverlay');
-  overlay.style.display=overlay.style.display==='flex'?'none':'flex';
+  const overlay = qs('chatOverlay');
+  if(!overlay) return;
+  overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
 }
 function sendMessage(){
-  const input=document.getElementById('chatInput');
-  const text=input.value.trim();
+  const input = qs('chatInput');
+  if(!input) return;
+  const text = input.value.trim();
   if(!text) return;
-  const chatBody=document.getElementById('chatBody');
-  const userMsg=document.createElement('div'); userMsg.className='chat-message user-msg'; userMsg.textContent=text;
+  const chatBody = qs('chatBody');
+  const userMsg = document.createElement('div'); userMsg.className='chat-message user-msg'; userMsg.textContent=text;
   chatBody.appendChild(userMsg);
-  chatBody.scrollTop=chatBody.scrollHeight;
-  input.value='';
-  setTimeout(()=>{const botMsg=document.createElement('div'); botMsg.className='chat-message bot-msg'; botMsg.textContent='🤖 Thanks for your message! We will get back to you shortly.'; chatBody.appendChild(botMsg); chatBody.scrollTop=chatBody.scrollHeight;},800);
+  chatBody.scrollTop = chatBody.scrollHeight;
+  input.value = '';
+  setTimeout(()=> {
+    const botMsg = document.createElement('div'); botMsg.className='chat-message bot-msg'; botMsg.textContent='🤖 Thanks for your message! We will get back to you shortly.';
+    chatBody.appendChild(botMsg);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }, 800);
 }
+
+ // ----------------------------
+  // CATEGORY DISPLAY UPDATE (ADD THIS)
+  // ----------------------------
+  document.getElementById("category").addEventListener("change", function () {
+    const selectedOption = this.options[this.selectedIndex].text;
+    const value = this.value;
+
+    if (value) {
+      document.getElementById("selectedCategoryText").textContent = selectedOption;
+    } else {
+      document.getElementById("selectedCategoryText").textContent = "None";
+    }
+  })
 </script>
 
 </body>
