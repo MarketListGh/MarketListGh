@@ -3,82 +3,70 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Deliverer Map — Live Navigation</title>
+  <title>Deliverer — Live Navigation (Map1)</title>
 
   <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
   <style>
     :root{
-      --bg:#f7f7f7;
-      --accent:#00a859;
-      --accent-dark:#1976d2;
-      --success:#27ae60;
-      --danger:#d32f2f;
-      --card:#ffffff;
+      --bg:#f7f7f7; --accent:#00a859; --accent-dark:#1976d2; --success:#27ae60; --danger:#d32f2f;
+      --card:#fff;
     }
     html,body,#map{height:100%;margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
-    body{background:var(--bg);display:flex;flex-direction:column;height:100vh}
-    #map{flex:1}
-    header{background:linear-gradient(90deg,var(--accent),#ff9b21);padding:12px 14px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    header .left{display:flex;gap:10px;align-items:center}
-    header h1{font-size:16px;margin:0;font-weight:800}
-    header .small{font-size:12px;opacity:0.95}
-    .top-info{padding:10px 14px;background:rgba(255,255,255,0.95);box-shadow:0 6px 20px rgba(0,0,0,0.06);display:flex;gap:12px;align-items:center;justify-content:space-between}
-    .info-left{display:flex;flex-direction:column}
-    .dest-name{font-weight:800;font-size:16px}
-    .dest-addr{font-size:13px;color:#555;margin-top:4px}
-    .info-right{text-align:right;min-width:160px}
+    body{display:flex;flex-direction:column;height:100vh;background:var(--bg)}
+    header{background:linear-gradient(90deg,var(--accent),#ffd06b);color:#fff;padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
+    header h1{margin:0;font-size:16px}
+    header p{margin:0;font-size:13px;opacity:0.95}
+    #topInfo{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,0.95);box-shadow:0 8px 26px rgba(0,0,0,0.08)}
+    .left {display:flex;flex-direction:column}
+    .dest-name{font-weight:900}
+    .dest-sub{color:#666;font-size:13px;margin-top:4px}
+    .right {text-align:right;min-width:140px}
     .metric{font-weight:900;font-size:18px}
-    .meta{font-size:12px;color:#666}
-    /* floating controls */
-    .controls{position:absolute;right:12px;top:120px;display:flex;flex-direction:column;gap:10px;z-index:1400}
-    .control-btn{background:var(--card);border-radius:12px;padding:12px 14px;box-shadow:0 8px 26px rgba(0,0,0,0.12);border:0;display:flex;align-items:center;gap:8px;cursor:pointer;min-width:52px;justify-content:center}
-    .control-btn.call{background:linear-gradient(90deg,#00a859,#1976d2);color:#fff}
-    .control-btn.primary{background:var(--accent);color:#fff}
-    .control-btn.warn{background:#ff7043;color:#fff}
-    .control-btn.large{padding:14px 16px;border-radius:14px}
-    .bottom-actions{position:absolute;left:12px;right:12px;bottom:18px;display:flex;gap:10px;z-index:1400;justify-content:space-between}
-    .btn-wide{flex:1;padding:12px;border-radius:12px;border:0;font-weight:800;cursor:pointer}
-    .btn-deliver{background:var(--success);color:#fff}
-    .btn-center{background:#fff;color:#111;border:1px solid #eee}
-    /* delivered popup (center card) */
-    .delivered-modal{position:fixed;left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:2000;opacity:0;pointer-events:none;transition:opacity .18s}
-    .delivered-modal.show{opacity:1;pointer-events:auto}
-    .delivered-card{background:#fff;border-radius:12px;padding:22px 20px;width:92%;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
-    .check{width:84px;height:84px;border-radius:50%;background:linear-gradient(90deg,var(--accent),#ffd06b);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:36px;color:#fff}
-    .delivered-title{font-weight:900;font-size:20px;margin-bottom:6px}
-    .delivered-sub{color:#555;font-size:14px;margin-bottom:12px}
-    .delivered-time{font-size:13px;color:#777}
-    /* small devices */
+    .meta{font-size:13px;color:#666}
+
+    #map{flex:1}
+
+    .controls{display:flex;gap:10px;padding:12px;background:transparent;justify-content:center}
+    .btn{padding:12px 16px;border-radius:12px;border:0;font-weight:800;cursor:pointer}
+    .btn.primary{background:var(--accent);color:#fff}
+    .btn.ghost{background:#fff;border:1px solid #eee}
+    .btn.warn{background:var(--danger);color:#fff}
+    .status{position:fixed;left:12px;bottom:92px;background:rgba(255,255,255,0.95);padding:10px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.12);z-index:1400;font-size:13px}
+
+    /* arrival modal */
+    .modal-backdrop{position:fixed;left:0;top:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:2000}
+    .modal-backdrop.show{display:flex}
+    .modal-card{background:var(--card);padding:20px;border-radius:12px;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+    .modal-title{font-weight:900;font-size:18px;margin-bottom:8px}
+    .modal-sub{color:#666;margin-bottom:14px}
+
     @media (max-width:700px){
-      .controls{right:8px;top:110px}
-      .info-right{min-width:120px}
+      .right{min-width:110px}
       .dest-name{font-size:15px}
-      .metric{font-size:16px}
     }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="left">
-      <div>
-        <h1>Deliverer Navigation</h1>
-        <div class="small">Live route — auto start</div>
-      </div>
+    <div>
+      <h1>Deliverer Navigation</h1>
+      <p>Start delivery when you're ready — route will follow your live location.</p>
     </div>
-    <div class="right">
-      <div class="small">Mode: Deliverer</div>
+    <div style="text-align:right">
+      <div style="font-weight:800">Mode: Deliverer</div>
+      <div style="font-size:12px;opacity:0.95">Map1 (tracking)</div>
     </div>
   </header>
 
-  <div class="top-info" id="topInfo" aria-live="polite">
-    <div class="info-left">
-      <div class="dest-name" id="destName">Loading destination…</div>
-      <div class="dest-addr" id="destAddr">Waiting for data</div>
+  <div id="topInfo" aria-live="polite">
+    <div class="left">
+      <div class="dest-name" id="destName">Loading...</div>
+      <div class="dest-sub" id="destAddr">Waiting for destination</div>
     </div>
-    <div class="info-right">
+    <div class="right">
       <div class="metric" id="distanceRem">-- km</div>
       <div class="meta" id="etaText">ETA: --</div>
       <div class="meta" id="speedText">Speed: --</div>
@@ -87,186 +75,190 @@
 
   <div id="map"></div>
 
-  <div class="controls" aria-hidden="false">
-    <button class="control-btn call" id="callBtn" title="Call customer">📞</button>
-    <button class="control-btn" id="recenterBtn" title="Re-center">🎯</button>
-    <button class="control-btn" id="refreshBtn" title="Refresh route">🔁</button>
+  <div class="controls" role="group" aria-label="Actions">
+    <button class="btn ghost" id="recenterBtn">Re-center</button>
+    <button class="btn primary" id="startBtn">Start Delivery</button>
+    <button class="btn" id="callBtn">Call Customer</button>
   </div>
 
-  <div class="bottom-actions">
-    <button class="btn-wide btn-center" id="openGoogleBtn">Open in Google Maps</button>
-    <button class="btn-wide btn-deliver" id="markDeliveredBtn">Mark Delivered</button>
-  </div>
+  <div class="status" id="status">Preparing map…</div>
 
-  <!-- delivered modal -->
-  <div id="deliveredModal" class="delivered-modal" role="dialog" aria-hidden="true">
-    <div class="delivered-card" role="document">
-      <div class="check">✔</div>
-      <div class="delivered-title" id="deliveredTitle">Delivery Completed</div>
-      <div class="delivered-sub" id="deliveredSub">Thanks — returning to orders...</div>
-      <div class="delivered-time" id="deliveredTime"></div>
+  <!-- arrival modal -->
+  <div class="modal-backdrop" id="arrivalModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div class="modal-title">You are close to the customer</div>
+      <div class="modal-sub" id="arrivalSub">Mark this order as delivered?</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:8px">
+        <button class="btn ghost" id="arrivalNo">No, continue</button>
+        <button class="btn primary" id="arrivalYes">Yes, mark delivered</button>
+      </div>
     </div>
   </div>
 
-  <!-- Leaflet -->
+  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
   (function(){
-    // ---------------- CONFIG ----------------
-    const GEOAPIFY_KEY = '0bf67747adfd4bb9bfab74ec373372fb'; // use your key
+    // ------------- CONFIG -------------
+    const GEOAPIFY_KEY = '0bf67747adfd4bb9bfab74ec373372fb'; // your key
     const START_CENTER = [5.6037, -0.1870];
     const START_ZOOM = 13;
-    const ROUTE_REFRESH_MS = 9000; // refresh route periodically while moving
-    const ETA_SPEED_DEFAULT_KMH = 40; // fallback speed for ETA if route time not provided
-    const STATE = {
-      user: null,
-      destination: null,
-      trackingId: null,
-      customerName: null,
-      customerPhone: null,
+    const ROUTE_REFRESH_MS = 9000; // request new route at most every ~9s
+    const LIVE_UPDATE_INTERVAL_MS = 3500; // internal update while moving
+    const ARRIVAL_THRESHOLD_KM = 0.06; // 60 meters
+    const ETA_FALLBACK_KMH = 40; // fallback speed for ETA
+    // Unique global state so we don't affect map.html
+    window._ml_map1_state = {
       map: null,
       userMarker: null,
-      destMarker: null,
+      customerMarker: null,
       routeLayer: null,
       watchId: null,
+      user: null,
+      customer: null,
+      tracking: null,
+      started: false,
       lastRouteFetch: 0,
-      lastCoords: null,
-      lastSpeed: 0
+      lastSpeedKmh: null
     };
 
-    // ----------------- MAP INIT -----------------
-    const map = L.map('map', { preferCanvas:true }).setView(START_CENTER, START_ZOOM);
-    STATE.map = map;
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-      maxZoom: 20
-    }).addTo(map);
-
-    // icons
-    function svgIcon(color,size=40){
-      const svg = encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24"><path fill="${color}" stroke="#fff" stroke-width="1" d="M12 2C8.14 2 5 5.14 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.86-3.14-7-7-7z"/><circle fill="#fff" cx="12" cy="9" r="3"/></svg>`);
-      return L.divIcon({ html:`<img src="data:image/svg+xml;utf8,${svg}" style="width:${size}px;height:${size}px;transform:translateY(-6px)"/>`, iconSize:[size,size], iconAnchor:[Math.round(size/2), size-6] });
-    }
-    const userIcon = svgIcon('#1976d2',44); // blue
-    const destIcon = svgIcon('#27ae60',40); // green
-
-    // user marker (placeholder)
-    STATE.userMarker = L.marker(START_CENTER, { icon: userIcon, draggable:false }).addTo(map);
-    STATE.destMarker = null;
-
-    // UI refs
+    // ------------- DOM -------------
+    const statusEl = document.getElementById('status');
     const destNameEl = document.getElementById('destName');
     const destAddrEl = document.getElementById('destAddr');
     const distanceRemEl = document.getElementById('distanceRem');
     const etaTextEl = document.getElementById('etaText');
     const speedTextEl = document.getElementById('speedText');
-    const callBtn = document.getElementById('callBtn');
+    const startBtn = document.getElementById('startBtn');
     const recenterBtn = document.getElementById('recenterBtn');
-    const refreshBtn = document.getElementById('refreshBtn');
-    const openGoogleBtn = document.getElementById('openGoogleBtn');
-    const markDeliveredBtn = document.getElementById('markDeliveredBtn');
-    const deliveredModal = document.getElementById('deliveredModal');
-    const deliveredTitle = document.getElementById('deliveredTitle');
-    const deliveredSub = document.getElementById('deliveredSub');
-    const deliveredTime = document.getElementById('deliveredTime');
+    const callBtn = document.getElementById('callBtn');
+    const arrivalModal = document.getElementById('arrivalModal');
+    const arrivalYes = document.getElementById('arrivalYes');
+    const arrivalNo = document.getElementById('arrivalNo');
+    const arrivalSub = document.getElementById('arrivalSub');
 
-    // ----------------- UTILS -----------------
+    // ------------- UTILS -------------
     function toFixedNumber(n, digits=2){ return Number.parseFloat(n||0).toFixed(digits); }
+    // Haversine implemented carefully step-by-step
     function haversineKm(aLat,aLon,bLat,bLon){
-      // compute step-by-step to avoid mistakes
-      const R = 6371;
-      const toRad = Math.PI/180;
+      const R = 6371; // km
+      const toRad = Math.PI / 180;
       const dLat = (bLat - aLat) * toRad;
       const dLon = (bLon - aLon) * toRad;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(aLat*toRad) * Math.cos(bLat*toRad) * Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
+      const sinDLat = Math.sin(dLat/2);
+      const sinDLon = Math.sin(dLon/2);
+      const cosALat = Math.cos(aLat * toRad);
+      const cosBLat = Math.cos(bLat * toRad);
+      const A = sinDLat * sinDLat + cosALat * cosBLat * sinDLon * sinDLon;
+      const C = 2 * Math.atan2(Math.sqrt(A), Math.sqrt(1 - A));
+      return R * C;
     }
-
     function formatKm(n){ return `${toFixedNumber(n,2)} km`; }
     function formatMinutes(min){ return `${Math.round(min)} min`; }
+    function qsa(sel){ return document.querySelectorAll(sel); }
 
-    // read params from URL or from localStorage.deliverer_navigation if present
-    function readNavigationPayload(){
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const pLat = params.get('lat');
-        const pLng = params.get('lng');
-        const pName = params.get('name');
-        const pPhone = params.get('phone');
-        const pTracking = params.get('tracking');
+    // Escape helper for labels (simple)
+    function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m])); }
 
-        // try localStorage fallback
-        let stored = null;
-        try { stored = JSON.parse(localStorage.getItem('deliverer_navigation') || 'null'); } catch(e){ stored = null; }
+    // ------------- MAP INIT -------------
+    const map = L.map('map', { preferCanvas:true }).setView(START_CENTER, START_ZOOM);
+    window._ml_map1_state.map = map;
 
-        const out = {
-          lat: (pLat != null ? parseFloat(pLat) : (stored && stored.customer_lat ? parseFloat(stored.customer_lat) : null)),
-          lng: (pLng != null ? parseFloat(pLng) : (stored && stored.customer_lng ? parseFloat(stored.customer_lng) : null)),
-          name: pName || (stored && stored.customer_label) || (stored && stored.tracking) || (params.get('name') || 'Customer'),
-          phone: pPhone || (stored && stored.customer_phone) || null,
-          tracking: pTracking || (stored && stored.tracking) || null
-        };
-        return out;
-      } catch(e){ return { lat:null,lng:null,name:'Customer',phone:null,tracking:null }; }
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 20,
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    }).addTo(map);
+
+    // SVG icon helper
+    function svgPin(color,size=40){
+      const svg = encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24"><path fill="${color}" stroke="#fff" stroke-width="1" d="M12 2C8.14 2 5 5.14 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.86-3.14-7-7-7z"/><circle fill="#fff" cx="12" cy="9" r="3"/></svg>`);
+      return L.divIcon({ html:`<img src="data:image/svg+xml;utf8,${svg}" style="width:${size}px;height:${size}px;transform:translateY(-6px)"/>`, iconSize:[size,size], iconAnchor:[Math.round(size/2), size-6] });
     }
 
-    // update top info UI
-    function updateTopInfo(){
-      destNameEl.textContent = STATE.customerName || 'Customer';
-      destAddrEl.textContent = STATE.destination && STATE.destination.addr ? STATE.destination.addr : (STATE.destination && STATE.destination.lat ? `${toFixedNumber(STATE.destination.lat,5)}, ${toFixedNumber(STATE.destination.lng,5)}` : 'No destination set');
-      distanceRemEl.textContent = STATE.distanceRemainingKm != null ? formatKm(STATE.distanceRemainingKm) : '-- km';
-      etaTextEl.textContent = STATE.etaMin != null ? `ETA: ${formatMinutes(STATE.etaMin)}` : 'ETA: --';
-      speedTextEl.textContent = STATE.lastSpeedKmh != null ? `Speed: ${toFixedNumber(STATE.lastSpeedKmh,1)} km/h` : 'Speed: --';
+    const delivererIcon = svgPin('#1976d2',44); // blue
+    const customerIcon = svgPin('#d32f2f',40); // red
+
+    // ------------- READ URL PARAMS -------------
+    function readParams(){
+      const p = new URLSearchParams(window.location.search);
+      const lat = p.get('customer_lat') || p.get('lat') || null;
+      const lng = p.get('customer_lng') || p.get('lng') || null;
+      const label = p.get('customer_label') || p.get('name') || p.get('label') || '';
+      const phone = p.get('phone') || '';
+      const tracking = p.get('tracking') || '';
+      const name = p.get('name') || '';
+      const obj = {
+        lat: lat != null ? parseFloat(lat) : null,
+        lng: lng != null ? parseFloat(lng) : null,
+        label: decodeURIComponent(label || ''),
+        phone: decodeURIComponent(phone || ''),
+        tracking: tracking || '',
+        name: decodeURIComponent(name || '')
+      };
+      return obj;
     }
 
-    // set destination marker
-    function setDestination(lat,lng,label){
-      if(STATE.destMarker){ try{ map.removeLayer(STATE.destMarker); }catch(e){} STATE.destMarker=null; }
-      STATE.destMarker = L.marker([lat,lng], { icon: destIcon }).addTo(map).bindPopup(`${label || 'Destination'}`).openPopup();
-      STATE.destination = { lat, lng, addr: label || '' };
+    const params = readParams();
+    if(params.tracking) window._ml_map1_state.tracking = params.tracking;
+    if(params.lat != null && params.lng != null){
+      window._ml_map1_state.customer = { lat: params.lat, lng: params.lng, label: params.label || params.name || '', phone: params.phone || '', name: params.name || '' };
+    } else {
+      window._ml_map1_state.customer = null;
     }
 
-    // draw route using Geoapify
+    // render customer marker if present
+    if(window._ml_map1_state.customer){
+      const c = window._ml_map1_state.customer;
+      destNameEl.textContent = c.label || (c.name ? `${c.name}` : 'Customer location');
+      destAddrEl.textContent = (c.phone ? `Phone: ${c.phone}` : '') + (c.label ? (' • ' + c.label) : '');
+      window._ml_map1_state.customerMarker = L.marker([c.lat, c.lng], { icon: customerIcon }).addTo(map).bindPopup(escapeHtml(c.label || c.name || 'Customer')).openPopup();
+      // center to include both if we have a last known user later, else center to customer
+      map.setView([c.lat, c.lng], 15);
+    } else {
+      destNameEl.textContent = 'No customer coordinates';
+      destAddrEl.textContent = 'Check Tracking link';
+      statusEl.textContent = 'Missing customer coordinates.';
+    }
+
+    // create user (deliverer) marker (start at center)
+    window._ml_map1_state.userMarker = L.marker(START_CENTER, { icon: delivererIcon }).addTo(map).bindPopup('Your location (deliverer)');
+
+    // ------------- ROUTING -------------
     async function requestRoute(fromLat, fromLng, toLat, toLng){
+      // rate-limit
       const now = Date.now();
-      // rate limit small: don't request too frequently
-      if(now - STATE.lastRouteFetch < 2500) return null;
-      STATE.lastRouteFetch = now;
+      if(now - window._ml_map1_state.lastRouteFetch < 2200) return null;
+      window._ml_map1_state.lastRouteFetch = now;
       const url = `https://api.geoapify.com/v1/routing?waypoints=${encodeURIComponent(fromLat+','+fromLng)}|${encodeURIComponent(toLat+','+toLng)}&mode=drive&format=geojson&apiKey=${GEOAPIFY_KEY}`;
-      try {
-        const res = await fetch(url);
-        if(!res.ok) throw new Error('route fail '+res.status);
-        const j = await res.json();
+      try{
+        const r = await fetch(url);
+        if(!r.ok) throw new Error('Routing failed: ' + r.status);
+        const j = await r.json();
         return j;
-      } catch(e){
-        console.warn('requestRoute error', e);
+      } catch(err){
+        console.warn('requestRoute error', err);
         return null;
       }
     }
 
-    function clearRouteLayer(){
-      if(STATE.routeLayer){ try{ map.removeLayer(STATE.routeLayer); }catch(e){} STATE.routeLayer = null; }
+    function clearRoute(){
+      if(window._ml_map1_state.routeLayer){ try{ map.removeLayer(window._ml_map1_state.routeLayer); }catch(e){} window._ml_map1_state.routeLayer = null; }
     }
 
-    async function drawRouteAndUpdateInfo(){
-      if(!STATE.user || !STATE.destination) return;
-      const fromLat = STATE.user.lat, fromLng = STATE.user.lng;
-      const toLat = STATE.destination.lat, toLng = STATE.destination.lng;
-
-      // request route geojson
-      const j = await requestRoute(fromLat, fromLng, toLat, toLng);
-      if(!j || !j.features || !j.features.length){
-        // fallback to direct haversine distance + crude ETA
-        const dkm = haversineKm(fromLat, fromLng, toLat, toLng);
-        STATE.distanceRemainingKm = dkm;
-        STATE.etaMin = (dkm / (ETA_SPEED_DEFAULT_KMH/60));
+    async function drawRouteAndUpdate(fromLat, fromLng){
+      const cust = window._ml_map1_state.customer;
+      if(!cust || !isFinite(fromLat) || !isFinite(fromLng)) return;
+      const res = await requestRoute(fromLat, fromLng, cust.lat, cust.lng);
+      if(!res || !res.features || !res.features.length){
+        // fallback: simple straight-line distance + ETA
+        const dkm = haversineKm(fromLat, fromLng, cust.lat, cust.lng);
+        window._ml_map1_state.distanceKm = dkm;
+        window._ml_map1_state.etaMin = (dkm / ETA_FALLBACK_KMH) * 60;
         updateTopInfo();
         return;
       }
-      const feat = j.features[0];
+      const feat = res.features[0];
       let coords = [];
       if(feat.geometry.type === 'MultiLineString'){
         feat.geometry.coordinates.forEach(arr => arr.forEach(c => coords.push(c)));
@@ -274,218 +266,290 @@
         coords = feat.geometry.coordinates.slice();
       } else {
         // unexpected
-        const dkm = haversineKm(fromLat, fromLng, toLat, toLng);
-        STATE.distanceRemainingKm = dkm;
-        STATE.etaMin = (dkm / (ETA_SPEED_DEFAULT_KMH/60));
+        const dkm = haversineKm(fromLat, fromLng, cust.lat, cust.lng);
+        window._ml_map1_state.distanceKm = dkm;
+        window._ml_map1_state.etaMin = (dkm / ETA_FALLBACK_KMH) * 60;
         updateTopInfo();
         return;
       }
       const latlngs = coords.map(c => [c[1], c[0]]);
 
-      // remove old
-      clearRouteLayer();
-      STATE.routeLayer = L.polyline(latlngs, { color: '#1976d2', weight:6, opacity:0.95, lineJoin:'round' }).addTo(map);
-      // update metrics
+      clearRoute();
+      window._ml_map1_state.routeLayer = L.polyline(latlngs, { color: '#1976d2', weight:6, opacity:0.95, lineJoin:'round' }).addTo(map);
+
+      // get distance (meters) and time
       let distMeters = null;
       if(feat.properties && typeof feat.properties.distance === 'number') distMeters = feat.properties.distance;
-      else if(j.properties && typeof j.properties.distance === 'number') distMeters = j.properties.distance;
+      else if(res.properties && typeof res.properties.distance === 'number') distMeters = res.properties.distance;
+
       if(distMeters == null){
-        // compute from latlngs
         distMeters = 0;
         for(let i=1;i<latlngs.length;i++){
           distMeters += haversineKm(latlngs[i-1][0], latlngs[i-1][1], latlngs[i][0], latlngs[i][1]) * 1000;
         }
       }
       const distKm = distMeters / 1000;
-      STATE.distanceRemainingKm = distKm;
+      window._ml_map1_state.distanceKm = distKm;
 
-      // ETA: try properties (time in seconds)
+      // ETA
       let etaMin = null;
       if(feat.properties && typeof feat.properties.time === 'number') etaMin = feat.properties.time / 60;
-      else if(j.properties && typeof j.properties.time === 'number') etaMin = j.properties.time / 60;
+      else if(res.properties && typeof res.properties.time === 'number') etaMin = res.properties.time / 60;
       if(etaMin == null){
-        // estimate: use lastSpeed (km/h)
-        const sp = STATE.lastSpeedKmh && STATE.lastSpeedKmh > 1 ? STATE.lastSpeedKmh : ETA_SPEED_DEFAULT_KMH;
+        const sp = window._ml_map1_state.lastSpeedKmh && window._ml_map1_state.lastSpeedKmh > 1 ? window._ml_map1_state.lastSpeedKmh : ETA_FALLBACK_KMH;
         etaMin = (distKm / sp) * 60;
       }
-      STATE.etaMin = etaMin;
-      updateTopInfo();
+      window._ml_map1_state.etaMin = etaMin;
 
-      // adjust map view to show both
+      updateTopInfo();
+      // fit bounds to show route and markers
       try {
-        const group = L.featureGroup([ L.marker([fromLat,fromLng]), L.marker([toLat,toLng]) ]);
+        const group = L.featureGroup([ L.marker([fromLat, fromLng]), L.marker([cust.lat, cust.lng]) ]);
         map.fitBounds(group.getBounds(), { padding:[40,40] });
       } catch(e){}
     }
 
-    // ----------------- GEO WATCH + movement -----------------
+    // ------------- UI updates -------------
+    function updateTopInfo(){
+      const cust = window._ml_map1_state.customer;
+      if(cust){
+        destNameEl.textContent = cust.label || cust.name || 'Customer';
+        destAddrEl.textContent = (cust.phone ? 'Phone: ' + cust.phone : '') + (cust.label ? (' • ' + cust.label) : '');
+      }
+      const d = window._ml_map1_state.distanceKm;
+      distanceRemEl.textContent = (d != null) ? formatKm(d) : '-- km';
+      etaTextEl.textContent = (window._ml_map1_state.etaMin != null) ? `ETA: ${formatMinutes(window._ml_map1_state.etaMin)}` : 'ETA: --';
+      speedTextEl.textContent = (window._ml_map1_state.lastSpeedKmh != null) ? `Speed: ${toFixedNumber(window._ml_map1_state.lastSpeedKmh,1)} km/h` : 'Speed: --';
+    }
+
+    // ------------- GEO WATCH -------------
     function handlePosition(pos){
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
-      const speedMps = pos.coords.speed != null ? pos.coords.speed : null; // m/s
       const time = pos.timestamp || Date.now();
+      const speedMps = (pos.coords.speed != null && !isNaN(pos.coords.speed)) ? pos.coords.speed : null;
 
-      // compute speed from last coords if browser speed not available
-      if(STATE.lastCoords && STATE.lastCoords.lat != null){
-        const dkm = haversineKm(STATE.lastCoords.lat, STATE.lastCoords.lng, lat, lng); // km
-        const dt = Math.max((time - (STATE.lastCoords.time || time)) / 1000, 0.5); // sec
+      // compute speed via delta if needed
+      if(window._ml_map1_state.user && window._ml_map1_state.user.lat != null){
+        const last = window._ml_map1_state.user;
+        const dkm = haversineKm(last.lat, last.lng, lat, lng);
+        const dt = Math.max((time - (last.time || time)) / 1000, 0.5);
         const kmh = dt > 0 ? (dkm / (dt/3600)) : null;
-        if(kmh != null && isFinite(kmh)) STATE.lastSpeedKmh = kmh;
+        if(kmh != null && isFinite(kmh)) window._ml_map1_state.lastSpeedKmh = kmh;
       } else {
-        STATE.lastSpeedKmh = speedMps != null && !isNaN(speedMps) ? speedMps * 3.6 : null;
+        if(speedMps != null && !isNaN(speedMps)) window._ml_map1_state.lastSpeedKmh = speedMps * 3.6;
       }
 
-      if(!STATE.lastSpeedKmh && speedMps != null && !isNaN(speedMps)) STATE.lastSpeedKmh = speedMps * 3.6;
+      if(!window._ml_map1_state.lastSpeedKmh && speedMps != null) window._ml_map1_state.lastSpeedKmh = speedMps * 3.6;
 
-      STATE.user = { lat, lng, time };
-      STATE.lastCoords = { lat, lng, time };
+      window._ml_map1_state.user = { lat, lng, time };
+      // update marker
+      try { window._ml_map1_state.userMarker.setLatLng([lat, lng]); } catch(e){}
 
-      // update user marker
-      try {
-        STATE.userMarker.setLatLng([lat,lng]);
-      } catch(e){}
-
-      // update metrics display
+      // update metrics
       updateTopInfo();
 
-      // refresh route periodically
-      const now = Date.now();
-      if(!STATE.lastRouteFetch || (now - STATE.lastRouteFetch) > ROUTE_REFRESH_MS){
-        drawRouteAndUpdateInfo();
+      // if started, possibly refresh route
+      if(window._ml_map1_state.started){
+        const now = Date.now();
+        // throttle route requests
+        if(!window._ml_map1_state.lastRouteFetch || (now - window._ml_map1_state.lastRouteFetch) > ROUTE_REFRESH_MS){
+          drawRouteAndUpdate(lat, lng).catch(()=>{/* ignore errors */});
+        }
+      } else {
+        // if not started, update distance to customer only
+        if(window._ml_map1_state.customer){
+          const dkm = haversineKm(lat, lng, window._ml_map1_state.customer.lat, window._ml_map1_state.customer.lng);
+          window._ml_map1_state.distanceKm = dkm;
+          // quick ETA estimate
+          const sp = window._ml_map1_state.lastSpeedKmh && window._ml_map1_state.lastSpeedKmh > 1 ? window._ml_map1_state.lastSpeedKmh : ETA_FALLBACK_KMH;
+          window._ml_map1_state.etaMin = (dkm / sp) * 60;
+          updateTopInfo();
+        }
       }
+
+      // arrival auto-check
+      checkArrival();
     }
 
+    // wrapper to call drawRouteAndUpdate with try/catch
+    async function drawRouteAndUpdate(fromLat, fromLng){
+      try { await drawRouteAndUpdate(fromLat, fromLng); } catch(e){ console.warn('drawRouteAndUpdate error', e); }
+    }
+
+    // ------------- WATCH control -------------
     function startWatch(){
-      if(!navigator.geolocation){
-        alert('Geolocation not available on this device.');
-        return;
-      }
-      if(STATE.watchId) return;
-      STATE.watchId = navigator.geolocation.watchPosition(handlePosition, err => {
+      if(!navigator.geolocation){ statusEl.textContent = 'Geolocation not available'; return; }
+      if(window._ml_map1_state.watchId) return;
+      window._ml_map1_state.watchId = navigator.geolocation.watchPosition(handlePosition, (err) => {
         console.warn('watchPosition error', err);
+        statusEl.textContent = 'Unable to watch position: ' + (err.message || 'error');
       }, { enableHighAccuracy:true, maximumAge:2000, timeout:8000 });
+      statusEl.textContent = 'Live tracking started';
     }
 
-    // quick single-shot get
-    function oneShotLocate(){
-      return new Promise((resolve,reject) => {
-        if(!navigator.geolocation) return reject(new Error('no geo'));
-        navigator.geolocation.getCurrentPosition(pos => { handlePosition(pos); resolve(pos); }, err => reject(err), { enableHighAccuracy:true, timeout:8000, maximumAge:60000 });
-      });
+    function stopWatch(){
+      if(window._ml_map1_state.watchId){
+        try { navigator.geolocation.clearWatch(window._ml_map1_state.watchId); } catch(e){}
+        window._ml_map1_state.watchId = null;
+      }
     }
 
-    // ----------------- UI actions -----------------
-    callBtn.addEventListener('click', () => {
-      if(!STATE.customerPhone){ alert('No customer phone available'); return; }
-      // open dialer
-      window.location.href = `tel:${STATE.customerPhone.replace(/\s/g,'')}`;
-    });
-    recenterBtn.addEventListener('click', () => {
-      if(STATE.user) map.setView([STATE.user.lat, STATE.user.lng], 16, { animate:true });
-    });
-    refreshBtn.addEventListener('click', () => {
-      drawRouteAndUpdateInfo();
-    });
-
-    openGoogleBtn.addEventListener('click', () => {
-      if(!STATE.destination || !STATE.destination.lat) { alert('No destination'); return; }
-      const dlat = STATE.destination.lat, dlng = STATE.destination.lng;
-      window.open(`https://www.google.com/maps/dir/?api=1&destination=${dlat},${dlng}`, '_blank');
-    });
-
-    markDeliveredBtn.addEventListener('click', async () => {
-      // mark delivered flow: show modal, record in localStorage
-      const accept = confirm('Mark this order as DELIVERED?');
-      if(!accept) return;
-      // store delivered record
-      const deliveredAt = Date.now();
-      try {
-        const key = 'marketOrders';
-        const arr = JSON.parse(localStorage.getItem(key) || '[]');
-        // find by tracking ID
-        let found = null;
-        if(STATE.trackingId) found = arr.find(x=> x.tracking && String(x.tracking).toUpperCase() === String(STATE.trackingId).toUpperCase());
-        if(found){
-          found.status = 'Delivered';
-          found.deliveredAt = deliveredAt;
-        } else {
-          // create lightweight delivered record
-          arr.push({ tracking: STATE.trackingId || ('manual-'+deliveredAt), status:'Delivered', name: STATE.customerName, phone: STATE.customerPhone, customerLat: STATE.destination ? STATE.destination.lat : null, customerLng: STATE.destination ? STATE.destination.lng : null, deliveredAt });
-        }
-        localStorage.setItem(key, JSON.stringify(arr));
-      } catch(e){ console.warn('mark save failed', e); }
-
-      // show delivered modal (center popup)
-      deliveredTitle.textContent = 'Delivery Completed';
-      deliveredSub.textContent = STATE.customerName ? `${STATE.customerName} — ${STATE.trackingId || ''}` : 'Order delivered';
-      deliveredTime.textContent = new Date(deliveredAt).toLocaleString();
-      deliveredModal.classList.add('show');
-      deliveredModal.setAttribute('aria-hidden','false');
-
-      // after 5 seconds redirect back to tracking page
-      setTimeout(()=> {
-        deliveredModal.classList.remove('show');
-        deliveredModal.setAttribute('aria-hidden','true');
-        // return to tracking page
-        try {
-          window.location.href = 'Tracking.html';
-        } catch(e){
-          // fallback: try tracking lowercase
-          window.location.href = 'tracking.html';
-        }
-      }, 5000);
-    });
-
-    // ----------------- BOOTSTRAP: read payload and start -----------------
-    async function bootstrap(){
-      const payload = readNavigationPayload();
-      if(payload){
-        STATE.destination = payload.lat != null && payload.lng != null ? { lat: payload.lat, lng: payload.lng, addr: payload.name || '' } : null;
-        STATE.customerName = payload.name || 'Customer';
-        STATE.customerPhone = payload.phone || null;
-        STATE.trackingId = payload.tracking || null;
-      }
-
-      // update UI
-      updateTopInfo();
-
-      // set destination marker if available
-      if(STATE.destination && STATE.destination.lat != null){
-        setDestination(STATE.destination.lat, STATE.destination.lng, STATE.destination.addr);
-      } else {
-        destNameEl.textContent = 'No destination found';
-      }
-
-      // try to pick initial location for user (oneShot)
-      try {
-        await oneShotLocate();
-      } catch(e){
-        console.warn('oneShot failed', e);
-      }
-
-      // start continuous watch (live tracking)
+    // ------------- START DELIVERY button -------------
+    startBtn.addEventListener('click', async () => {
+      if(!window._ml_map1_state.customer){ alert('No customer coordinates supplied.'); return; }
+      // start watch (if not started)
       startWatch();
-
-      // auto start route drawing if we have both user and destination
-      if(STATE.user && STATE.destination){
-        // initial draw
-        drawRouteAndUpdateInfo();
-        // ensure periodic re-draws while moving
-        setInterval(()=> {
-          if(STATE.user && STATE.destination) drawRouteAndUpdateInfo();
-        }, Math.max(ROUTE_REFRESH_MS, 6000));
+      // mark started
+      window._ml_map1_state.started = true;
+      startBtn.disabled = true;
+      startBtn.textContent = 'Delivery started';
+      statusEl.textContent = 'Calculating route...';
+      // if we have user location, draw route now
+      let ux = window._ml_map1_state.user && window._ml_map1_state.user.lat ? window._ml_map1_state.user.lat : null;
+      let uy = window._ml_map1_state.user && window._ml_map1_state.user.lng ? window._ml_map1_state.user.lng : null;
+      // if no user location yet, make a getCurrentPosition then draw
+      if(ux == null || uy == null){
+        try{
+          const p = await new Promise((res,rej)=>{
+            navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy:true, timeout:8000, maximumAge:20000 });
+          });
+          ux = p.coords.latitude; uy = p.coords.longitude;
+          handlePosition(p); // will also set user
+        } catch(e){
+          console.warn('one-shot failed', e);
+          alert('Unable to get current location. Ensure GPS is enabled and try again.');
+          startBtn.disabled = false;
+          startBtn.textContent = 'Start Delivery';
+          return;
+        }
       }
+      // initial draw
+      await (async ()=> {
+        try {
+          await requestRoute(ux, uy, window._ml_map1_state.customer.lat, window._ml_map1_state.customer.lng).then(j => {
+            if(!j) {
+              statusEl.textContent = 'Unable to fetch route. Showing straight-line distance.';
+              // fallback
+              const dkm = haversineKm(ux, uy, window._ml_map1_state.customer.lat, window._ml_map1_state.customer.lng);
+              window._ml_map1_state.distanceKm = dkm;
+              window._ml_map1_state.etaMin = (dkm / ETA_FALLBACK_KMH) * 60;
+              updateTopInfo();
+            } else {
+              // let drawRouteAndUpdate handle adding polyline via its normal path
+              // call drawRouteAndUpdate directly
+            }
+          });
+        } catch(e){ console.warn('initial route error', e); }
+      })();
+      // Draw route and then set interval to refresh periodically
+      try { await drawRouteAndUpdate(ux, uy); } catch(e){ console.warn(e); }
+      // periodic refresh while started (in case watchPosition doesn't trigger frequently)
+      window._ml_map1_state._refreshInterval = setInterval(() => {
+        const u = window._ml_map1_state.user;
+        if(u && window._ml_map1_state.started){
+          drawRouteAndUpdate(u.lat, u.lng).catch(()=>{});
+        }
+      }, LIVE_UPDATE_INTERVAL_MS);
+    });
 
-      // show final updated UI
+    // ------------- recenter -------------
+    recenterBtn.addEventListener('click', ()=>{
+      const u = window._ml_map1_state.user;
+      if(u && u.lat != null) map.setView([u.lat, u.lng], 16, { animate:true });
+      else if(window._ml_map1_state.customer) map.setView([window._ml_map1_state.customer.lat, window._ml_map1_state.customer.lng], 15, { animate:true });
+    });
+
+    // ------------- call customer -------------
+    callBtn.addEventListener('click', ()=>{
+      const cust = window._ml_map1_state.customer;
+      if(!cust || !cust.phone){ alert('Customer phone not provided'); return; }
+      // open dialer
+      window.location.href = 'tel:' + String(cust.phone).replace(/\s/g,'');
+    });
+
+    // ------------- arrival detection -------------
+    function checkArrival(){
+      const u = window._ml_map1_state.user;
+      const c = window._ml_map1_state.customer;
+      if(!u || !c) return;
+      const dkm = haversineKm(u.lat, u.lng, c.lat, c.lng);
+      // update distance display
+      window._ml_map1_state.distanceKm = dkm;
+      window._ml_map1_state.etaMin = window._ml_map1_state.etaMin || null;
       updateTopInfo();
+
+      if(dkm <= ARRIVAL_THRESHOLD_KM && window._ml_map1_state.started){
+        // show arrival modal (if not already shown)
+        if(!arrivalModal.classList.contains('show')){
+          arrivalSub.textContent = `You are ${Math.round(dkm*1000)} meters from the customer. Mark delivered?`;
+          arrivalModal.classList.add('show');
+          arrivalModal.setAttribute('aria-hidden','false');
+        }
+      }
     }
 
-    // kickstart
-    bootstrap().catch(e => console.error('bootstrap err', e));
+    arrivalNo.addEventListener('click', ()=> {
+      arrivalModal.classList.remove('show');
+      arrivalModal.setAttribute('aria-hidden','true');
+    });
 
-    // expose for debugging
-    window._ml_track_state = STATE;
-    window._ml_track_helpers = { drawRouteAndUpdateInfo, setDestination };
+    arrivalYes.addEventListener('click', ()=> {
+      arrivalModal.classList.remove('show');
+      arrivalModal.setAttribute('aria-hidden','true');
+      // Do delivered flow: update localStorage.marketOrders with status delivered
+      const tracking = window._ml_map1_state.tracking;
+      if(tracking){
+        try {
+          const arr = JSON.parse(localStorage.getItem('marketOrders') || '[]');
+          const idx = arr.findIndex(o => o.tracking && String(o.tracking).toUpperCase() === String(tracking).toUpperCase());
+          if(idx >= 0){
+            arr[idx].status = 'Delivered';
+            arr[idx].deliveredAt = Date.now();
+            localStorage.setItem('marketOrders', JSON.stringify(arr));
+          } else {
+            // not found: push minimal record
+            arr.push({ tracking: tracking, status:'Delivered', deliveredAt: Date.now() });
+            localStorage.setItem('marketOrders', JSON.stringify(arr));
+          }
+        } catch(e){ console.warn('save delivered failed', e); }
+      }
+      // Clean up watchers & intervals then redirect back to Tracking.html with delivered flag
+      try { if(window._ml_map1_state._refreshInterval) clearInterval(window._ml_map1_state._refreshInterval); } catch(e){}
+      stopWatch();
+      // small delay so storage writes persist
+      setTimeout(()=> {
+        const target = 'Tracking.html';
+        const qp = new URLSearchParams();
+        if(window._ml_map1_state.tracking) qp.set('t', window._ml_map1_state.tracking);
+        qp.set('delivered','true');
+        window.location.href = target + '?' + qp.toString();
+      }, 350);
+    });
+
+    // ------------- cleanup on unload -------------
+    window.addEventListener('beforeunload', ()=>{
+      try { if(window._ml_map1_state._refreshInterval) clearInterval(window._ml_map1_state._refreshInterval); } catch(e){}
+      stopWatch();
+    });
+
+    // ------------- initial status & expose debug -------------
+    statusEl.textContent = 'Map ready. Press Start Delivery when you are ready.';
+    window._ml_map1_state.updateTopInfo = updateTopInfo;
+
+    // Expose for debug
+    window._ml_map1 = window._ml_map1_state;
+
+    // ------------- final note -------------
+    // If there's a customer marker but we have no user position yet, attempt a one-shot get to position deliverer marker near them
+    (async function tryOneShot(){
+      try {
+        if(!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(pos => {
+          handlePosition(pos);
+        }, ()=>{/* ignore one-shot error */}, { enableHighAccuracy:true, timeout:6000, maximumAge:30000 });
+      } catch(e){}
+    })();
 
   })();
   </script>
