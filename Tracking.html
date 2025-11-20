@@ -4,33 +4,40 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>MarketList — Tracking & Deliverer</title>
-  <meta name="description" content="Track orders or deliver — enter tracking code or accept & navigate.">
+  <meta name="description" content="Track orders or accept and deliver.">
   <style>
     :root{
       --g1:#00a859; --g2:#ff9b21; --card:#fff; --muted:#666;
-      --accent:#1976d2; --danger:#d32f2f;
-      --surface:#f8f8f8;
+      --accent:#1976d2; --danger:#d32f2f; --bg:#f7f7f7;
     }
     *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
     body{margin:0;background:linear-gradient(135deg,var(--g1),#ffd06b);min-height:100vh;color:#111}
-    .container{max-width:920px;margin:16px auto;padding:12px}
-    header{display:flex;align-items:center;justify-content:space-between;color:#fff;padding:12px 0}
+    .wrap{max-width:920px;margin:12px auto;padding:12px}
+    header{display:flex;align-items:center;justify-content:space-between;color:#fff;padding:6px 0}
     h1{margin:0;font-size:20px}
     .lead{opacity:0.95;font-size:13px}
 
-    /* Cards area */
-    .panel-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
-    .panel{flex:1;min-width:260px;background:var(--card);border-radius:12px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,0.12);cursor:pointer}
-    .panel .title{font-weight:800;margin-bottom:8px}
-    .panel .sub{color:var(--muted);font-size:14px}
+    /* stacked big cards */
+    .cards{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+    .card{
+      display:flex;align-items:center;gap:12px;
+      padding:14px;border-radius:14px;background:rgba(255,255,255,0.98);
+      box-shadow:0 12px 30px rgba(0,0,0,0.12);cursor:pointer;
+    }
+    .card .icon{font-size:28px;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+    .card .title{font-weight:900;font-size:16px}
+    .card .sub{color:var(--muted);font-size:13px}
 
-    /* order card (displayed after load) */
-    .order-card{background:var(--card);border-radius:12px;padding:14px;margin-top:14px;box-shadow:0 10px 30px rgba(0,0,0,0.12)}
-    .row{display:flex;gap:12px;align-items:center}
-    .col{flex:1}
-    label{display:block;font-weight:700;margin-bottom:6px}
-    .muted{color:var(--muted)}
-    .meta-pill{background:#f3f3f3;padding:6px 10px;border-radius:8px;font-weight:700;color:#222;margin-right:8px}
+    .card.customer{background:linear-gradient(90deg,#ffffff,#f2fff6)}
+    .card.deliverer{background:linear-gradient(90deg,#ffffff,#fff9f2)}
+
+    /* order display area */
+    .order-area{margin-top:14px}
+
+    .order-card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,0.12)}
+    .od-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #eee}
+    .od-key{color:var(--muted)}
+    .od-val{font-weight:800}
 
     /* buttons */
     .btn{padding:10px 14px;border-radius:10px;border:0;font-weight:800;cursor:pointer}
@@ -39,86 +46,84 @@
     .btn.warn{background:#ff7043;color:#fff}
     .btn.call{background:var(--accent);color:#fff}
 
-    /* slide-up modal (bottom sheet) */
+    /* sheet (slide-up modal) */
     .sheet-backdrop{position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.45);display:none;align-items:flex-end;justify-content:center;z-index:2000}
     .sheet-backdrop.show{display:flex}
-    .sheet{width:100%;max-width:920px;background:var(--card);border-top-left-radius:16px;border-top-right-radius:16px;padding:18px 16px;box-shadow:0 -10px 40px rgba(0,0,0,0.2)}
-    .sheet h3{margin:0 0 6px 0}
+    .sheet{width:100%;max-width:920px;background:var(--card);border-top-left-radius:16px;border-top-right-radius:16px;padding:18px 16px;box-shadow:0 -10px 40px rgba(0,0,0,0.2);position:relative}
     .sheet .close{position:absolute;right:18px;top:18px;background:#eee;border-radius:8px;padding:6px;cursor:pointer}
 
     input[type="text"], input[type="tel"], input[type="number"], textarea, select {
       width:100%;padding:10px;border-radius:10px;border:1px solid #eee;font-size:15px;margin-bottom:10px;
     }
 
-    /* order details table */
-    .od-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #eee}
-    .od-key{color:var(--muted)}
-    .od-val{font-weight:800}
-
-    /* delivered modal center card */
+    /* center delivered confirmation */
     .center-modal{position:fixed;left:0;top:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:3000}
     .center-modal.show{display:flex}
     .center-card{background:var(--card);padding:20px;border-radius:12px;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25)}
-    .center-card .check{width:72px;height:72px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(90deg,var(--g1),#ffd06b);color:#fff;font-size:34px;margin-bottom:12px}
+    .check{width:72px;height:72px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(90deg,var(--g1),#ffd06b);color:#fff;font-size:34px;margin-bottom:12px}
 
     @media (max-width:720px){
-      .panel-row{flex-direction:column}
-      .row{flex-direction:column;align-items:flex-start}
+      .wrap{padding:8px}
     }
   </style>
 </head>
 <body>
-
-  <div class="container">
+  <div class="wrap">
     <header>
       <div>
         <h1>MarketList — Track & Deliver</h1>
-        <div class="lead">Tap “Customer” to track an order, or “Deliverer” to accept & navigate.</div>
+        <div class="lead">Tap a card to open — Customer or Deliverer.</div>
       </div>
       <div>
-        <button class="btn ghost" id="openOrders">My Orders</button>
+        <button class="btn ghost" id="openOrdersBtn">My Orders</button>
       </div>
     </header>
 
-    <section class="panel-row" aria-label="Actions">
-      <div class="panel" id="customerPanel" role="button" tabindex="0" aria-pressed="false">
-        <div class="title">Customer</div>
-        <div class="sub">Track your order with a tracking number</div>
-      </div>
+    <main>
+      <section class="cards" id="cardsArea">
+        <div class="card customer" id="customerCard" role="button" tabindex="0">
+          <div class="icon">🧍</div>
+          <div>
+            <div class="title">Customer</div>
+            <div class="sub">Track an order by tracking code</div>
+          </div>
+        </div>
 
-      <div class="panel" id="delivererPanel" role="button" tabindex="0" aria-pressed="false">
-        <div class="title">Deliverer</div>
-        <div class="sub">Accept, navigate & mark delivered</div>
-      </div>
-    </section>
+        <div class="card deliverer" id="delivererCard" role="button" tabindex="0">
+          <div class="icon">🚚</div>
+          <div>
+            <div class="title">Deliverer</div>
+            <div class="sub">Accept, navigate & mark delivered</div>
+          </div>
+        </div>
+      </section>
 
-    <!-- placeholder for order details -->
-    <div id="orderContainer" style="margin-top:12px"></div>
+      <section class="order-area" id="orderArea" aria-live="polite">
+        <!-- order details will be rendered here -->
+      </section>
+    </main>
   </div>
 
-  <!-- bottom sheet: Customer -->
-  <div class="sheet-backdrop" id="sheetBackdrop">
-    <div class="sheet" role="dialog" aria-modal="true" aria-label="Enter tracking">
-      <div style="position:relative">
-        <h3 id="sheetTitle">Enter Tracking Code</h3>
-        <button class="close" id="closeSheet">✕</button>
+  <!-- Slide-up sheet -->
+  <div class="sheet-backdrop" id="sheetBackdrop" aria-hidden="true">
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Entry form">
+      <button class="close" id="sheetClose" title="Close">✕</button>
+      <h3 id="sheetHeading">Enter</h3>
+
+      <div id="sheetBody">
+        <!-- content injected: customer or deliverer form -->
       </div>
 
-      <div id="sheetContent">
-        <label for="trackInput">Tracking Code</label>
-        <input id="trackInput" type="text" placeholder="e.g., ML-12345">
-
-        <div style="display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn ghost" id="sheetCancel">Cancel</button>
-          <button class="btn primary" id="sheetSubmit">View Order</button>
-        </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+        <button class="btn ghost" id="sheetCancel">Cancel</button>
+        <button class="btn primary" id="sheetAction">Submit</button>
       </div>
     </div>
   </div>
 
-  <!-- center delivered confirmation -->
+  <!-- delivered modal -->
   <div class="center-modal" id="deliveredModal" aria-hidden="true">
-    <div class="center-card" role="dialog" aria-modal="true">
+    <div class="center-card">
       <div class="check">✔</div>
       <div style="font-weight:900;font-size:18px" id="delTitle">Delivered</div>
       <div style="color:var(--muted);margin-top:8px" id="delMsg">Order marked delivered</div>
@@ -131,481 +136,425 @@
 
 <script>
 (function(){
-  // ---------- helpers ----------
-  function qs(id){return document.getElementById(id);}
+  // ---------- utilities ----------
+  const $ = id => document.getElementById(id);
+  function nowHuman(ts){ try { return new Date(ts).toLocaleString(); } catch(e) { return ''; } }
   function formatGhs(n){ return '₵' + (Number(n||0).toFixed(2)); }
-  function nowIso(){ return new Date().toISOString(); }
-  function nowHuman(ts){ try{ return new Date(ts).toLocaleString(); }catch(e){return ''} }
 
-  // storage helpers
+  // ---------- storage helpers ----------
   function readStoredOrders(){
-    try { return JSON.parse(localStorage.getItem('marketOrders') || '[]'); }
-    catch(e){ return []; }
+    try { return JSON.parse(localStorage.getItem('marketOrders') || '[]'); } catch(e){ return []; }
   }
-  function saveStoredOrders(arr){ try { localStorage.setItem('marketOrders', JSON.stringify(arr||[])); } catch(e){} }
-
+  function saveStoredOrders(arr){
+    try { localStorage.setItem('marketOrders', JSON.stringify(arr||[])); } catch(e){}
+  }
   function findOrderByTracking(code){
     if(!code) return null;
     const key = String(code).trim().toUpperCase();
-    const orders = readStoredOrders();
-    const found = orders.find(o => (o.tracking && String(o.tracking).toUpperCase()===key));
-    if(found) return found;
-    // session fallback
-    try {
-      const s = JSON.parse(sessionStorage.getItem('ml_last_order')||'null');
-      if(s && s.tracking && String(s.tracking).toUpperCase()===key) return s;
-    } catch(e){}
-    return null;
+    const arr = readStoredOrders();
+    return arr.find(o => o.tracking && String(o.tracking).toUpperCase() === key) || null;
   }
-
   function upsertOrder(order){
     const arr = readStoredOrders();
     const idx = arr.findIndex(o => o.tracking && String(o.tracking).toUpperCase() === String(order.tracking).toUpperCase());
     if(idx >= 0) arr[idx] = Object.assign({}, arr[idx], order);
     else arr.push(order);
     saveStoredOrders(arr);
-    sessionStorage.setItem('ml_last_order', JSON.stringify(order));
+    // also store last in session for convenience
+    try { sessionStorage.setItem('ml_last_order', JSON.stringify(order)); } catch(e){}
   }
 
-  // ---------- UI references ----------
-  const customerPanel = qs('customerPanel');
-  const delivererPanel = qs('delivererPanel');
-  const sheetBackdrop = qs('sheetBackdrop');
-  const sheetTitle = qs('sheetTitle');
-  const closeSheet = qs('closeSheet');
-  const sheetCancel = qs('sheetCancel');
-  const sheetSubmit = qs('sheetSubmit');
-  const trackInput = qs('trackInput');
-  const orderContainer = qs('orderContainer');
-  const openOrders = qs('openOrders');
+  // ---------- DOM refs ----------
+  const customerCard = $('customerCard');
+  const delivererCard = $('delivererCard');
+  const orderArea = $('orderArea');
+  const sheetBackdrop = $('sheetBackdrop');
+  const sheet = $('sheetBackdrop').querySelector('.sheet');
+  const sheetHeading = $('sheetHeading');
+  const sheetBody = $('sheetBody');
+  const sheetAction = $('sheetAction');
+  const sheetCancel = $('sheetCancel');
+  const sheetClose = $('sheetClose');
+  const openOrdersBtn = $('openOrdersBtn');
 
-  const deliveredModal = qs('deliveredModal');
-  const delTitle = qs('delTitle');
-  const delMsg = qs('delMsg');
-  const delTime = qs('delTime');
-  const delOK = qs('delOK');
+  const deliveredModal = $('deliveredModal');
+  const delTitle = $('delTitle');
+  const delMsg = $('delMsg');
+  const delTime = $('delTime');
+  const delOK = $('delOK');
 
-  let activeMode = null; // 'customer' or 'deliverer'
-  let currentOrder = null;
-  let currentDeliverer = null; // {name,phone}
+  // UI state
+  let activeMode = null; // "customer" | "deliverer"
+  let activeTracking = null; // tracking code currently loaded in view
+  let autoRefreshTimer = null;
+  const AUTO_REFRESH_MS = 10000; // 10 seconds as requested
 
-  // ---------- sheet open/close ----------
-  function openSheet(mode){
-    activeMode = mode;
-    trackInput.value = '';
-    if(mode === 'customer'){
-      sheetTitle.textContent = 'Track Your Order';
-      sheetSubmit.textContent = 'View Order';
-    } else {
-      sheetTitle.textContent = 'Deliverer — Enter Details';
-      sheetSubmit.textContent = 'Load Order';
-    }
-    sheetBackdrop.classList.add('show');
-    // auto focus
-    setTimeout(()=> trackInput.focus(), 220);
-  }
-  function closeSheetNow(){
-    sheetBackdrop.classList.remove('show');
-  }
-
-  customerPanel.addEventListener('click', ()=> openSheet('customer'));
-  delivererPanel.addEventListener('click', ()=> openSheet('deliverer'));
-  closeSheet.addEventListener('click', closeSheetNow);
-  sheetCancel.addEventListener('click', closeSheetNow);
-  sheetBackdrop.addEventListener('click', (ev)=> {
-    if(ev.target === sheetBackdrop) closeSheetNow();
-  });
-
-  // ---------- render order summary (shared) ----------
+  // ---------- helper: render an order details card ----------
   function renderOrderCard(order, viewerIsDeliverer=false){
     if(!order){
-      orderContainer.innerHTML = `<div class="order-card"><div class="muted">No order to show. Use the buttons above to load an order.</div></div>`;
+      orderArea.innerHTML = `<div class="order-card"><div style="color:var(--muted)">No order loaded. Tap a card to begin.</div></div>`;
       return;
     }
-    currentOrder = order; // assign globally
-    // build HTML
+    activeTracking = order.tracking;
+    // hide other main card per your request (when viewing customer hide deliverer and vice versa)
+    if(activeMode === 'customer'){ delivererCard.style.display = 'none'; customerCard.style.display = ''; }
+    if(activeMode === 'deliverer'){ customerCard.style.display = 'none'; delivererCard.style.display = ''; }
+
     const html = `
       <div class="order-card" role="region" aria-live="polite">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div>
-            <div style="font-weight:900;font-size:16px">${order.name || 'Customer'}</div>
-            <div class="muted" style="margin-top:4px">${order.phone || ''}</div>
+            <div style="font-weight:900;font-size:16px">${order.name||'Customer'}</div>
+            <div style="color:var(--muted);margin-top:6px">${order.phone||''}</div>
           </div>
           <div style="text-align:right">
-            <div style="font-weight:900">${order.tracking || ''}</div>
-            <div class="muted" style="font-size:12px">${order.status || 'Pending'}</div>
+            <div style="font-weight:900">${order.tracking||''}</div>
+            <div style="color:var(--muted);font-size:13px">${order.status||'Pending'}</div>
           </div>
         </div>
 
         <div style="margin-top:12px">
-          <div class="od-row"><div class="od-key">Customer location</div><div class="od-val">${order.customerLabel || (order.customerLat && order.customerLng ? (parseFloat(order.customerLat).toFixed(5)+', '+parseFloat(order.customerLng).toFixed(5)) : '—')}</div></div>
-          <div class="od-row"><div class="od-key">Market location</div><div class="od-val">${order.marketLabel || (order.marketLat && order.marketLng ? (parseFloat(order.marketLat).toFixed(5)+', '+parseFloat(order.marketLng).toFixed(5)) : '—')}</div></div>
+          <div class="od-row"><div class="od-key">Customer Location</div><div class="od-val">${order.customerLabel || (order.customerLat && order.customerLng ? (order.customerLat.toFixed ? order.customerLat.toFixed(5) : order.customerLat)+', '+(order.customerLng.toFixed ? order.customerLng.toFixed(5) : order.customerLng) : '—')}</div></div>
+          <div class="od-row"><div class="od-key">Market Location</div><div class="od-val">${order.marketLabel || (order.marketLat && order.marketLng ? (order.marketLat.toFixed ? order.marketLat.toFixed(5) : order.marketLat)+', '+(order.marketLng.toFixed ? order.marketLng.toFixed(5) : order.marketLng) : '—')}</div></div>
           <div class="od-row"><div class="od-key">Budget / Total</div><div class="od-val">${formatGhs(order.total || order.budget || 0)}</div></div>
-          <div class="od-row"><div class="od-key">Delivery fee</div><div class="od-val">${formatGhs(order.deliveryFee || 0)}</div></div>
+          <div class="od-row"><div class="od-key">Delivery Fee</div><div class="od-val">${formatGhs(order.deliveryFee || 0)}</div></div>
           <div class="od-row"><div class="od-key">Created</div><div class="od-val">${nowHuman(order.createdAt || order.savedAt || Date.now())}</div></div>
           <div class="od-row"><div class="od-key">Accepted</div><div class="od-val">${order.acceptedAt ? nowHuman(order.acceptedAt) : '—'}</div></div>
           <div class="od-row"><div class="od-key">Delivered</div><div class="od-val">${order.deliveredAt ? nowHuman(order.deliveredAt) : '—'}</div></div>
 
-          <div style="display:flex;gap:8px;align-items:center;margin-top:12px">
-            <div style="flex:1">
-              <div class="muted">Deliverer</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+            <div>
+              <div style="color:var(--muted)">Deliverer</div>
               <div style="font-weight:800">${order.delivererName || 'Not assigned'}</div>
             </div>
             <div style="text-align:right">
-              ${ order.delivererPhone ? `<div style="font-weight:800">${order.delivererPhone}</div>
-              <div style="margin-top:6px">
-                <button class="btn call" id="callDelivererBtn">Call</button>
-              </div>` : `<div class="muted">No phone</div>` }
+              ${ order.delivererPhone ? `<div style="font-weight:800">${order.delivererPhone}</div><div style="margin-top:6px"><button class="btn call" id="callDelivererBtn">Call</button></div>` : `<div style="color:var(--muted)">No phone</div>` }
             </div>
           </div>
 
-          ${ viewerIsDeliverer ? renderDelivererControls() : '' }
+          ${ viewerIsDeliverer ? `
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+              <button class="btn primary" id="acceptBtn">${order.status==='Delivering'?'Accepted':'Accept Order'}</button>
+              <button class="btn" id="navigateBtn" style="background:var(--accent);color:#fff">Navigate</button>
+              <button class="btn ghost" id="whatsappBtn">WhatsApp</button>
+              <button class="btn warn" id="markDeliveredBtn">Mark Delivered</button>
+            </div>
+          ` : '' }
+
         </div>
       </div>
     `;
-    orderContainer.innerHTML = html;
+    orderArea.innerHTML = html;
 
-    // attach call button
-    const callDelivererBtn = qs('callDelivererBtn');
-    if(callDelivererBtn){
-      callDelivererBtn.addEventListener('click', ()=> {
+    // attach delivered call button
+    const callBtn = $('callDelivererBtn');
+    if(callBtn){
+      callBtn.addEventListener('click', ()=> {
         if(!order.delivererPhone){ alert('No deliverer phone'); return; }
         window.location.href = 'tel:' + order.delivererPhone.replace(/\s/g,'');
       });
     }
-  }
 
-  function renderDelivererControls(){
-    // buttons for deliverer: Accept, Navigate, Mark Delivered
-    return `
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn primary" id="acceptBtn">Accept Order</button>
-        <button class="btn" id="navigateBtn" style="background:var(--accent);color:#fff">Navigate</button>
-        <button class="btn ghost" id="msgBtn">WhatsApp</button>
-        <button class="btn warn" id="deliveredBtn">Mark Delivered</button>
-      </div>
-    `;
-  }
+    // attach deliverer controls if viewer is deliverer
+    if(viewerIsDeliverer){
+      const acceptBtn = $('acceptBtn');
+      const navBtn = $('navigateBtn');
+      const waBtn = $('whatsappBtn');
+      const markDeliveredBtn = $('markDeliveredBtn');
 
-  // ---------- main interactions ----------
-  sheetSubmit.addEventListener('click', ()=>{
-    const code = (trackInput.value||'').trim();
-    if(!code){ alert('Enter tracking code'); return; }
-
-    // if deliverer mode collect deliverer info first
-    if(activeMode === 'deliverer'){
-      // prompt for deliverer name & phone in a small inline form before loading order
-      // We'll show a quick prompt using built-in inputs (non-blocking)
-      const name = prompt('Enter your full name (deliverer):', '') || '';
-      if(!name.trim()){ alert('Deliverer name needed'); return; }
-      const phone = prompt('Enter your phone number (deliverer):', '') || '';
-      if(!phone.trim()){ alert('Phone number needed'); return; }
-      currentDeliverer = { name: name.trim(), phone: phone.trim() };
-      // now load order as deliverer
-      loadOrderAsDeliverer(code, currentDeliverer);
-      closeSheetNow();
-      return;
-    }
-
-    // customer mode
-    const found = findOrderByTracking(code);
-    if(!found){ alert('Order not found on this device.'); closeSheetNow(); return; }
-    renderOrderCard(found, false);
-    closeSheetNow();
-  });
-
-  // also support pressing Enter in input
-  trackInput.addEventListener('keydown', (ev)=> {
-    if(ev.key === 'Enter') sheetSubmit.click();
-  });
-
-  // ---------- deliverer flows ----------
-  function loadOrderAsDeliverer(code, deliverer){
-    const found = findOrderByTracking(code);
-    if(!found){
-      alert('Order not found. Make sure tracking code exists.');
-      return;
-    }
-    // show order with deliverer controls
-    renderOrderCard(found, true);
-    // attach deliverer control handlers
-    attachDelivererHandlers(found, deliverer);
-  }
-
-  function attachDelivererHandlers(order, deliverer){
-    // accept button
-    const acceptBtn = qs('acceptBtn');
-    const navBtn = qs('navigateBtn');
-    const msgBtn = qs('msgBtn');
-    const deliveredBtn = qs('deliveredBtn');
-
-    if(acceptBtn){
-      acceptBtn.addEventListener('click', ()=>{
-        // set deliverer info and update status
-        order.delivererName = deliverer.name;
-        order.delivererPhone = deliverer.phone;
-        order.status = 'Delivering';
-        order.acceptedAt = Date.now();
-        upsertOrder(order);
-        alert('Order accepted. You can now navigate.');
-        // re-render
-        renderOrderCard(order, true);
-        attachDelivererHandlers(order, deliverer); // reattach
-      }, { once:true });
-    }
-
-    if(navBtn){
-      navBtn.addEventListener('click', ()=>{
-        // ensure deliverer assigned
-        if(!order.delivererName || !order.delivererPhone){
-          if(!confirm('Deliverer info not assigned. Save current deliverer info and continue to navigation?')) return;
-          order.delivererName = deliverer.name;
-          order.delivererPhone = deliverer.phone;
-          order.status = order.status || 'Delivering';
+      if(acceptBtn){
+        acceptBtn.addEventListener('click', ()=>{
+          order.delivererName = order.delivererName || (window._tempDeliverer && window._tempDeliverer.name);
+          order.delivererPhone = order.delivererPhone || (window._tempDeliverer && window._tempDeliverer.phone);
+          order.status = 'Delivering';
           order.acceptedAt = order.acceptedAt || Date.now();
           upsertOrder(order);
-        }
-        // build navigation payload -> localStorage.deliverer_navigation and open map1.html
-        let custLat = (order.customerLat != null) ? parseFloat(order.customerLat) : null;
-        let custLng = (order.customerLng != null) ? parseFloat(order.customerLng) : null;
-        // fallback to ml_saved_location
-        try {
-          const saved = JSON.parse(localStorage.getItem('ml_saved_location') || 'null');
-          if((custLat == null || isNaN(custLat)) && saved && saved.userLat) custLat = parseFloat(saved.userLat);
-          if((custLng == null || isNaN(custLng)) && saved && saved.userLng) custLng = parseFloat(saved.userLng);
-        } catch(e){}
-        const payload = {
-          mode: 'deliverer',
-          tracking: order.tracking,
-          customer_lat: isFinite(custLat) ? custLat : null,
-          customer_lng: isFinite(custLng) ? custLng : null,
-          customer_label: order.customerLabel || '',
-          customer_phone: order.phone || '',
-          customer_name: order.name || '',
-          createdAt: Date.now()
-        };
-        try { localStorage.setItem('deliverer_navigation', JSON.stringify(payload)); } catch(e){}
-        // build query params for map1
-        const params = new URLSearchParams();
-        if(payload.customer_lat != null) params.set('lat', payload.customer_lat);
-        if(payload.customer_lng != null) params.set('lng', payload.customer_lng);
-        if(payload.customer_name) params.set('name', payload.customer_name);
-        if(payload.customer_phone) params.set('phone', payload.customer_phone);
-        if(payload.tracking) params.set('tracking', payload.tracking);
-        // update order status to Delivering
-        order.status = 'Delivering';
-        order.delivererName = deliverer.name;
-        order.delivererPhone = deliverer.phone;
-        order.acceptedAt = order.acceptedAt || Date.now();
-        upsertOrder(order);
-        // open map1.html
-        window.location.href = 'map1.html?' + params.toString();
-      });
-    }
+          renderOrderCard(order, true); // re-render to update UI
+        }, { once:true });
+      }
 
-    if(msgBtn){
-      msgBtn.addEventListener('click', ()=>{
-        const text = `Order ${order.tracking} — deliver to: ${order.customerLabel || ''}. Contact: ${order.phone || ''}`;
-        const wa = `https://wa.me/?text=${encodeURIComponent(text)}`;
-        window.open(wa,'_blank');
-      });
-    }
+      if(navBtn){
+        navBtn.addEventListener('click', ()=>{
+          // ensure deliverer info assigned
+          if(!order.delivererName || !order.delivererPhone){
+            if(window._tempDeliverer && window._tempDeliverer.name){
+              order.delivererName = window._tempDeliverer.name;
+              order.delivererPhone = window._tempDeliverer.phone;
+            } else {
+              if(!confirm('Deliverer info not provided. Continue and assign current deliverer info?')) return;
+            }
+            order.status = order.status || 'Delivering';
+            order.acceptedAt = order.acceptedAt || Date.now();
+            upsertOrder(order);
+          }
 
-    if(deliveredBtn){
-      deliveredBtn.addEventListener('click', ()=>{
-        if(!confirm('Mark order as delivered?')) return;
-        order.status = 'Delivered';
-        order.deliveredAt = Date.now();
-        upsertOrder(order);
-        // show center modal
-        delTitle.textContent = 'Delivered';
-        delMsg.textContent = `${order.name || 'Customer'} — ${order.tracking}`;
-        delTime.textContent = nowHuman(order.deliveredAt);
-        deliveredModal.classList.add('show');
-        deliveredModal.setAttribute('aria-hidden','false');
-        setTimeout(()=> {
-          deliveredModal.classList.remove('show');
-          deliveredModal.setAttribute('aria-hidden','true');
-          // redirect back to main tracking list (refresh)
-          location.reload();
-        }, 3500);
-      });
+          // save deliverer_navigation and open map1.html
+          const payload = {
+            mode:'deliverer',
+            tracking: order.tracking,
+            customer_lat: order.customerLat || null,
+            customer_lng: order.customerLng || null,
+            customer_label: order.customerLabel || '',
+            customer_phone: order.phone || '',
+            customer_name: order.name || ''
+          };
+          try { localStorage.setItem('deliverer_navigation', JSON.stringify(payload)); } catch(e){}
+
+          const params = new URLSearchParams();
+          if(payload.customer_lat != null) params.set('lat', payload.customer_lat);
+          if(payload.customer_lng != null) params.set('lng', payload.customer_lng);
+          if(payload.customer_name) params.set('name', payload.customer_name);
+          if(payload.customer_phone) params.set('phone', payload.customer_phone);
+          if(payload.tracking) params.set('tracking', payload.tracking);
+
+          window.location.href = 'map1.html?' + params.toString();
+        });
+      }
+
+      if(waBtn){
+        waBtn.addEventListener('click', ()=>{
+          const text = `Order ${order.tracking} — deliver to: ${order.customerLabel||''}. Contact: ${order.phone||''}`;
+          const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+          window.open(url, '_blank');
+        });
+      }
+
+      if(markDeliveredBtn){
+        markDeliveredBtn.addEventListener('click', ()=>{
+          if(!confirm('Mark this order as DELIVERED?')) return;
+          order.status = 'Delivered';
+          order.deliveredAt = Date.now();
+          upsertOrder(order);
+
+          // show center modal
+          delTitle.textContent = 'Delivery Completed';
+          delMsg.textContent = `${order.name || ''} — ${order.tracking}`;
+          delTime.textContent = nowHuman(order.deliveredAt);
+          deliveredModal.classList.add('show');
+          deliveredModal.setAttribute('aria-hidden','false');
+
+          setTimeout(()=> {
+            deliveredModal.classList.remove('show');
+            deliveredModal.setAttribute('aria-hidden','true');
+            // reload to show status and reset UI
+            location.reload();
+          }, 3500);
+        });
+      }
     }
   }
 
-  // delivered modal OK
-  delOK.addEventListener('click', ()=>{
-    deliveredModal.classList.remove('show');
-    deliveredModal.setAttribute('aria-hidden','true');
-    location.reload();
-  });
+  // ---------- sheet open/close functions ----------
+  function openSheetFor(mode){
+    activeMode = mode; // 'customer' or 'deliverer'
+    sheetBackdrop.classList.add('show');
+    sheetBackdrop.setAttribute('aria-hidden','false');
+    sheetHeading.textContent = (mode === 'customer') ? 'Track Your Order' : 'Deliverer — Enter Details';
+    sheetBody.innerHTML = ''; // clear
 
-// ---------- "My Orders" quick open (safe) ----------
-openOrders.addEventListener('click', () => {
-  const orders = readStoredOrders();
-  if (!orders || !orders.length) {
-    alert('No stored orders on this device.');
-    return;
+    if(mode === 'customer'){
+      sheetBody.innerHTML = `
+        <label for="trackCode">Tracking Code</label>
+        <input id="trackCode" type="text" placeholder="e.g., ML-12345">
+        <div style="font-size:13px;color:var(--muted);margin-top:6px">Enter the tracking code and tap View Order.</div>
+      `;
+      sheetAction.textContent = 'View Order';
+    } else {
+      sheetBody.innerHTML = `
+        <label for="dName">Your full name</label>
+        <input id="dName" type="text" placeholder="Deliverer name">
+        <label for="dPhone">Phone number</label>
+        <input id="dPhone" type="tel" placeholder="+233XXXXXXXXX">
+        <label for="dTrack">Tracking Code</label>
+        <input id="dTrack" type="text" placeholder="e.g., ML-12345">
+        <div style="font-size:13px;color:var(--muted);margin-top:6px">Enter your name, phone and tracking code then Load Order.</div>
+      `;
+      sheetAction.textContent = 'Load Order';
+    }
+
+    // focus first input
+    setTimeout(()=> {
+      const first = sheetBody.querySelector('input');
+      if(first) first.focus();
+    }, 200);
   }
 
-  const w = window.open('', '_blank', 'width=600,height=800');
-  let html = `
-    <!doctype html>
-    <html><head>
-      <meta charset="utf-8">
-      <title>Stored Orders</title>
-      <style>
-        body { font-family: Arial; padding:20px; }
-        button { padding:6px 10px; margin-left:8px; }
-      </style>
-    </head><body>
-      <h3>Stored Orders</h3>
-      <ul>
-  `;
+  function closeSheet(){
+    sheetBackdrop.classList.remove('show');
+    sheetBackdrop.setAttribute('aria-hidden','true');
+  }
 
-  orders.forEach(o => {
-    const safeTrack = String(o.tracking || '').replace(/"/g, '');
-    html += `
-      <li style="margin:12px 0;padding:8px;border-bottom:1px solid #eee">
-        <strong>${safeTrack}</strong> — ${o.name || ''} — ${o.phone || ''}
-        <button class="openBtn" data-track="${safeTrack}">Open</button>
-      </li>
-    `;
+  // close on outside click
+  sheetBackdrop.addEventListener('click', (ev) => {
+    if(ev.target === sheetBackdrop) closeSheet();
+  });
+  sheetClose.addEventListener('click', closeSheet);
+  sheetCancel.addEventListener('click', closeSheet);
+
+  // ---------- sheet submit handler ----------
+  sheetAction.addEventListener('click', ()=>{
+    if(activeMode === 'customer'){
+      const code = (sheetBody.querySelector('#trackCode').value || '').trim();
+      if(!code){ alert('Enter tracking code'); return; }
+      const found = findOrderByTracking(code);
+      closeSheet();
+      if(!found){ alert('Order not found on this device.'); renderOrderCard(null,false); return; }
+      // when customer loads, hide deliverer card
+      customerCard.style.display = '';
+      delivererCard.style.display = 'none';
+      activeMode = 'customer';
+      renderOrderCard(found, false);
+      startCustomerAutoRefresh();
+    } else if(activeMode === 'deliverer'){
+      const name = (sheetBody.querySelector('#dName').value || '').trim();
+      const phone = (sheetBody.querySelector('#dPhone').value || '').trim();
+      const code = (sheetBody.querySelector('#dTrack').value || '').trim();
+      if(!name || !phone || !code){ alert('Enter your name, phone, and tracking code'); return; }
+      const found = findOrderByTracking(code);
+      closeSheet();
+      if(!found){ alert('Order not found on this device.'); renderOrderCard(null,false); return; }
+      // store temporary deliverer info globally for this session
+      window._tempDeliverer = { name, phone };
+      // hide customer card while deliverer view active
+      delivererCard.style.display = '';
+      customerCard.style.display = 'none';
+      activeMode = 'deliverer';
+      // attach deliverer info onto order (not persisted until accept)
+      found.delivererName = found.delivererName || name;
+      found.delivererPhone = found.delivererPhone || phone;
+      renderOrderCard(found, true);
+    }
   });
 
-  html += `
-      </ul>
+  // ---------- "My Orders" popup (safe) ----------
+  openOrdersBtn.addEventListener('click', ()=>{
+    const orders = readStoredOrders();
+    if(!orders || !orders.length){ alert('No stored orders on this device.'); return; }
 
+    const w = window.open('', '_blank', 'width=600,height=800');
+    let html = '<!doctype html><html><head><meta charset="utf-8"><title>Stored Orders</title><style>body{font-family:Arial;padding:18px}button{padding:6px 8px;margin-left:8px}li{margin:12px 0;padding:8px;border-bottom:1px solid #eee}</style></head><body>';
+    html += '<h3>Stored Orders</h3><ul>';
+    orders.forEach(o=>{
+      const safeTrack = String(o.tracking||'').replace(/"/g,'');
+      html += `<li><strong>${safeTrack}</strong> — ${o.name||''} — ${o.phone||''} <button class="openBtn" data-track="${safeTrack}">Open</button></li>`;
+    });
+    html += `</ul>
       <script>
-        document.querySelectorAll('.openBtn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const t = btn.getAttribute('data-track');
+        Array.from(document.querySelectorAll('.openBtn')).forEach(btn=>{
+          btn.addEventListener('click', ()=>{
+            var t = btn.getAttribute('data-track');
             try {
-              if (window.opener && window.opener.loadTrackingFromPopup) {
+              if(window.opener && window.opener.loadTrackingFromPopup){
                 window.opener.loadTrackingFromPopup(t);
                 window.close();
               } else {
-                alert('Unable to communicate with main window.');
+                alert('Unable to communicate with parent window.');
               }
             } catch(e){
               alert('Communication blocked by browser.');
             }
           });
         });
+      <\/script>
+    </body></html>`;
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  });
 
-
-    </body></html>
-  `;
-
-  w.document.write(html);
-  w.document.close();
-});
-
-
-// ---------- Load Tracking From Popup ----------
-window.loadTrackingFromPopup = function (code) {
-  if (!code) return;
-
-  // Always reset: ensure CUSTOMER VIEW opens
-  hideDelivererPanel();
-  hideCustomerPanel();
-  closeAllPopups();
-
-  const found = findOrderByTracking(code);
-  if (found) {
-    renderOrderCard(found, false); // false = customer view
+  // Called from popup window to load tracking (customer view)
+  window.loadTrackingFromPopup = function(code){
+    if(!code) return;
+    const found = findOrderByTracking(code);
+    if(!found){ alert('Order not found on this device.'); return; }
+    // hide deliverer card, show customer
+    customerCard.style.display = '';
+    delivererCard.style.display = 'none';
+    activeMode = 'customer';
+    renderOrderCard(found, false);
+    startCustomerAutoRefresh();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  } else {
-    alert('Order not found on this device.');
-  }
-};
+  };
 
-
-// ---------- Deep-Link Load ?t=... ----------
-(function handleQueryLoad() {
-  try {
-    const p = new URLSearchParams(window.location.search);
-    const t = p.get('t') || p.get('tracking') || null;
-
-    if (t) {
-      hideDelivererPanel();
-      hideCustomerPanel();
-      closeAllPopups();
-
-      const found = findOrderByTracking(t);
-      if (found) {
-        renderOrderCard(found, false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }
-  } catch (e) {}
-})();
-
-
-// ---------- Prefill Last (Customer Only) ----------
-(function tryPrefillLast() {
-  try {
-    const last = JSON.parse(sessionStorage.getItem('ml_last_order') || 'null');
-    if (last && last.tracking) {
-      hideDelivererPanel();
-      closeAllPopups();
-      renderOrderCard(last, false);
-    }
-  } catch (e) {}
-})();
-
-
-// ---------- Debug Helpers ----------
-window._ml_tracking_helpers = {
-  findOrderByTracking,
-  readStoredOrders,
-  upsertOrder
-};
-
-
-// ---------- Seed Orders Only If Empty ----------
-(function seedIfEmpty() {
-  try {
-    const arr = readStoredOrders();
-    if (!arr || !arr.length) {
-      const sample = [
-        {
-          tracking: 'ML-1001',
-          name: 'Ama Mensah',
-          phone: '+233501234567',
-          customerLat: 5.6023,
-          customerLng: -0.1856,
-          customerLabel: 'Mamobi, Accra',
-          marketLat: 5.6030,
-          marketLng: -0.1871,
-          marketLabel: 'Makola Market',
-          total: 120,
-          deliveryFee: 8,
-          status: 'Pending',
-          createdAt: Date.now()
-        },
-        {
-          tracking: 'ML-1002',
-          name: 'Kofi Boateng',
-          phone: '+233501998877',
-          customerLat: 5.6100,
-          customerLng: -0.2000,
-          customerLabel: 'East Legon',
-          marketLat: 5.6070,
-          marketLng: -0.1980,
-          marketLabel: 'Accra Mall',
-          total: 220,
-          deliveryFee: 12,
-          status: 'Pending',
-          createdAt: Date.now()
+  // deep-link support ?t= or ?tracking=
+  (function handleQueryLoad(){
+    try {
+      const p = new URLSearchParams(window.location.search);
+      const t = p.get('t') || p.get('tracking') || null;
+      if(t){
+        const found = findOrderByTracking(t);
+        if(found){
+          customerCard.style.display = '';
+          delivererCard.style.display = 'none';
+          activeMode = 'customer';
+          renderOrderCard(found, false);
+          startCustomerAutoRefresh();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-      ];
-      saveStoredOrders(sample);
-    }
-  } catch (e) {}
+      }
+    } catch(e){}
+  })();
+
+  // prefill last viewed if present
+  (function tryPrefillLast(){
+    try {
+      const last = JSON.parse(sessionStorage.getItem('ml_last_order')||'null');
+      if(last && last.tracking){
+        // show as customer view
+        customerCard.style.display = '';
+        delivererCard.style.display = 'none';
+        activeMode = 'customer';
+        renderOrderCard(last, false);
+        startCustomerAutoRefresh();
+      }
+    } catch(e){}
+  })();
+
+  // ---------- auto-refresh for customer view ----------
+  function startCustomerAutoRefresh(){
+    stopCustomerAutoRefresh();
+    autoRefreshTimer = setInterval(()=> {
+      if(!activeMode || activeMode !== 'customer' || !activeTracking) return;
+      const latest = findOrderByTracking(activeTracking);
+      if(latest) renderOrderCard(latest, false);
+    }, AUTO_REFRESH_MS);
+  }
+  function stopCustomerAutoRefresh(){
+    if(autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+  }
+
+  // delivered modal OK
+  delOK.addEventListener('click', ()=> {
+    deliveredModal.classList.remove('show');
+    deliveredModal.setAttribute('aria-hidden','true');
+    location.reload();
+  });
+
+  // ---------- debug helpers export ----------
+  window._ml_tracking_helpers = { findOrderByTracking, readStoredOrders, upsertOrder };
+
+  // ---------- seed sample orders if none exist ----------
+  (function seedIfEmpty(){
+    try {
+      const arr = readStoredOrders();
+      if(!arr || !arr.length){
+        const sample = [
+          { tracking:'ML-1001', name:'Ama Mensah', phone:'+233501234567', customerLat:5.6023, customerLng:-0.1856, customerLabel:'Mamobi, Accra', marketLat:5.6030, marketLng:-0.1871, marketLabel:'Makola Market', total:120, deliveryFee:8, status:'Pending', createdAt: Date.now() },
+          { tracking:'ML-1002', name:'Kofi Boateng', phone:'+233501998877', customerLat:5.6100, customerLng:-0.2000, customerLabel:'East Legon', marketLat:5.6070, marketLng:-0.1980, marketLabel:'Accra Mall', total:220, deliveryFee:12, status:'Pending', createdAt: Date.now() }
+        ];
+        saveStoredOrders(sample);
+      }
+    } catch(e){}
+  })();
+
+  // ---------- keyboard accessibility: open sheets via Enter/Space ----------
+  customerCard.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter' || ev.key===' ') { openSheetFor('customer'); } });
+  delivererCard.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter' || ev.key===' ') { openSheetFor('deliverer'); } });
+
+  // ---------- click handlers ----------
+  customerCard.addEventListener('click', ()=> openSheetFor('customer'));
+  delivererCard.addEventListener('click', ()=> openSheetFor('deliverer'));
 })();
 </script>
 </body>
 </html>
-
-
