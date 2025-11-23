@@ -344,6 +344,84 @@ footer.footer {
   .row { flex-direction: column; }
 }
 
+/* ============================
+   Tracking Popup (Improved)
+   ============================ */
+#trackingPopup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55);
+  display: none; 
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  padding: 20px;
+}
+
+.tracking-card {
+  background: #ffffff;
+  width: 90%;
+  max-width: 420px;
+  padding: 25px;
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  animation: popIn 0.35s ease;
+  font-family: system-ui, sans-serif;
+}
+
+@keyframes popIn {
+  from {transform: scale(0.85); opacity: 0;}
+  to {transform: scale(1); opacity: 1;}
+}
+
+.tracking-card h2 {
+  margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.tracking-code-box {
+  background: #f7f7f7;
+  padding: 14px;
+  border-radius: 10px;
+  margin: 12px 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.popup-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  border-radius: 10px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.copy-btn {
+  background: #ececec;
+}
+
+.wa-btn {
+  background: #25D366;
+  color: #fff;
+}
+
+.close-btn {
+  margin-top: 10px;
+  background: transparent;
+  color: #444;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -396,6 +474,18 @@ footer.footer {
     <span class="slider-dot"></span>
     <span class="slider-dot"></span>
     <span class="slider-dot"></span>
+  </div>
+</div>
+<div id="trackingPopup">
+  <div class="tracking-card">
+    <h2>Order Started 🎉</h2>
+    <p>Your tracking code:</p>
+
+    <div class="tracking-code-box" id="trackingCode">—</div>
+
+    <button class="popup-btn copy-btn" id="copyTrackingBtn">Copy Tracking Code</button>
+    <button class="popup-btn wa-btn" id="continueWhatsAppBtn">Send to WhatsApp</button>
+    <button class="close-btn" id="closeTrackingBtn">Close</button>
   </div>
 </div>
 
@@ -680,19 +770,19 @@ function saveOrderToLocalStorage(order){
    ============================ */
 let lastWhatsAppMessage = '';
 
-function prepareAndOpenWhatsApp(e) {
+function prepareAndOpenWhatsApp(e){
   e.preventDefault();
 
-  const name = qs('name')?.value.trim() || '';
-  const contact = qs('contact')?.value.trim() || '';
+  const name = (qs('name')?.value.trim()) || '';
+  const contact = (qs('contact')?.value.trim()) || '';
   const saved = JSON.parse(localStorage.getItem('ml_saved_location') || 'null') || null;
 
-  if (!name || !contact) {
+  if(!name || !contact){
     alert("Please fill in your name and contact number first!");
     return;
   }
 
-  if (!saved || (!saved.userLat && !saved.marketLat)) {
+  if(!saved || (!saved.userLat && !saved.marketLat)){
     alert("Please select your location and market on the map or Track Your Location.");
     return;
   }
@@ -706,34 +796,27 @@ function prepareAndOpenWhatsApp(e) {
   const delivery = parseFloat(qs('deliveryFee')?.textContent || 0);
   const total = parseFloat(qs('totalAmount')?.textContent || 0);
 
-  // Compose WhatsApp message with emojis/icons
-  lastWhatsAppMessage = `🛒 *MarketList Order*
+   // WhatsApp message with icons/emojis
+  lastWhatsAppMessage = `📝 *New Market Order* 🛒
 👤 Name: ${name}
 📞 Contact: ${contact}
 📍 Location: ${locationName}
 🏬 Market: ${marketName}
-📂 Category: ${category}
-📝 Items:
+📦 Category: ${category}
+🛍 Items:
 ${items}
-💰 Budget: ₵${budget.toFixed(2)}
-🛠️ Service Fee: ₵${service.toFixed(2)}
-🚚 Delivery Fee: ₵${delivery.toFixed(2)}
-💵 Total: ₵${total.toFixed(2)}`;
+💰 Budget: ₵${budget}
+💵 Service Fee (20%): ₵${service}
+🚚 Delivery Fee: ₵${delivery}
+💳 Total: ₵${total}`;
 
   const code = generateTrackingCode();
 
   const orderObj = {
     tracking: code,
-    name,
-    phone: contact,
-    location: locationName,
-    market: marketName,
-    category,
-    items,
-    budget,
-    serviceFee: service,
-    deliveryFee: delivery,
-    total,
+    name, phone: contact, location: locationName,
+    market: marketName, category, items, budget,
+    serviceFee: service, deliveryFee: delivery, total,
     createdAt: Date.now(),
     customerLat: saved?.userLat || null,
     customerLng: saved?.userLng || null,
@@ -745,16 +828,8 @@ ${items}
   sessionStorage.setItem('ml_tracking_code', code);
   sessionStorage.setItem('ml_last_order', JSON.stringify(orderObj));
 
-  if (qs('trackingCode')) qs('trackingCode').textContent = code;
-  if (qs('trackingPopup')) qs('trackingPopup').style.display = 'flex';
-}
-// Copy tracking code
-if (qs('copyTrackingBtn')) {
-  qs('copyTrackingBtn').addEventListener('click', () => {
-    const code = qs('trackingCode')?.textContent || "";
-    navigator.clipboard.writeText(code);
-    alert("Tracking code copied!");
-  });
+  if(qs('trackingCode')) qs('trackingCode').textContent = code;
+  if(qs('trackingPopup')) qs('trackingPopup').style.display = 'flex';
 }
 
 function generateTrackingCode(){
@@ -773,6 +848,15 @@ qs('continueWhatsAppBtn')?.addEventListener('click', ()=>{
 qs('closeTrackingBtn')?.addEventListener('click', ()=> {
   qs('trackingPopup').style.display = 'none';
 });
+
+// Copy tracking code
+if (qs('copyTrackingBtn')) {
+  qs('copyTrackingBtn').addEventListener('click', () => {
+    const code = qs('trackingCode')?.textContent || "";
+    navigator.clipboard.writeText(code);
+    alert("Tracking code copied!");
+  });
+}
 
 /* ============================
    Map & Location Selection
@@ -965,6 +1049,7 @@ function sendMessage(){
     chatBody.scrollTop = chatBody.scrollHeight;
   }, 800);
 }
+</script>
 <div id="trackingPopup">
   <div class="tracking-card">
     <h2>Order Started 🎉</h2>
@@ -977,6 +1062,6 @@ function sendMessage(){
     <button class="close-btn" id="closeTrackingBtn">Close</button>
   </div>
 </div>
-</script>
 </body>
 </html>
+
