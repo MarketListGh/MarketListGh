@@ -6,21 +6,30 @@
 <title>MarketList — Home</title>
 
 <style>
-* { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
 
-/* Preloader overlay */
+/* Preloader */
 #preloader {
   position: fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
   transition: opacity 0.5s ease;
 }
-#preloader.hidden { opacity:0; pointer-events:none; }
+#preloader.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
 
 .loader-ring {
   width: 120px; height: 120px;
@@ -42,47 +51,65 @@
   border-radius: 50%;
   position: relative;
 }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
-/* Splash */
+/* Splash Screen */
 #splash {
   position: fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:9998;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9998;
   flex-direction: column;
-  font-size:24px;
-  color:#00a859;
-  opacity:0;
+  font-size: 24px;
+  color: #00a859;
+  opacity: 0;
   transition: opacity 0.5s ease;
 }
-#splash.visible { opacity:1; }
+#splash.visible {
+  opacity: 1;
+}
 
-/* Header and Menu */
+/* Header */
 .headerbar {
-  background:#00a859; 
-  color:#fff; 
-  padding:10px 20px;
+  background: #00a859;
+  color: #fff;
+  padding: 10px 20px;
 }
 .headerbar .inner {
-  display:flex; 
-  align-items:center; 
+  display: flex;
+  align-items: center;
   justify-content: space-between;
 }
-.headerbar .brand { 
-  display:flex; 
-  align-items:center; 
-  cursor:pointer; 
+.headerbar .brand {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
 }
-.headerbar .brand img { width:40px; margin-right:10px; }
-.headerbar .brand .title { font-size:20px; font-weight:normal; color:#fff; }
-.headerbar nav a { color:#fff; margin-left:20px; text-decoration:none; font-weight:bold; font-size:13.5px; }
-.headerbar nav a:hover { opacity:0.9; }
-.headerbar nav a.active { text-decoration:underline; }
+.headerbar .brand img {
+  width: 40px;
+  margin-right: 10px;
+}
+.headerbar .brand .title {
+  font-size: 20px;
+  font-weight: normal;
+  color: #fff;
+}
+.headerbar nav a {
+  color: #fff;
+  margin-left: 20px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13.5px;
+}
+.headerbar nav a:hover { opacity: 0.9; }
+.headerbar nav a.active { text-decoration: underline; }
 
 /* Slider */
 .slider-box {
@@ -106,81 +133,219 @@
   object-fit: cover;
   display: block;
 }
-.slider-dot-container { text-align:center; margin-top:10px; }
-.slider-dot { width:10px; height:10px; background:#ccc; border-radius:50%; display:inline-block; margin:0 3px; cursor:pointer; }
-.slider-dot.active { background:#00a859; }
+.slider-dot-container {
+  text-align: center;
+  margin-top: 10px;
+}
+.slider-dot {
+  width: 10px; height: 10px;
+  background: #ccc;
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 3px;
+  cursor: pointer;
+}
+.slider-dot.active {
+  background: #00a859;
+}
 
 /* Main content */
-main.container { max-width:700px; margin:40px auto; padding:20px; }
+main.container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 20px;
+}
 .card {
   background: linear-gradient(135deg, #00a859, #ff8c00);
-  color:#fff; padding:30px; border-radius:20px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.2);
+  color: #fff;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
-.header-main { display:flex; align-items:center; margin-bottom:20px; }
-.header-main img { width:60px; margin-right:15px; }
-.header-main h1 { margin:0; }
-.slogan { font-style: normal; font-size:0.9em; }
+.header-main {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.header-main img {
+  width: 60px;
+  margin-right: 15px;
+}
+.header-main h1 {
+  margin: 0;
+}
+.slogan {
+  font-style: normal;
+  font-size: 0.9em;
+}
 
-form label { display:block; margin-top:15px; font-weight:bold; color:#fff; }
-form input, form select, form textarea { width:100%; padding:10px; margin-top:5px; border:none; border-radius:8px; font-size:15px; }
-textarea { height:80px; resize:vertical; }
+/* Forms */
+form label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;
+  color: #fff;
+}
+form input, form select, form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+}
+textarea {
+  height: 80px;
+  resize: vertical;
+}
 
-.row { display:flex; gap:10px; }
-.row .col { flex:1; }
+.row {
+  display: flex;
+  gap: 10px;
+}
+.row .col { flex: 1; }
 
-.transparent-box { background: rgba(255,255,255,0.95); color:#000; padding:20px; border-radius:12px; margin-top:15px; font-weight:bold; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
+.transparent-box {
+  background: rgba(255,255,255,0.95);
+  color: #000;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 15px;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+}
 
+/* Buttons */
 .send-whatsapp {
-  display:block; width:100%; text-align:center;
-  background-color:#25D366; color:white; font-weight:bold;
-  padding:15px; margin-top:25px; border-radius:30px;
-  text-decoration:none; transition: background-color 0.3s ease;
+  display: block;
+  width: 100%;
+  text-align: center;
+  background-color: #25D366;
+  color: white;
+  font-weight: bold;
+  padding: 15px;
+  margin-top: 25px;
+  border-radius: 30px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
 }
-.send-whatsapp:hover { background-color:#1ebe5b; }
-footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40px; color:#333; }
+.send-whatsapp:hover { background-color: #1ebe5b; }
 
-/* Saved Location Summary Card */
+footer.footer {
+  text-align: center;
+  padding: 15px;
+  background: #eee;
+  margin-top: 40px;
+  color: #333;
+}
+
+/* Saved Location Card */
 #savedCard {
   background: #fff;
   color: #111;
-  padding:14px;
-  border-radius:10px;
-  margin-top:12px;
-  box-shadow:0 8px 26px rgba(0,0,0,0.12);
-  display:none;
+  padding: 14px;
+  border-radius: 10px;
+  margin-top: 12px;
+  box-shadow: 0 8px 26px rgba(0,0,0,0.12);
+  display: none;
 }
-#savedCard h3 { margin:0 0 8px 0; color:#00a859; }
-#savedCard .row { display:flex; gap:10px; align-items:center; }
-#savedCard .left { flex:1; }
-#savedCard .right { text-align:right; min-width:180px; }
-#savedCard .distanceBadge { font-weight:800; color:#333; }
+#savedCard h3 {
+  margin: 0 0 8px 0;
+  color: #00a859;
+}
+#savedCard .row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+#savedCard .left { flex: 1; }
+#savedCard .right {
+  text-align: right;
+  min-width: 180px;
+}
+#savedCard .distanceBadge {
+  font-weight: 800;
+  color: #333;
+}
 
-/* compact hidden fields */
-.hidden { display:none !important; }
+/* Hidden fields */
+.hidden { display: none !important; }
 
 /* Chatbot */
-.chatbot-btn { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; background: #fff; color: #00a859; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; animation: bounce 2s infinite; z-index: 10000; }
-@keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-12px); } 60% { transform: translateY(-6px); } }
+.chatbot-btn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 60px; height: 60px;
+  background: #fff;
+  color: #00a859;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  cursor: pointer;
+  animation: bounce 2s infinite;
+  z-index: 10000;
+}
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-12px); }
+  60% { transform: translateY(-6px); }
+}
 
-.chat-overlay { display: none; position: fixed; bottom: 100px; right: 30px; width: 320px; height: 400px; background: rgba(255,255,255,0.95); border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 10001; flex-direction: column; overflow: hidden; }
-.chat-header { background: #00a859; color: #fff; padding: 10px; text-align: center; font-weight: bold; }
-.chat-body { flex: 1; padding: 10px; overflow-y: auto; font-size: 14px; color: #333; display: flex; flex-direction: column; gap: 8px; }
-.chat-message { padding: 8px 10px; border-radius: 10px; max-width: 80%; word-wrap: break-word; font-size: 14px; }
+.chat-overlay {
+  display: none;
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 320px;
+  height: 400px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 10001;
+  flex-direction: column;
+  overflow: hidden;
+}
+.chat-header {
+  background: #00a859;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+.chat-body {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chat-message {
+  padding: 8px 10px;
+  border-radius: 10px;
+  max-width: 80%;
+  word-wrap: break-word;
+  font-size: 14px;
+}
 .user-msg { background: #f2f2f2; color: #000; align-self: flex-end; }
 .bot-msg { background: #d8ecff; color: #000; align-self: flex-start; }
 .chat-input { display: flex; border-top: 1px solid #ddd; }
 .chat-input input { flex: 1; border: none; padding: 14px; font-size: 14px; outline: none; }
 .chat-input button { background: #00a859; color: #fff; border: none; padding: 10px 15px; cursor: pointer; }
 
-/* small responsiveness */
+/* Responsive */
 @media (max-width:700px){
-  .row { flex-direction:column; }
+  .row { flex-direction: column; }
 }
 </style>
 </head>
 <body>
-
 <!-- Preloader -->
 <div id="preloader" role="status" aria-live="polite">
   <div class="loader-ring" aria-hidden="true">
@@ -189,12 +354,13 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
   </div>
 </div>
 
-<!-- Splash -->
+<!-- Splash Screen -->
 <div id="splash" aria-hidden="true">
   <div>Welcome to <strong>MarketList</strong></div>
   <div>Bringing Market to Your Doorstep</div>
 </div>
 
+<!-- Header Navigation -->
 <header class="headerbar">
   <div class="inner">
     <div class="brand" onclick="window.location.href='index.html'">
@@ -212,7 +378,7 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
   </div>
 </header>
 
-<!-- Slider -->
+<!-- Image Slider -->
 <div class="slider-box">
   <div class="slider" id="mainSlider">
     <div class="slide active"><img src="pexels-kampus-8476600.jpg" alt=""></div>
@@ -232,6 +398,7 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
   </div>
 </div>
 
+<!-- Main Form Section -->
 <main class="container">
   <section class="card" role="form" aria-labelledby="formTitle">
     <div class="header-main">
@@ -243,6 +410,7 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
     </div>
 
     <form id="orderForm" onsubmit="return false;" aria-describedby="formHelp">
+      <!-- User Details -->
       <label for="name">Full Name</label>
       <input id="name" type="text" placeholder="Enter your full name" required>
 
@@ -272,18 +440,18 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
           </div>
         </div>
 
-        <!-- Distance input inside the card (readonly) -->
+        <!-- Distance input (readonly) -->
         <div style="margin-top:12px;">
           <label for="distanceKm" style="color:#333;">Distance (KM)</label>
           <input id="distanceKm" type="text" readonly placeholder="Distance (KM)" style="background:#f7f7f7;color:#111;">
         </div>
       </div>
 
-      <!-- Hidden fields to keep compatibility with existing form code -->
+      <!-- Hidden Fields -->
       <input id="locationHidden" class="hidden" type="text">
       <input id="marketHidden" class="hidden" type="text">
 
-      <!-- Category dropdown replaced by the professional Ghana list -->
+      <!-- Category & Budget -->
       <div class="row" style="margin-top:12px;">
         <div class="col">
           <label for="category" style="color:#fff;">Category</label>
@@ -313,9 +481,11 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
         </div>
       </div>
 
+      <!-- Item List -->
       <label for="items">Item List (name — quantity — price)</label>
       <textarea id="items" placeholder="Rice — 2 — 120 Ghs"></textarea>
 
+      <!-- Fees Summary -->
       <div class="transparent-box" aria-live="polite">
         <div>Service Fee (20%): ₵<span id="serviceFee">0.00</span></div>
         <div>Delivery Fee: ₵<span id="deliveryFee">0.00</span></div>
@@ -329,14 +499,15 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
         </div>
       </div>
 
+      <!-- Send Button -->
       <a id="sendBtn" class="send-whatsapp" href="#" onclick="prepareAndOpenWhatsApp(event)">Send Your List Now</a>
     </form>
   </section>
 </main>
-
+<!-- Footer -->
 <footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
 
-<!-- Tracking Popup (small centered) -->
+<!-- Tracking Popup -->
 <div id="trackingPopup" style="display:none;">
   <div id="trackingBox" role="dialog" aria-modal="true" aria-labelledby="trackingTitle">
     <div id="trackingTitle"><strong>Order Started!</strong></div>
@@ -366,24 +537,21 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
 
 <script>
 /* ============================
-   Config & Helper utilities
+   Config & Helper Utilities
    ============================ */
-
-// Geoapify key (used for reverse geocoding). Using the same key that was in your map file.
-// Replace if you prefer a different key.
 const GEOAPIFY_KEY = "efc8ef712d1a4cc3b5224e429987da3b";
 
-// Safe DOM helpers
 function qs(id){ return document.getElementById(id); }
-function show(el){ if(!el) return; el.style.display = 'block'; }
-function hide(el){ if(!el) return; el.style.display = 'none'; }
+function show(el){ if(el) el.style.display = 'block'; }
+function hide(el){ if(el) el.style.display = 'none'; }
 
 /* ============================
-   Preloader & Splash (robust)
+   Preloader & Splash
    ============================ */
 window.addEventListener('load', () => {
   try {
     try { sessionStorage.clear(); } catch(e){}
+
     const preloader = qs('preloader');
     const splash = qs('splash');
 
@@ -392,9 +560,7 @@ window.addEventListener('load', () => {
       if(splash) splash.classList.add('visible');
     }, 1200);
 
-    setTimeout(() => {
-      if(splash) splash.style.display = 'none';
-    }, 3200);
+    setTimeout(() => { if(splash) splash.style.display = 'none'; }, 3200);
   } catch (e) {
     console.error('Preloader error', e);
     const preloader = qs('preloader'); if(preloader) preloader.style.display='none';
@@ -403,40 +569,50 @@ window.addEventListener('load', () => {
 });
 
 /* ============================
-   Slider (unchanged)
+   Slider Logic
    ============================ */
 let sliderIndex = 0;
 const slides = document.querySelectorAll('.slide');
 const dots = document.querySelectorAll('.slider-dot');
+
 function showSlide(n){
   slides.forEach((s,i)=>s.style.display=(i===n?'block':'none'));
-  dots.forEach((d,i)=>d.classList.toggle('active',i===n));
+  dots.forEach((d,i)=>d.classList.toggle('active', i===n));
 }
-function nextSlide(){ sliderIndex=(sliderIndex+1)%slides.length; showSlide(sliderIndex); }
-if(slides.length) setInterval(nextSlide,4000);
-if(slides.length) showSlide(sliderIndex);
-dots.forEach((dot,i)=>dot.addEventListener('click',()=>{sliderIndex=i;showSlide(i);}))
+
+function nextSlide(){ 
+  sliderIndex = (sliderIndex + 1) % slides.length; 
+  showSlide(sliderIndex); 
+}
+
+if(slides.length){
+  setInterval(nextSlide, 4000);
+  showSlide(sliderIndex);
+}
+
+dots.forEach((dot, i) => dot.addEventListener('click', () => {
+  sliderIndex = i;
+  showSlide(i);
+}));
 
 /* ============================
-   Totals & Distance helpers
+   Totals & Distance Calculations
    ============================ */
-let selectedLatLng = null;         // customer coordinates
-let selectedMarketLatLng = null;   // market coordinates
-let selectedUserName = '';         // readable name
-let selectedMarketName = '';       // readable name
+let selectedLatLng = null;
+let selectedMarketLatLng = null;
+let selectedUserName = '';
+let selectedMarketName = '';
 
 function haversineKm(lat1,lng1,lat2,lng2){
   const R = 6371;
   const dLat = (lat2-lat1) * Math.PI/180;
   const dLon = (lng2-lng1) * Math.PI/180;
-  const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
   const c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   return R * c;
 }
 
-function getDistanceFromLatLonInKm(lat1,lng1,lat2,lng2){
-  return haversineKm(lat1,lng1,lat2,lng2);
-}
+function getDistanceFromLatLonInKm(lat1,lng1,lat2,lng2){ return haversineKm(lat1,lng1,lat2,lng2); }
 
 const budgetEl = qs('budget');
 const serviceEl = qs('serviceFee');
@@ -452,7 +628,6 @@ function updateTotals(){
     let delivery = 0;
     let distance = null;
 
-    // First prefer stored distance if available (in km)
     const stored = (function(){
       try { return JSON.parse(localStorage.getItem('ml_saved_location') || 'null'); } catch(e){ return null; }
     })();
@@ -466,7 +641,6 @@ function updateTotals(){
     if(distance != null && !isNaN(distance)){
       savedDistanceText.textContent = `${distance.toFixed(2)} km`;
       if(distanceInput) distanceInput.value = distance.toFixed(2);
-      // Delivery fee rule: distance <= 10km -> 20 ; else 20 + ceil(distance-10)*2
       delivery = (distance <= 10) ? 20 : 20 + Math.ceil(distance - 10) * 2;
     } else {
       savedDistanceText.textContent = 'N/A';
@@ -483,85 +657,95 @@ function updateTotals(){
 }
 
 if(budgetEl) budgetEl.addEventListener('input', updateTotals);
-
+</script>
+<script>
 /* ============================
    Storage helpers for orders
    ============================ */
 function saveOrderToLocalStorage(order){
-  try{
+  try {
     const existing = JSON.parse(localStorage.getItem('marketOrders') || '[]');
     if(!existing.some(o => o.tracking === order.tracking)){
       existing.push(order);
       localStorage.setItem('marketOrders', JSON.stringify(existing));
     }
-  }catch(err){
+  } catch(err) {
     console.error('Failed to save order to localStorage', err);
   }
 }
 
 /* ============================
-   WhatsApp & Order flow (adapted)
+   WhatsApp & Order Flow
    ============================ */
-let lastWhatsAppMessage='';
+let lastWhatsAppMessage = '';
 
-function prepareAndOpenWhatsApp(e){
+function prepareAndOpenWhatsApp(e) {
   e.preventDefault();
 
-  const name = (qs('name') && qs('name').value.trim()) || '';
-  const contact = (qs('contact') && qs('contact').value.trim()) || '';
+  const name = qs('name')?.value.trim() || '';
+  const contact = qs('contact')?.value.trim() || '';
+  const saved = JSON.parse(localStorage.getItem('ml_saved_location') || 'null') || null;
 
-  const saved = (function(){
-    try { return JSON.parse(localStorage.getItem('ml_saved_location') || 'null'); } catch(e){ return null; }
-  })();
-
-  if(!name || !contact){
+  if (!name || !contact) {
     alert("Please fill in your name and contact number first!");
     return;
   }
 
-  if(!saved || (!saved.userLat && !saved.marketLat)){
-    alert("Please select your location and market on the map (Select on Map) or Track Your Location.");
+  if (!saved || (!saved.userLat && !saved.marketLat)) {
+    alert("Please select your location and market on the map or Track Your Location.");
     return;
   }
 
-  const locationName = qs('locationHidden') ? qs('locationHidden').value : (saved.userName || '');
-  const marketName = qs('marketHidden') ? qs('marketHidden').value : (saved.marketName || '');
-  const category = qs('category') ? qs('category').value : '';
-  const items = qs('items') ? qs('items').value : '';
-  const budget = parseFloat(qs('budget') ? qs('budget').value : 0) || 0;
-  const service = parseFloat(qs('serviceFee') ? qs('serviceFee').textContent : 0) || 0;
-  const delivery = parseFloat(qs('deliveryFee') ? qs('deliveryFee').textContent : 0) || 0;
-  const total = parseFloat(qs('totalAmount') ? qs('totalAmount').textContent : 0) || 0;
+  const locationName = qs('locationHidden')?.value || (saved.userLabel || '');
+  const marketName = qs('marketHidden')?.value || (saved.marketLabel || '');
+  const category = qs('category')?.value || '';
+  const items = qs('items')?.value || '';
+  const budget = parseFloat(qs('budget')?.value || 0);
+  const service = parseFloat(qs('serviceFee')?.textContent || 0);
+  const delivery = parseFloat(qs('deliveryFee')?.textContent || 0);
+  const total = parseFloat(qs('totalAmount')?.textContent || 0);
 
-  lastWhatsAppMessage=`Hello, I want to place an order:\nName: ${name}\nContact: ${contact}\nLocation: ${locationName}\nMarket: ${marketName}\nCategory: ${category}\nItems:\n${items}\nBudget: ₵${budget}\nService Fee: ₵${service}\nDelivery Fee: ₵${delivery}\nTotal: ₵${total}`;
+  // Compose WhatsApp message with emojis/icons
+  lastWhatsAppMessage = `🛒 *MarketList Order*
+👤 Name: ${name}
+📞 Contact: ${contact}
+📍 Location: ${locationName}
+🏬 Market: ${marketName}
+📂 Category: ${category}
+📝 Items:
+${items}
+💰 Budget: ₵${budget.toFixed(2)}
+🛠️ Service Fee: ₵${service.toFixed(2)}
+🚚 Delivery Fee: ₵${delivery.toFixed(2)}
+💵 Total: ₵${total.toFixed(2)}`;
 
   const code = generateTrackingCode();
 
   const orderObj = {
     tracking: code,
-    name: name,
+    name,
     phone: contact,
     location: locationName,
     market: marketName,
-    category: category,
-    items: items,
-    budget: budget,
+    category,
+    items,
+    budget,
     serviceFee: service,
     deliveryFee: delivery,
-    total: total,
+    total,
     createdAt: Date.now(),
-    customerLat: saved ? saved.userLat : null,
-    customerLng: saved ? saved.userLng : null,
-    marketLat: saved ? saved.marketLat : null,
-    marketLng: saved ? saved.marketLng : null
+    customerLat: saved?.userLat || null,
+    customerLng: saved?.userLng || null,
+    marketLat: saved?.marketLat || null,
+    marketLng: saved?.marketLng || null
   };
 
   saveOrderToLocalStorage(orderObj);
   sessionStorage.setItem('ml_tracking_code', code);
   sessionStorage.setItem('ml_last_order', JSON.stringify(orderObj));
 
-  if(qs('trackingCode')) qs('trackingCode').textContent = code;
-  if(qs('trackingPopup')) qs('trackingPopup').style.display = 'flex';
+  if (qs('trackingCode')) qs('trackingCode').textContent = code;
+  if (qs('trackingPopup')) qs('trackingPopup').style.display = 'flex';
 }
 
 function generateTrackingCode(){
@@ -569,49 +753,35 @@ function generateTrackingCode(){
   return `ML-${n}`;
 }
 
-if(qs('continueWhatsAppBtn')){
-  qs('continueWhatsAppBtn').addEventListener('click', ()=>{
-    const code = sessionStorage.getItem('ml_tracking_code') || (qs('trackingCode') && qs('trackingCode').textContent);
-    const messageWithCode = lastWhatsAppMessage + `\nTracking Code: ${code}`;
-    const waUrl = `https://wa.me/233537351866?text=${encodeURIComponent(messageWithCode)}`;
-    if(qs('trackingPopup')) qs('trackingPopup').style.display = 'none';
-    window.open(waUrl,'_blank');
-  });
-}
-if(qs('closeTrackingBtn')){
-  qs('closeTrackingBtn').addEventListener('click', ()=> {
-    if(qs('trackingPopup')) qs('trackingPopup').style.display = 'none';
-  });
-}
+/* Continue & Close Tracking Popup */
+qs('continueWhatsAppBtn')?.addEventListener('click', ()=>{
+  const code = sessionStorage.getItem('ml_tracking_code') || qs('trackingCode')?.textContent;
+  const waUrl = `https://wa.me/233537351866?text=${encodeURIComponent(lastWhatsAppMessage + `\nTracking Code: ${code}`)}`;
+  qs('trackingPopup').style.display = 'none';
+  window.open(waUrl,'_blank');
+});
+
+qs('closeTrackingBtn')?.addEventListener('click', ()=> {
+  qs('trackingPopup').style.display = 'none';
+});
 
 /* ============================
-   UI: Select on Map, Change Location, Track Your Location
+   Map & Location Selection
    ============================ */
-if(qs('selectOnMapBtn')){
-  qs('selectOnMapBtn').addEventListener('click', ()=>{
-    window.location.href = 'map.html';
-  });
-}
-if(qs('changeLocationBtn')){
-  qs('changeLocationBtn').addEventListener('click', ()=> {
-    window.location.href = 'map.html';
-  });
-}
+qs('selectOnMapBtn')?.addEventListener('click', ()=> window.location.href='map.html');
+qs('changeLocationBtn')?.addEventListener('click', ()=> window.location.href='map.html');
 
-/* Track user location (geolocation) */
+/* Track User Location (Geolocation) */
 async function reverseGeocode(lat, lon){
   try{
     if(lat == null || lon == null) return null;
-    const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&apiKey=${GEOAPIFY_KEY}`;
+    const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lon}&apiKey=${GEOAPIFY_KEY}`;
     const res = await fetch(url);
     if(!res.ok) return null;
-    const j = await res.json();
-    if(j && j.features && j.features.length){
-      // pick short formatted piece if possible
-      const props = j.features[0].properties || {};
-      if(props.formatted) return props.formatted;
-      if(props.name) return props.name;
-      return JSON.stringify(props);
+    const data = await res.json();
+    if(data?.features?.length){
+      const props = data.features[0].properties;
+      return props.formatted || props.name || JSON.stringify(props);
     }
     return null;
   } catch(e){
@@ -622,50 +792,41 @@ async function reverseGeocode(lat, lon){
 
 async function handleTrackLocationClick(){
   if(!navigator.geolocation){
-    alert('Geolocation is not supported by your browser.');
+    alert('Geolocation not supported.');
     return;
   }
   const btn = qs('trackLocationBtn');
-  if(btn) { btn.disabled = true; btn.textContent = 'Detecting...'; }
+  btn.disabled = true; btn.textContent = 'Detecting...';
+
   navigator.geolocation.getCurrentPosition(async (pos) => {
     try{
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
+      const { latitude: lat, longitude: lon } = pos.coords;
       selectedLatLng = { lat, lng: lon };
-
-      // Try reverse geocode
       const name = await reverseGeocode(lat, lon) || `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
-
       selectedUserName = name;
-      // Show card and fill fields
-      if(qs('savedCard')) qs('savedCard').style.display = 'block';
-      if(qs('savedUser')) qs('savedUser').textContent = selectedUserName;
-      if(qs('locationHidden')) qs('locationHidden').value = selectedUserName;
 
-      // Save a partial payload so totals can use the distance if market exists later
-      // We save user coords; market may be added later by map.html
-      const existing = (function(){ try{ return JSON.parse(localStorage.getItem('ml_saved_location')||'null'); }catch(e){return null;} })() || {};
+      qs('savedCard').style.display = 'block';
+      qs('savedUser').textContent = selectedUserName;
+      qs('locationHidden').value = selectedUserName;
+
+      const existing = JSON.parse(localStorage.getItem('ml_saved_location') || 'null') || {};
       existing.userLat = lat; existing.userLng = lon; existing.userLabel = selectedUserName;
       localStorage.setItem('ml_saved_location', JSON.stringify(existing));
 
-      // update totals (distance may be N/A until market set)
       updateTotals();
     } catch(e){
-      console.error('handleTrackLocationClick error', e);
-      alert('Failed to reverse-geocode your location.');
+      console.error(e);
+      alert('Failed to detect location.');
     } finally {
-      if(btn) { btn.disabled = false; btn.textContent = 'Track Your Location'; }
+      btn.disabled = false; btn.textContent = 'Track Your Location';
     }
-  }, (err) => {
-    if(qs('trackLocationBtn')){ qs('trackLocationBtn').disabled=false; qs('trackLocationBtn').textContent='Track Your Location'; }
-    console.warn('geolocation error', err);
+  }, (err)=>{
+    btn.disabled = false; btn.textContent = 'Track Your Location';
     alert('Unable to detect location: ' + (err.message || 'error'));
   }, { enableHighAccuracy:true, timeout:10000, maximumAge:60000 });
 }
 
-if(qs('trackLocationBtn')){
-  qs('trackLocationBtn').addEventListener('click', handleTrackLocationClick);
-}
+qs('trackLocationBtn')?.addEventListener('click', handleTrackLocationClick);
 
 /* ============================
    Load Saved Location on page start
@@ -796,6 +957,5 @@ function sendMessage(){
   }, 800);
 }
 </script>
-
 </body>
 </html>
