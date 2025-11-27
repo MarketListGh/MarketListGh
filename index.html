@@ -865,7 +865,7 @@ async function populateSavedLocationIfExists(){
   try{
     const payload = JSON.parse(localStorage.getItem('ml_saved_location') || 'null');
     if(!payload) {
-      // show empty card area as placeholder
+      // show empty card area as placeholder so users see where to track or select
       if(qs('savedCard')) qs('savedCard').style.display = 'block';
       if(qs('savedUser')) qs('savedUser').textContent = '—';
       if(qs('savedMarket')) qs('savedMarket').textContent = '—';
@@ -874,58 +874,37 @@ async function populateSavedLocationIfExists(){
       return;
     }
 
-    // Parse coordinates safely
-    const userLat = payload.userLat != null ? parseFloat(payload.userLat) : null;
-    const userLng = payload.userLng != null ? parseFloat(payload.userLng) : null;
+    // Coordinates from payload (numbers expected)
+    const userLat = payload.userLat != null ? parseFloat(payload.userLat) : (payload.userLat == null ? null : parseFloat(payload.userLat));
+    const userLng = payload.userLng != null ? parseFloat(payload.userLng) : (payload.userLng == null ? null : parseFloat(payload.userLng));
     const marketLat = payload.marketLat != null ? parseFloat(payload.marketLat) : null;
     const marketLng = payload.marketLng != null ? parseFloat(payload.marketLng) : null;
     const payloadDistance = (payload.distanceKm != null && payload.distanceKm !== '') ? parseFloat(payload.distanceKm) : null;
 
-    if(!isNaN(userLat) && !isNaN(userLng)) selectedLatLng = { lat: userLat, lng: userLng };
-    if(!isNaN(marketLat) && !isNaN(marketLng)) selectedMarketLatLng = { lat: marketLat, lng: marketLng };
+    if(!isNaN(userLat) && !isNaN(userLng)){
+      selectedLatLng = { lat: userLat, lng: userLng };
+    }
+    if(!isNaN(marketLat) && !isNaN(marketLng)){
+      selectedMarketLatLng = { lat: marketLat, lng: marketLng };
+    }
 
-    // Prefer saved labels first; fallback to reverse geocode only if missing
-    let userName = payload.userLabel || (selectedLatLng ? await reverseGeocode(selectedLatLng.lat, selectedLatLng.lng) : '');
-    let marketName = payload.marketLabel || (selectedMarketLatLng ? await reverseGeocode(selectedMarketLatLng.lat, selectedMarketLatLng.lng) : '');
+    // Reverse geocode (if available)
+    let userName = null, marketName = null;
+    if(selectedLatLng){
+      userName = await reverseGeocode(selectedLatLng.lat, selectedLatLng.lng);
+    }
+    if(selectedMarketLatLng){
+      marketName = await reverseGeocode(selectedMarketLatLng.lat, selectedMarketLatLng.lng);
+    }
 
-    // Fallback to coordinates if still missing
+    if(!userName && payload.userLabel) userName = payload.userLabel;
+    if(!marketName && payload.marketLabel) marketName = payload.marketLabel;
+
     if(!userName && selectedLatLng) userName = `${selectedLatLng.lat.toFixed(5)}, ${selectedLatLng.lng.toFixed(5)}`;
     if(!marketName && selectedMarketLatLng) marketName = `${selectedMarketLatLng.lat.toFixed(5)}, ${selectedMarketLatLng.lng.toFixed(5)}`;
 
-    // Update global selected names
     selectedUserName = userName || '';
     selectedMarketName = marketName || '';
-
-    // Update UI
-    if(qs('savedCard')) qs('savedCard').style.display = 'block';
-    if(qs('savedUser')) qs('savedUser').textContent = selectedUserName;
-    if(qs('savedMarket')) qs('savedMarket').textContent = selectedMarketName;
-    if(qs('savedDistanceText')) qs('savedDistanceText').textContent = payloadDistance ? `${payloadDistance} km` : '—';
-    if(qs('distanceKm')) qs('distanceKm').value = payloadDistance || '';
-
-    // Optionally: update map markers if map exists
-    if(window.map){
-      if(selectedLatLng){
-        L.marker([selectedLatLng.lat, selectedLatLng.lng]).addTo(map)
-          .bindPopup(selectedUserName);
-      }
-      if(selectedMarketLatLng){
-        L.marker([selectedMarketLatLng.lat, selectedMarketLatLng.lng]).addTo(map)
-          .bindPopup(selectedMarketName);
-      }
-      if(selectedLatLng && selectedMarketLatLng){
-        const group = L.featureGroup([
-          L.marker([selectedLatLng.lat, selectedLatLng.lng]),
-          L.marker([selectedMarketLatLng.lat, selectedMarketLatLng.lng])
-        ]);
-        map.fitBounds(group.getBounds().pad(0.5));
-      }
-    }
-
-  } catch(e){
-    console.error('populateSavedLocationIfExists error', e);
-  }
-}
 
     // show card and fill fields
     if(qs('savedCard')) qs('savedCard').style.display = 'block';
@@ -934,7 +913,7 @@ async function populateSavedLocationIfExists(){
 
     if(qs('locationHidden')) qs('locationHidden').value = selectedUserName || '';
     if(qs('marketHidden')) qs('marketHidden').value = selectedMarketName || '';
-
+    
     // Distance: prefer payload distance, otherwise compute
     let distanceKm = null;
     if(payloadDistance != null && !isNaN(payloadDistance)){
