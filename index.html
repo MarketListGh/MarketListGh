@@ -343,8 +343,7 @@ footer.footer {
 @media (max-width:700px){
   .row { flex-direction: column; }
 }
-
-/* ============================
+  /* ============================
    Tracking Popup (Improved)
    ============================ */
 #trackingPopup {
@@ -476,18 +475,6 @@ footer.footer {
     <span class="slider-dot"></span>
   </div>
 </div>
-<div id="trackingPopup">
-  <div class="tracking-card">
-    <h2>Order Started 🎉</h2>
-    <p>Your tracking code:</p>
-
-    <div class="tracking-code-box" id="trackingCode">—</div>
-
-    <button class="popup-btn copy-btn" id="copyTrackingBtn">Copy Tracking Code</button>
-    <button class="popup-btn wa-btn" id="continueWhatsAppBtn">Send to WhatsApp</button>
-    <button class="close-btn" id="closeTrackingBtn">Close</button>
-  </div>
-</div>
 
 <!-- Main Form Section -->
 <main class="container">
@@ -598,17 +585,19 @@ footer.footer {
 <!-- Footer -->
 <footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
 
-<!-- Tracking Popup -->
-<div id="trackingPopup" style="display:none;">
-  <div id="trackingBox" role="dialog" aria-modal="true" aria-labelledby="trackingTitle">
-    <div id="trackingTitle"><strong>Order Started!</strong></div>
-    <p class="small">Your tracking code is:</p>
-    <div class="code" id="trackingCode">ML-000000</div>
-    <div class="small">Save this code to track your order.</div>
-    <button class="continueBtn" id="continueWhatsAppBtn">Continue to WhatsApp</button>
-    <button class="closeBtn" id="closeTrackingBtn">Close</button>
+<div id="trackingPopup">
+  <div class="tracking-card">
+    <h2>Order Started 🎉</h2>
+    <p>Your tracking code:</p>
+
+    <div class="tracking-code-box" id="trackingCode">—</div>
+
+    <button class="popup-btn copy-btn" id="copyTrackingBtn">Copy Tracking Code</button>
+    <button class="popup-btn wa-btn" id="continueWhatsAppBtn">Send to WhatsApp</button>
+    <button class="close-btn" id="closeTrackingBtn">Close</button>
   </div>
 </div>
+
 
 <!-- Floating Chatbot -->
 <div class="chatbot-btn" onclick="toggleChat()">💬</div>
@@ -749,33 +738,17 @@ function updateTotals(){
 
 if(budgetEl) budgetEl.addEventListener('input', updateTotals);
 </script>
-<script>
-/* ============================
-   Storage helpers for orders
-   ============================ */
-function saveOrderToLocalStorage(order){
-  try {
-    const existing = JSON.parse(localStorage.getItem('marketOrders') || '[]');
-    if(!existing.some(o => o.tracking === order.tracking)){
-      existing.push(order);
-      localStorage.setItem('marketOrders', JSON.stringify(existing));
-    }
-  } catch(err) {
-    console.error('Failed to save order to localStorage', err);
-  }
-}
 
-/* ============================
-   WhatsApp & Order Flow
-   ============================ */
-let lastWhatsAppMessage = '';
-
+<Script>
 function prepareAndOpenWhatsApp(e){
   e.preventDefault();
 
-  const name = (qs('name')?.value.trim()) || '';
-  const contact = (qs('contact')?.value.trim()) || '';
-  const saved = JSON.parse(localStorage.getItem('ml_saved_location') || 'null') || null;
+  const name = (qs('name') && qs('name').value.trim()) || '';
+  const contact = (qs('contact') && qs('contact').value.trim()) || '';
+
+  const saved = (function(){
+    try { return JSON.parse(localStorage.getItem('ml_saved_location') || 'null'); } catch(e){ return null; }
+  })();
 
   if(!name || !contact){
     alert("Please fill in your name and contact number first!");
@@ -783,20 +756,20 @@ function prepareAndOpenWhatsApp(e){
   }
 
   if(!saved || (!saved.userLat && !saved.marketLat)){
-    alert("Please select your location and market on the map or Track Your Location.");
+    alert("Please select your location and market on the map (Select on Map) or Track Your Location.");
     return;
   }
 
-  const locationName = qs('locationHidden')?.value || (saved.userLabel || '');
-  const marketName = qs('marketHidden')?.value || (saved.marketLabel || '');
-  const category = qs('category')?.value || '';
-  const items = qs('items')?.value || '';
-  const budget = parseFloat(qs('budget')?.value || 0);
-  const service = parseFloat(qs('serviceFee')?.textContent || 0);
-  const delivery = parseFloat(qs('deliveryFee')?.textContent || 0);
-  const total = parseFloat(qs('totalAmount')?.textContent || 0);
+  const locationName = qs('locationHidden') ? qs('locationHidden').value : (saved.userLabel || '');
+  const marketName = qs('marketHidden') ? qs('marketHidden').value : (saved.marketLabel || '');
+  const category = qs('category') ? qs('category').value : '';
+  const items = qs('items') ? qs('items').value : '';
+  const budget = parseFloat(qs('budget') ? qs('budget').value : 0) || 0;
+  const service = parseFloat(qs('serviceFee') ? qs('serviceFee').textContent : 0) || 0;
+  const delivery = parseFloat(qs('deliveryFee') ? qs('deliveryFee').textContent : 0) || 0;
+  const total = parseFloat(qs('totalAmount') ? qs('totalAmount').textContent : 0) || 0;
 
-   // WhatsApp message with icons/emojis
+  // WhatsApp message with icons/emojis
   lastWhatsAppMessage = `📝 *New Market Order* 🛒
 👤 Name: ${name}
 📞 Contact: ${contact}
@@ -814,14 +787,21 @@ ${items}
 
   const orderObj = {
     tracking: code,
-    name, phone: contact, location: locationName,
-    market: marketName, category, items, budget,
-    serviceFee: service, deliveryFee: delivery, total,
+    name: name,
+    phone: contact,
+    location: locationName,
+    market: marketName,
+    category: category,
+    items: items,
+    budget: budget,
+    serviceFee: service,
+    deliveryFee: delivery,
+    total: total,
     createdAt: Date.now(),
-    customerLat: saved?.userLat || null,
-    customerLng: saved?.userLng || null,
-    marketLat: saved?.marketLat || null,
-    marketLng: saved?.marketLng || null
+    customerLat: saved ? saved.userLat : null,
+    customerLng: saved ? saved.userLng : null,
+    marketLat: saved ? saved.marketLat : null,
+    marketLng: saved ? saved.marketLng : null
   };
 
   saveOrderToLocalStorage(orderObj);
@@ -831,25 +811,7 @@ ${items}
   if(qs('trackingCode')) qs('trackingCode').textContent = code;
   if(qs('trackingPopup')) qs('trackingPopup').style.display = 'flex';
 }
-
-function generateTrackingCode(){
-  const n = Math.floor(100000 + Math.random()*900000);
-  return `ML-${n}`;
-}
-
-/* Continue & Close Tracking Popup */
-qs('continueWhatsAppBtn')?.addEventListener('click', ()=>{
-  const code = sessionStorage.getItem('ml_tracking_code') || qs('trackingCode')?.textContent;
-  const waUrl = `https://wa.me/233537351866?text=${encodeURIComponent(lastWhatsAppMessage + `\nTracking Code: ${code}`)}`;
-  qs('trackingPopup').style.display = 'none';
-  window.open(waUrl,'_blank');
-});
-
-qs('closeTrackingBtn')?.addEventListener('click', ()=> {
-  qs('trackingPopup').style.display = 'none';
-});
-
-// Copy tracking code
+  // Copy tracking code
 if (qs('copyTrackingBtn')) {
   qs('copyTrackingBtn').addEventListener('click', () => {
     const code = qs('trackingCode')?.textContent || "";
@@ -865,6 +827,7 @@ async function populateSavedLocationIfExists(){
   try{
     const payload = JSON.parse(localStorage.getItem('ml_saved_location') || 'null');
     if(!payload) {
+      // show empty card area as placeholder so users see where to track or select
       if(qs('savedCard')) qs('savedCard').style.display = 'block';
       if(qs('savedUser')) qs('savedUser').textContent = '—';
       if(qs('savedMarket')) qs('savedMarket').textContent = '—';
@@ -873,14 +836,12 @@ async function populateSavedLocationIfExists(){
       return;
     }
 
-    // Coordinates
-    const userLat = payload.userLat != null ? parseFloat(payload.userLat) : null;
-    const userLng = payload.userLng != null ? parseFloat(payload.userLng) : null;
+    // Coordinates from payload (numbers expected)
+    const userLat = payload.userLat != null ? parseFloat(payload.userLat) : (payload.userLat == null ? null : parseFloat(payload.userLat));
+    const userLng = payload.userLng != null ? parseFloat(payload.userLng) : (payload.userLng == null ? null : parseFloat(payload.userLng));
     const marketLat = payload.marketLat != null ? parseFloat(payload.marketLat) : null;
     const marketLng = payload.marketLng != null ? parseFloat(payload.marketLng) : null;
-    const payloadDistance = (payload.distanceKm != null && payload.distanceKm !== '') 
-      ? parseFloat(payload.distanceKm) 
-      : null;
+    const payloadDistance = (payload.distanceKm != null && payload.distanceKm !== '') ? parseFloat(payload.distanceKm) : null;
 
     if(!isNaN(userLat) && !isNaN(userLng)){
       selectedLatLng = { lat: userLat, lng: userLng };
@@ -889,7 +850,7 @@ async function populateSavedLocationIfExists(){
       selectedMarketLatLng = { lat: marketLat, lng: marketLng };
     }
 
-    // Reverse geocode OR saved label
+    // Reverse geocode (if available)
     let userName = null, marketName = null;
     if(selectedLatLng){
       userName = await reverseGeocode(selectedLatLng.lat, selectedLatLng.lng);
@@ -901,39 +862,20 @@ async function populateSavedLocationIfExists(){
     if(!userName && payload.userLabel) userName = payload.userLabel;
     if(!marketName && payload.marketLabel) marketName = payload.marketLabel;
 
-    if(!userName && selectedLatLng) 
-      userName = `${selectedLatLng.lat.toFixed(5)}, ${selectedLatLng.lng.toFixed(5)}`;
-    if(!marketName && selectedMarketLatLng) 
-      marketName = `${selectedMarketLatLng.lat.toFixed(5)}, ${selectedMarketLatLng.lng.toFixed(5)}`;
+    if(!userName && selectedLatLng) userName = `${selectedLatLng.lat.toFixed(5)}, ${selectedLatLng.lng.toFixed(5)}`;
+    if(!marketName && selectedMarketLatLng) marketName = `${selectedMarketLatLng.lat.toFixed(5)}, ${selectedMarketLatLng.lng.toFixed(5)}`;
 
     selectedUserName = userName || '';
     selectedMarketName = marketName || '';
 
-    /* ============================
-       Missing but REQUIRED
-       Update hidden fields + UI
-       ============================ */
-    if(qs('locationHidden')) qs('locationHidden').value = selectedUserName;
-    if(qs('marketHidden')) qs('marketHidden').value = selectedMarketName;
-    if(qs('distanceKm')) qs('distanceKm').value = payloadDistance != null ? payloadDistance : '';
-
+    // show card and fill fields
     if(qs('savedCard')) qs('savedCard').style.display = 'block';
-    if(qs('savedUser')) qs('savedUser').textContent = selectedUserName;
-    if(qs('savedMarket')) qs('savedMarket').textContent = selectedMarketName;
-    if(qs('savedDistanceText')) 
-      qs('savedDistanceText').textContent = payloadDistance != null 
-        ? `${payloadDistance} km` 
-        : '—';
+    if(qs('savedUser')) qs('savedUser').textContent = selectedUserName || '—';
+    if(qs('savedMarket')) qs('savedMarket').textContent = selectedMarketName || '—';
 
-    // Trigger totals update so km & UI refresh
-    if(typeof updateTotals === 'function'){
-      updateTotals();
-    }
+    if(qs('locationHidden')) qs('locationHidden').value = selectedUserName || '';
+    if(qs('marketHidden')) qs('marketHidden').value = selectedMarketName || '';
 
-  } catch(e){
-    console.error(e);
-  }
-}
     // Distance: prefer payload distance, otherwise compute
     let distanceKm = null;
     if(payloadDistance != null && !isNaN(payloadDistance)){
@@ -1007,18 +949,5 @@ function sendMessage(){
   }, 800);
 }
 </script>
-<div id="trackingPopup">
-  <div class="tracking-card">
-    <h2>Order Started 🎉</h2>
-    <p>Your tracking code:</p>
-
-    <div class="tracking-code-box" id="trackingCode">—</div>
-
-    <button class="popup-btn copy-btn" id="copyTrackingBtn">Copy Tracking Code</button>
-    <button class="popup-btn wa-btn" id="continueWhatsAppBtn">Send to WhatsApp</button>
-    <button class="close-btn" id="closeTrackingBtn">Close</button>
-  </div>
-</div>
 </body>
 </html>
-
