@@ -9,122 +9,180 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
-    :root { --accent: #00a859; --bg: #f7f7f7; --blue:#1976d2; --red:#d32f2f; }
-    html,body,#map { height:100%; margin:0; padding:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; }
-    #map { width:100%; height:100vh; background:var(--bg); }
+    :root {
+  --accent: #00a859;
+  --bg: #f7f7f7;
+  --blue:#1976d2;
+  --red:#d32f2f;
+}
 
-    /* top controls */
-    .topbar {
-      position: absolute;
-      left: 12px;
-      right: 12px;
-      top: 12px;
-      z-index: 1400;
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-    .search-box {
-      display:flex;
-      gap:8px;
-      align-items:center;
-      background:#fff;
-      padding:8px;
-      border-radius:10px;
-      box-shadow:0 6px 22px rgba(0,0,0,0.09);
-      position:relative;
-    }
-    .search-box input {
-      border:0; outline:0; font-size:14px; padding:6px 8px; width:220px;
-      transition: box-shadow .15s, border .15s;
-      border-radius:6px;
-    }
-    .btn {
-      padding:8px 12px; border-radius:8px; border:0; cursor:pointer; background:var(--accent); color:#fff; font-weight:600;
-      box-shadow:0 6px 18px rgba(0,168,89,0.12);
-      display:inline-flex; align-items:center; gap:8px; position:relative;
-    }
-    .btn.secondary { background:#1976d2; }
-    .btn:disabled { opacity:0.6; cursor:not-allowed; }
+html, body, #map {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+}
 
-    /* spinner (iOS-style smooth) */
-    .spinner {
-      width:16px; height:16px; border-radius:50%;
-      border:2px solid rgba(255,255,255,0.35); border-top-color: white;
-      animation: spin .7s linear infinite; display:none;
-    }
-    .btn.loading .spinner { display:inline-block; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+#map {
+  width: 100%;
+  height: 100vh;
+  background: var(--bg);
+  min-height: 400px; /* ensures map is not too small on very small screens */
+}
 
-    /* suggestions dropdown (detailed + emoji icons) */
-    .suggestions {
-      position:absolute;
-      top:44px;
-      left:0;
-      width:100%;
-      max-height:260px;
-      overflow:auto;
-      background:#fff;
-      box-shadow:0 8px 30px rgba(0,0,0,0.12);
-      border-radius:8px;
-      display:none;
-      z-index:1500;
-      padding:6px 6px;
-    }
-    .suggestion-row {
-      display:flex; gap:8px; padding:8px; cursor:pointer; border-radius:6px; align-items:flex-start;
-    }
-    .suggestion-row:hover { background:#f7fff7; }
-    .suggestion-icon { width:36px; font-size:20px; line-height:1; margin-top:2px; text-align:center; }
-    .suggestion-main { font-weight:700; font-size:14px; color:#111; }
-    .suggestion-sub { font-size:12px; color:#666; margin-top:4px; }
+/* top controls */
+.topbar {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 12px;
+  z-index: 1400;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap; /* allows items to move to new line on smaller screens */
+  align-items: center;
+}
 
-    /* legend/status */
-    .status {
-      position:absolute;
-      left:12px;
-      bottom:12px;
-      background:rgba(255,255,255,0.95);
-      padding:8px 12px;
-      border-radius:10px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.08);
-      z-index:1400;
-      font-size:13px;
-    }
+.search-box {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: #fff;
+  padding: 8px;
+  border-radius: 10px;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.09);
+  position: relative;
+  flex: 1 1 200px; /* allows box to grow/shrink */
+  max-width: 100%; /* never overflow */
+}
 
-    /* small popup nav button */
-    .popup-nav {
-      margin-top:8px;
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-    .nav-btn { padding:6px 10px; background:#1976d2; color:#fff; border-radius:8px; cursor:pointer; border:0; font-weight:600; display:inline-flex; align-items:center; gap:8px; }
-    .zoom-btn { padding:6px 10px; background:#00a859; color:#fff; border-radius:8px; cursor:pointer; border:0; font-weight:600; }
+.search-box input {
+  border: 0;
+  outline: 0;
+  font-size: 14px;
+  padding: 6px 8px;
+  width: 100%; /* takes all available space in box */
+  border-radius: 6px;
+}
 
-    /* icons legend */
-    .legend {
-      position:absolute;
-      right:12px;
-      bottom:12px;
-      z-index:1400;
-      background:rgba(255,255,255,0.95);
-      padding:8px 12px;
-      border-radius:10px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.08);
-      font-size:13px;
-    }
-    .legend .item { display:flex; gap:6px; align-items:center; margin-bottom:6px; }
-    .emoji { font-size:18px; line-height:1; display:inline-block; width:22px; text-align:center; }
-    /* small responsive */
-    @media (max-width:700px){
-      .search-box input { width:140px; }
-      .topbar { left:8px; right:8px; top:8px; }
-    }
+.btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 0;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  flex-shrink: 0; /* buttons don’t shrink too much */
+}
 
-    /* small map popup styling override so popups align nicely */
-    .leaflet-popup-content { font-size:14px; }
-  </style>
+.btn.secondary { background: #1976d2; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* spinner (iOS-style smooth) */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: white;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+.btn.loading .spinner { display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* suggestions dropdown */
+.suggestions {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  width: 100%;
+  max-height: 260px;
+  overflow: auto;
+  background: #fff;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  border-radius: 8px;
+  display: none;
+  z-index: 1500;
+  padding: 6px;
+}
+
+/* responsive suggestions row */
+.suggestion-row {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  align-items: flex-start;
+}
+.suggestion-row:hover { background:#f7fff7; }
+.suggestion-icon { width:36px; font-size:20px; line-height:1; margin-top:2px; text-align:center; }
+.suggestion-main { font-weight:700; font-size:14px; color:#111; }
+.suggestion-sub { font-size:12px; color:#666; margin-top:4px; }
+
+/* legend/status */
+.status {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  background: rgba(255,255,255,0.95);
+  padding: 8px 12px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  z-index: 1400;
+  font-size: 13px;
+}
+
+/* small popup nav button */
+.popup-nav {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.nav-btn, .zoom-btn {
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 0;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.nav-btn { background:#1976d2; color:#fff; }
+.zoom-btn { background:#00a859; color:#fff; }
+
+/* icons legend */
+.legend {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 1400;
+  background: rgba(255,255,255,0.95);
+  padding: 8px 12px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  font-size: 13px;
+}
+.legend .item { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+.emoji { font-size: 18px; line-height: 1; display: inline-block; width: 22px; text-align: center; }
+
+/* responsive adjustments */
+@media (max-width: 700px){
+  .topbar { left:8px; right:8px; top:8px; gap:6px; }
+  .search-box { flex: 1 1 100%; } /* full width on mobile */
+  .search-box input { font-size: 13px; padding: 5px; }
+  .btn { font-size: 13px; padding: 6px 10px; }
+}
+ </style>
 </head>
 <body>
 
