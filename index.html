@@ -948,6 +948,29 @@ function sendMessage(){
     chatBody.scrollTop = chatBody.scrollHeight;
   }, 800);
 }
+document.addEventListener('DOMContentLoaded', () => {
+
+  const selectBtn = qs('selectOnMapBtn');
+  const trackBtn  = qs('trackLocationBtn');
+  const changeBtn = qs('changeLocationBtn');
+
+  if (selectBtn) {
+    selectBtn.addEventListener('click', () => {
+      window.location.href = 'map.html';
+    });
+  }
+
+  if (changeBtn) {
+    changeBtn.addEventListener('click', () => {
+      window.location.href = 'map.html';
+    });
+  }
+
+  if (trackBtn) {
+    trackBtn.addEventListener('click', handleTrackLocationClick);
+  }
+
+});
 </script>
 </body>
 </html>
