@@ -578,7 +578,7 @@ footer.footer {
       </div>
 
       <!-- Send Button -->
-      <a id="sendBtn" class="send-whatsapp" href="https://chat.whatsapp.com/BF5fSCyk0uaJpBKQO1ZBit" <button onclick="openWhatsAppGroup()">Continue to WhatsApp</button>">Send Your List Now</a>
+      <a id="sendBtn" class="send-whatsapp" href="https://chat.whatsapp.com/BF5fSCyk0uaJpBKQO1ZBit" <button onclick="openWhatsAppGroup()</button>Send Your List Now</a>
     </form>
   </section>
 </main>
@@ -818,20 +818,6 @@ if (qs('copyTrackingBtn')) {
     navigator.clipboard.writeText(code);
     alert("Tracking code copied!");
   });
-}
-function openWhatsAppGroup(){
-  const message = sessionStorage.getItem('ml_whatsapp_message') || '';
-
-  // Copy message automatically
-  if(message){
-    navigator.clipboard.writeText(message).catch(()=>{});
-  }
-
-  // Open WhatsApp group
-  window.open(
-    "https://chat.whatsapp.com/BF5fSCyk0uaJpBKQO1ZBit",
-    "_blank"
-  );
 }
 
 /* ============================
