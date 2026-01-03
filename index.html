@@ -744,11 +744,32 @@ if(budgetEl) budgetEl.addEventListener('input', updateTotals);
 </script>
 
 <Script>
+<a id="sendBtn" class="send-whatsapp" href="#" onclick="prepareAndOpenWhatsApp(event)">
+  Send Your List Now
+</a>
+
+<script>
+function qs(selector){ return document.querySelector(selector); }
+
+function generateTrackingCode(){
+  return 'ORD-' + Math.floor(Math.random()*1000000);
+}
+
+function saveOrderToLocalStorage(order){
+  try {
+    const savedOrders = JSON.parse(localStorage.getItem('ml_orders') || '[]');
+    savedOrders.push(order);
+    localStorage.setItem('ml_orders', JSON.stringify(savedOrders));
+  } catch(e){
+    console.warn('Failed to save order', e);
+  }
+}
+
 function prepareAndOpenWhatsApp(e){
   e.preventDefault();
 
-  const name = (qs('name') && qs('name').value.trim()) || '';
-  const contact = (qs('contact') && qs('contact').value.trim()) || '';
+  const name = (qs('#name')?.value || '').trim();
+  const contact = (qs('#contact')?.value || '').trim();
 
   const saved = (function(){
     try { return JSON.parse(localStorage.getItem('ml_saved_location') || 'null'); } catch(e){ return null; }
@@ -764,17 +785,17 @@ function prepareAndOpenWhatsApp(e){
     return;
   }
 
-  const locationName = qs('locationHidden') ? qs('locationHidden').value : (saved.userLabel || '');
-  const marketName = qs('marketHidden') ? qs('marketHidden').value : (saved.marketLabel || '');
-  const category = qs('category') ? qs('category').value : '';
-  const items = qs('items') ? qs('items').value : '';
-  const budget = parseFloat(qs('budget') ? qs('budget').value : 0) || 0;
-  const service = parseFloat(qs('serviceFee') ? qs('serviceFee').textContent : 0) || 0;
-  const delivery = parseFloat(qs('deliveryFee') ? qs('deliveryFee').textContent : 0) || 0;
-  const total = parseFloat(qs('totalAmount') ? qs('totalAmount').textContent : 0) || 0;
+  const locationName = qs('#locationHidden') ? qs('#locationHidden').value : (saved.userLabel || '');
+  const marketName = qs('#marketHidden') ? qs('#marketHidden').value : (saved.marketLabel || '');
+  const category = qs('#category') ? qs('#category').value : '';
+  const items = qs('#items') ? qs('#items').value : '';
+  const budget = parseFloat(qs('#budget')?.value || 0) || 0;
+  const service = parseFloat(qs('#serviceFee')?.textContent || 0) || 0;
+  const delivery = parseFloat(qs('#deliveryFee')?.textContent || 0) || 0;
+  const total = parseFloat(qs('#totalAmount')?.textContent || 0) || 0;
 
-  // WhatsApp message with icons/emojis
-  lastWhatsAppMessage = `📝 *New Market Order* 🛒
+  // WhatsApp message
+  const message = `📝 *New Market Order* 🛒
 👤 Name: ${name}
 📞 Contact: ${contact}
 📍 Location: ${locationName}
@@ -791,37 +812,34 @@ ${items}
 
   const orderObj = {
     tracking: code,
-    name: name,
+    name,
     phone: contact,
     location: locationName,
     market: marketName,
-    category: category,
-    items: items,
-    budget: budget,
+    category,
+    items,
+    budget,
     serviceFee: service,
     deliveryFee: delivery,
-    total: total,
+    total,
     createdAt: Date.now(),
-    customerLat: saved ? saved.userLat : null,
-    customerLng: saved ? saved.userLng : null,
-    marketLat: saved ? saved.marketLat : null,
-    marketLng: saved ? saved.marketLng : null
+    customerLat: saved?.userLat || null,
+    customerLng: saved?.userLng || null,
+    marketLat: saved?.marketLat || null,
+    marketLng: saved?.marketLng || null
   };
 
   saveOrderToLocalStorage(orderObj);
   sessionStorage.setItem('ml_tracking_code', code);
   sessionStorage.setItem('ml_last_order', JSON.stringify(orderObj));
 
-  if(qs('trackingCode')) qs('trackingCode').textContent = code;
-  if(qs('trackingPopup')) qs('trackingPopup').style.display = 'flex';
-}
-  // Copy tracking code
-if (qs('copyTrackingBtn')) {
-  qs('copyTrackingBtn').addEventListener('click', () => {
-    const code = qs('trackingCode')?.textContent || "";
-    navigator.clipboard.writeText(code);
-    alert("Tracking code copied!");
-  });
+  if(qs('#trackingCode')) qs('#trackingCode').textContent = code;
+  if(qs('#trackingPopup')) qs('#trackingPopup').style.display = 'flex';
+
+  // Open WhatsApp group with message
+  const waLink = 'https://chat.whatsapp.com/BF5fSCyk0uaJpBKQO1ZBit';
+  const waUrl = `${waLink}?text=${encodeURIComponent(message)}`;
+  window.open(waUrl, '_blank');
 }
 
 /* ============================
