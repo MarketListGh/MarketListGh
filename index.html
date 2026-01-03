@@ -743,59 +743,59 @@ function updateTotals(){
 if(budgetEl) budgetEl.addEventListener('input', updateTotals);
 </script>
 
-<Script>
+<!-- The button -->
 <a id="sendBtn" class="send-whatsapp" href="#" onclick="prepareAndOpenWhatsApp(event)">
   Send Your List Now
 </a>
 
+<!-- Hidden inputs (example, adjust according to your form) -->
+<input type="hidden" id="name" value="">
+<input type="hidden" id="contact" value="">
+<input type="hidden" id="locationHidden" value="">
+<input type="hidden" id="marketHidden" value="">
+<input type="hidden" id="category" value="">
+<textarea id="items"></textarea>
+<span id="budget">0</span>
+<span id="serviceFee">0</span>
+<span id="deliveryFee">0</span>
+<span id="totalAmount">0</span>
+
+<!-- Script -->
 <script>
-function qs(selector){ return document.querySelector(selector); }
+function qs(id){ return document.getElementById(id); }
 
 function generateTrackingCode(){
   return 'ORD-' + Math.floor(Math.random()*1000000);
 }
 
 function saveOrderToLocalStorage(order){
-  try {
-    const savedOrders = JSON.parse(localStorage.getItem('ml_orders') || '[]');
-    savedOrders.push(order);
-    localStorage.setItem('ml_orders', JSON.stringify(savedOrders));
-  } catch(e){
-    console.warn('Failed to save order', e);
-  }
+  let orders = JSON.parse(localStorage.getItem('ml_orders') || '[]');
+  orders.push(order);
+  localStorage.setItem('ml_orders', JSON.stringify(orders));
 }
+
+let lastWhatsAppMessage = '';
 
 function prepareAndOpenWhatsApp(e){
   e.preventDefault();
 
-  const name = (qs('#name')?.value || '').trim();
-  const contact = (qs('#contact')?.value || '').trim();
-
-  const saved = (function(){
-    try { return JSON.parse(localStorage.getItem('ml_saved_location') || 'null'); } catch(e){ return null; }
-  })();
+  const name = (qs('name')?.value.trim()) || '';
+  const contact = (qs('contact')?.value.trim()) || '';
+  const locationName = qs('locationHidden')?.value || '';
+  const marketName = qs('marketHidden')?.value || '';
+  const category = qs('category')?.value || '';
+  const items = qs('items')?.value || '';
+  const budget = parseFloat(qs('budget')?.textContent || 0);
+  const service = parseFloat(qs('serviceFee')?.textContent || 0);
+  const delivery = parseFloat(qs('deliveryFee')?.textContent || 0);
+  const total = parseFloat(qs('totalAmount')?.textContent || 0);
 
   if(!name || !contact){
     alert("Please fill in your name and contact number first!");
     return;
   }
 
-  if(!saved || (!saved.userLat && !saved.marketLat)){
-    alert("Please select your location and market on the map (Select on Map) or Track Your Location.");
-    return;
-  }
-
-  const locationName = qs('#locationHidden') ? qs('#locationHidden').value : (saved.userLabel || '');
-  const marketName = qs('#marketHidden') ? qs('#marketHidden').value : (saved.marketLabel || '');
-  const category = qs('#category') ? qs('#category').value : '';
-  const items = qs('#items') ? qs('#items').value : '';
-  const budget = parseFloat(qs('#budget')?.value || 0) || 0;
-  const service = parseFloat(qs('#serviceFee')?.textContent || 0) || 0;
-  const delivery = parseFloat(qs('#deliveryFee')?.textContent || 0) || 0;
-  const total = parseFloat(qs('#totalAmount')?.textContent || 0) || 0;
-
-  // WhatsApp message
-  const message = `📝 *New Market Order* 🛒
+  lastWhatsAppMessage = `📝 *New Market Order* 🛒
 👤 Name: ${name}
 📞 Contact: ${contact}
 📍 Location: ${locationName}
@@ -812,36 +812,23 @@ ${items}
 
   const orderObj = {
     tracking: code,
-    name,
-    phone: contact,
-    location: locationName,
-    market: marketName,
-    category,
-    items,
-    budget,
-    serviceFee: service,
-    deliveryFee: delivery,
-    total,
-    createdAt: Date.now(),
-    customerLat: saved?.userLat || null,
-    customerLng: saved?.userLng || null,
-    marketLat: saved?.marketLat || null,
-    marketLng: saved?.marketLng || null
+    name, contact, location: locationName, market: marketName, category, items,
+    budget, serviceFee: service, deliveryFee: delivery, total, createdAt: Date.now()
   };
 
   saveOrderToLocalStorage(orderObj);
   sessionStorage.setItem('ml_tracking_code', code);
   sessionStorage.setItem('ml_last_order', JSON.stringify(orderObj));
 
-  if(qs('#trackingCode')) qs('#trackingCode').textContent = code;
-  if(qs('#trackingPopup')) qs('#trackingPopup').style.display = 'flex';
+  // Open WhatsApp group
+  const groupUrl = "https://chat.whatsapp.com/BF5fSCyk0uaJpBKQO1ZBit";
+  window.open(groupUrl, "_blank");
 
-  // Open WhatsApp group with message
-  const waLink = 'https://chat.whatsapp.com/BF5fSCyk0uaJpBKQO1ZBit';
-  const waUrl = `${waLink}?text=${encodeURIComponent(message)}`;
-  window.open(waUrl, '_blank');
+  alert("Your order is prepared! Open WhatsApp group to send.");
 }
+</script>
 
+<script>
 /* ============================
    Load Saved Location on page start
    ============================ */
