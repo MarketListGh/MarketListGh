@@ -819,6 +819,20 @@ if (qs('copyTrackingBtn')) {
     alert("Tracking code copied!");
   });
 }
+function openWhatsAppGroup(){
+  const message = sessionStorage.getItem('ml_whatsapp_message') || '';
+
+  // Copy message automatically
+  if(message){
+    navigator.clipboard.writeText(message).catch(()=>{});
+  }
+
+  // Open WhatsApp group
+  window.open(
+    "https://chat.whatsapp.com/BF5fSCyk0uaJpBKQO1ZBit",
+    "_blank"
+  );
+}
 
 /* ============================
    Load Saved Location on page start
