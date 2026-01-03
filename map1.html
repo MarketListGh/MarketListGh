@@ -1,107 +1,90 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Deliverer — Live Navigation</title>
-
-<!-- Leaflet CSS -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
 <style>
-:root{
-  --bg:#f7f7f7;
-  --accent:#00a859;
-  --accent-dark:#1976d2;
-  --danger:#d32f2f;
-  --card:#fff;
-}
-html,body,#map{height:100%;margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;}
-body{display:flex;flex-direction:column;height:100vh;background:var(--bg);}
-header{background:linear-gradient(90deg,var(--accent),#ffd06b);color:#fff;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;}
-header h1{margin:0;font-size:16px;}
-header p{margin:0;font-size:13px;opacity:0.95;}
-#topInfo{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,0.95);box-shadow:0 8px 26px rgba(0,0,0,0.08);}
-.left {display:flex;flex-direction:column;}
-.dest-name{font-weight:900;}
-.dest-sub{color:#666;font-size:13px;margin-top:4px;}
-.right {text-align:right;min-width:140px;}
-.metric{font-weight:900;font-size:18px;}
-.meta{font-size:13px;color:#666;}
-
-#map{flex:1;position:relative;}
-
-.controls{display:flex;gap:10px;padding:12px;background:transparent;justify-content:center;flex-wrap:wrap;}
-.btn{padding:12px 16px;border-radius:12px;border:0;font-weight:800;cursor:pointer;transition:all 0.2s;}
-.btn.primary{background:var(--accent);color:#fff;}
-.btn.ghost{background:#fff;border:1px solid #eee;}
-.btn.warn{background:var(--danger);color:#fff;}
-.status{position:fixed;left:12px;bottom:92px;background:rgba(255,255,255,0.95);padding:10px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.12);z-index:1400;font-size:13px;}
-
-/* arrival modal */
-.modal-backdrop{position:fixed;left:0;top:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:2000;}
-.modal-backdrop.show{display:flex;}
-.modal-card{background:var(--card);padding:20px;border-radius:12px;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
-.modal-title{font-weight:900;font-size:18px;margin-bottom:8px;}
-.modal-sub{color:#666;margin-bottom:14px;}
-
-@media (max-width:700px){
-  .right{min-width:110px;}
-  .dest-name{font-size:15px;}
-  .controls{flex-direction:column;align-items:center;}
-}
+  html, body, #map { height: 100%; margin: 0; padding: 0; }
+  .controls {
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+    background: transparent;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    z-index: 1500;
+  }
+  .btn {
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 0;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn.primary { background: #1976d2; color: #fff; }
+  .btn.ghost { background: #fff; border: 1px solid #eee; }
+  .btn.warn { background: #d32f2f; color: #fff; }
+  .status {
+    position: fixed;
+    left: 12px;
+    bottom: 92px;
+    background: rgba(255,255,255,0.95);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    z-index: 1400;
+    font-size: 13px;
+  }
+  .top-info {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.95);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    text-align: center;
+    z-index: 1400;
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <div>
-    <h1>Deliverer Navigation</h1>
-    <p>Start delivery when you're ready — route will follow your live location.</p>
-  </div>
-  <div style="text-align:right">
-    <div style="font-weight:800">Mode: Deliverer</div>
-    <div style="font-size:12px;opacity:0.95">Map1 (tracking)</div>
-  </div>
-</header>
-
-<div id="topInfo" aria-live="polite">
-  <div class="left">
-    <div class="dest-name" id="destName">Loading...</div>
-    <div class="dest-sub" id="destAddr">Waiting for destination</div>
-  </div>
-  <div class="right">
-    <div class="metric" id="distanceRem">-- km</div>
-    <div class="meta" id="etaText">ETA: --</div>
-    <div class="meta" id="speedText">Speed: --</div>
-  </div>
-</div>
-
 <div id="map"></div>
 
-<div class="controls" role="group" aria-label="Actions">
-  <button class="btn ghost" id="recenterBtn">Re-center</button>
-  <button class="btn primary" id="startBtn">Start Delivery</button>
-  <button class="btn" id="callBtn">Call Customer</button>
+<div class="top-info">
+  <div id="destName">Customer</div>
+  <div id="destAddr">Customer info</div>
+  <div id="distanceRem">-- km</div>
+  <div id="etaText">ETA: --</div>
+  <div id="speedText">Speed: --</div>
 </div>
 
-<div class="status" id="status">Preparing map…</div>
+<div class="status" id="status">Initializing...</div>
 
-<!-- arrival modal -->
-<div class="modal-backdrop" id="arrivalModal" aria-hidden="true">
-  <div class="modal-card" role="dialog" aria-modal="true">
-    <div class="modal-title">You are close to the customer</div>
-    <div class="modal-sub" id="arrivalSub">Mark this order as delivered?</div>
-    <div style="display:flex;gap:10px;justify-content:center;margin-top:8px">
-      <button class="btn ghost" id="arrivalNo">No, continue</button>
-      <button class="btn primary" id="arrivalYes">Yes, mark delivered</button>
-    </div>
+<div class="controls">
+  <button id="recenterBtn" class="btn ghost">Re-center</button>
+  <button id="startBtn" class="btn primary">Start Delivery</button>
+  <button id="callBtn" class="btn warn">Call Customer</button>
+</div>
+
+<!-- Arrival Modal -->
+<div id="arrivalModal" style="display:none; position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:1600;">
+  <div id="arrivalSub">You are near the customer. Mark as delivered?</div>
+  <div style="margin-top:12px;text-align:right;">
+    <button id="arrivalYes" class="btn primary">Yes</button>
+    <button id="arrivalNo" class="btn ghost">No</button>
   </div>
 </div>
 
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
 (function(){
 const GEOAPIFY_KEY = '0bf67747adfd4bb9bfab74ec373372fb';
@@ -196,11 +179,6 @@ if(window._ml_map1_state.customer){
   destNameEl.textContent = c.label||c.name||'Customer location';
   destAddrEl.textContent = (c.phone?`Phone: ${c.phone}`:'')+(c.label?(' • '+c.label):'');
   window._ml_map1_state.customerMarker = L.marker([c.lat,c.lng],{icon:customerIcon}).addTo(map).bindPopup(escapeHtml(c.label||c.name||'Customer')).openPopup();
-  map.setView([c.lat,c.lng],15);
-} else {
-  destNameEl.textContent='No customer coordinates';
-  destAddrEl.textContent='Check Tracking link';
-  statusEl.textContent='Missing customer coordinates.';
 }
 
 // create deliverer marker at start center
@@ -335,17 +313,30 @@ function checkArrival(){
   const dkm=haversineKm(user.lat,user.lng,cust.lat,cust.lng);
   if(dkm<ARRIVAL_THRESHOLD_KM && !arrivalModal.classList.contains('show')){
     arrivalSub.textContent=`You are ${toFixedNumber(dkm*1000,0)} meters from the customer. Mark as delivered?`;
-    arrivalModal.classList.add('show');
+    arrivalModal.style.display='block';
   }
 }
-arrivalYes.addEventListener('click',()=>{ arrivalModal.classList.remove('show'); alert('Order marked delivered!'); });
-arrivalNo.addEventListener('click',()=>{ arrivalModal.classList.remove('show'); });
+arrivalYes.addEventListener('click',()=>{ arrivalModal.style.display='none'; alert('Order marked delivered!'); });
+arrivalNo.addEventListener('click',()=>{ arrivalModal.style.display='none'; });
 
-// ---------- Initial ----------
-if(window._ml_map1_state.userMarker){ map.setView(window._ml_map1_state.userMarker.getLatLng(),14); }
-statusEl.textContent='Map ready. Click "Start Delivery" when ready.';
+// ---------- Initial GPS Fix ----------
+async function getInitialGPSFix(){
+  if(!navigator.geolocation) { statusEl.textContent = 'Geolocation not available'; return; }
+  try {
+    const pos = await new Promise((res, rej) => {
+      navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 });
+    });
+    handlePosition(pos);
+    map.setView([pos.coords.latitude, pos.coords.longitude], 16);
+    statusEl.textContent = 'GPS fix acquired. Ready for delivery.';
+  } catch(e) {
+    console.warn('Initial GPS fix failed', e);
+    statusEl.textContent = 'Waiting for GPS fix…';
+  }
+}
+
+getInitialGPSFix();
 })();
 </script>
-
 </body>
 </html>
