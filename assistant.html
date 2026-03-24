@@ -214,11 +214,12 @@ const micBtn = document.getElementById("micBtn");
 let orderMode = false;
 
 let orderData = {
-  source: "",     // Market or Mall
+  "Market or Mall Name": "",
+  "Market or Mall Location": "",
   items: "",
   location: "",
-  budget: "",
-  phone: ""
+  Budget: "",
+  Phone: ""
 };
 
 sendBtn.addEventListener("click", sendMessage);
@@ -271,9 +272,9 @@ function getAIResponse(msg){
 /* Order Collection Flow */
 function handleOrderFlow(text) {
 
-  // Step 1: Market or Mall
-  if (!orderData.source) {
-    orderData.source = text;
+  // Step 1: Market or Mall Name
+  if (!orderData["Market or Mall Name"]) {
+    orderData["Market or Mall Name"] = text;
     return appendMessage("🛍️ What would you like to order?");
   }
 
@@ -283,43 +284,46 @@ function handleOrderFlow(text) {
     return appendMessage("📍 Please enter your delivery location:");
   }
 
-  // Step 3: Location
-  if (!orderData.location) {
-    orderData.location = text;
+  // Step 3: Market or Mall Location
+  if (!orderData["Market or Mall Location"]) {
+    orderData["Market or Mall Location"] = text;
     return appendMessage("💰 What is your budget?");
   }
 
   // Step 4: Budget
-  if (!orderData.budget) {
-    orderData.budget = text;
+  if (!orderData.Budget) {
+    orderData.Budget = text;
     return appendMessage("📞 Enter your phone number:");
   }
 
   // Step 5: Phone
-  if (!orderData.phone) {
-    orderData.phone = text;
+  if (!orderData.Phone) {
+    orderData.Phone = text;
 
+    // Create order summary
     const message = `🛒 NEW ORDER
-
-Source: ${orderData.source}
+Market or Mall Name: ${orderData["Market or Mall Name"]}
+Market or Mall Location: ${orderData["Market or Mall Location"]}
 Items: ${orderData.items}
 Location: ${orderData.location}
-Budget: ${orderData.budget}
-Phone: ${orderData.phone}`;
+Budget: ${orderData.Budget}
+Phone: ${orderData.Phone}`;
 
-    const waURL = "https://wa.me/?text=" + encodeURIComponent(message);
+    appendMessage("✅ Order received! Please join our WhatsApp group to confirm and track your order.");
 
-    appendMessage("✅ Order received! Sending to team...");
-    window.open(waURL, "_blank");
+    // Open WhatsApp group directly
+    const groupLink = "https://chat.whatsapp.com/Jo5uZfGZmvh9sf0v8adw22";
+    window.open(groupLink, "_blank");
 
-    // Reset
+    // Reset orderData
     orderMode = false;
     orderData = {
-      source: "",
+      "Market or Mall Name": "",
+      "Market or Mall Location": "",
       items: "",
       location: "",
-      budget: "",
-      phone: ""
+      Budget: "",
+      Phone: ""
     };
   }
 }
