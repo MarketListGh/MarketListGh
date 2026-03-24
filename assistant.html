@@ -212,7 +212,14 @@ const chatBox = document.getElementById("chat-box");
 const micBtn = document.getElementById("micBtn");
 
 let orderMode = false;
-let orderData = { items: "", location: "", phone: "" };
+
+let orderData = {
+  source: "",     // Market or Mall
+  items: "",
+  location: "",
+  budget: "",
+  phone: ""
+};
 
 sendBtn.addEventListener("click", sendMessage);
 userInput.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
@@ -247,11 +254,11 @@ function sendMessage() {
 function getAIResponse(msg){
   let q = msg.toLowerCase();
 
-  if(q.includes("order")) {
+  if (q.includes("order")) {
     orderMode = true;
-    appendMessage("Great! Let's place your order. 🛒\n\nWhat items do you want?");
+    appendMessage("Great! Let's place your order. 🛒\nAre you buying from Market or Mall?");
     return "";
-  }
+}
 
   if(q.includes("how work")) return "Tell us your list ➜ We shop ➜ We deliver 🚚✅";
   if(q.includes("delivery")) return "Delivery starts from ₵20 depending on distance.";
@@ -262,26 +269,58 @@ function getAIResponse(msg){
 }
 
 /* Order Collection Flow */
-function handleOrderFlow(text){
-  if(!orderData.items){
+function handleOrderFlow(text) {
+
+  // Step 1: Market or Mall
+  if (!orderData.source) {
+    orderData.source = text;
+    return appendMessage("🛍️ What would you like to order?");
+  }
+
+  // Step 2: Items
+  if (!orderData.items) {
     orderData.items = text;
     return appendMessage("📍 Please enter your delivery location:");
   }
-  if(!orderData.location){
+
+  // Step 3: Location
+  if (!orderData.location) {
     orderData.location = text;
+    return appendMessage("💰 What is your budget?");
+  }
+
+  // Step 4: Budget
+  if (!orderData.budget) {
+    orderData.budget = text;
     return appendMessage("📞 Enter your phone number:");
   }
-  if(!orderData.phone){
+
+  // Step 5: Phone
+  if (!orderData.phone) {
     orderData.phone = text;
 
-    const message = `🛒 NEW MARKETLIST ORDER\n\nItems: ${orderData.items}\nLocation: ${orderData.location}\nPhone: ${orderData.phone}`;
-    const waURL = "https://wa.me/233555319887?text=" + encodeURIComponent(message);
+    const message = `🛒 NEW ORDER
 
-    appendMessage("✅ Order received! Sending to MarketList team...");
-    window.open(waURL,"_blank");
+Source: ${orderData.source}
+Items: ${orderData.items}
+Location: ${orderData.location}
+Budget: ${orderData.budget}
+Phone: ${orderData.phone}`;
 
+    const waURL = "https://wa.me/?text=" + encodeURIComponent(message);
+
+    appendMessage("✅ Order received! Sending to team...");
+    window.open(waURL, "_blank");
+
+    // Reset
     orderMode = false;
-    orderData = { items:"", location:"", phone:"" };
+    orderData = {
+      source: "",
+      items: "",
+      location: "",
+      budget: "",
+      phone: ""
+    };
   }
 }
 
