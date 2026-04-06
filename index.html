@@ -14,6 +14,22 @@
   font-family: Arial, sans-serif;
 }
 
+/* ============================
+   FIX: Remove Space Under Footer
+   ============================ */
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+main.container {
+  flex: 1;
+}
+
 /* Preloader */
 #preloader {
   position: fixed;
@@ -235,7 +251,7 @@ footer.footer {
   text-align: center;
   padding: 15px;
   background: #eee;
-  margin-top: 40px;
+  margin-top: 0; /* REMOVE COMPLETELY */
   color: #333;
 }
 
@@ -587,7 +603,7 @@ footer.footer {
   </section>
 </main>
 <!-- Footer -->
-<footer class="footer">© 2025 Market List — Bringing Market to Your Doorstep</footer>
+<footer class="footer">© 2026 Market List — Bringing Market to Your Doorstep</footer>
 
 <div id="trackingPopup">
   <div class="tracking-card">
