@@ -618,11 +618,9 @@ footer.footer {
         </div>
       </div>
 
-      <!-- Send Button -->
-      <a id="sendBtn" class="send-whatsapp" 
-   href="https://chat.whatsapp.com/L3O3nLIBkrU5pOgSz8ULft?mode=gi_t" 
-   onclick="openWhatsAppGroup(); return false;">
-   Send Your List Now
+    <!-- Send Button -->
+<a id="sendBtn" class="send-whatsapp" href="#">
+  Send Your List Now
 </a>
     </form>
   </section>
@@ -643,7 +641,6 @@ footer.footer {
   </div>
 </div>
 
-
 <!-- Floating Chatbot -->
 <div class="chatbot-btn" onclick="toggleChat()">💬</div>
 <div class="chat-overlay" id="chatOverlay" aria-hidden="true">
@@ -659,17 +656,27 @@ footer.footer {
     <button onclick="sendMessage()">Send</button>
   </div>
 </div>
-
+  
 <!-- Validation Popup -->
 <div id="validationPopup" class="popup-overlay">
   <div class="popup-box">
     <h2>⚠️ Incomplete Form</h2>
-    <p>Please fill in all required fields before sending your order.</p>
+    <p>Please fill all required fields before sending.</p>
     <button onclick="closeValidationPopup()">OK</button>
   </div>
 </div>
-
+  
 <script>
+function showValidationPopup(){
+  const popup = document.getElementById('validationPopup');
+  if(popup) popup.style.display = 'flex';
+}
+
+function closeValidationPopup(){
+  const popup = document.getElementById('validationPopup');
+  if(popup) popup.style.display = 'none';
+}
+  
 /* ============================
    Config & Helper Utilities
    ============================ */
@@ -1060,34 +1067,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
   
-  /* ============================
+/* ============================
    Validate Before Send
    ============================ */
 function validateBeforeSend(e){
   e.preventDefault();
 
-  const name = qs('name')?.value.trim();
-  const contact = qs('contact')?.value.trim();
-  const items = qs('items')?.value.trim();
-  const budget = qs('budget')?.value;
+  const name = document.getElementById('name')?.value.trim();
+  const contact = document.getElementById('contact')?.value.trim();
+  const items = document.getElementById('items')?.value.trim();
+  const budget = document.getElementById('budget')?.value;
 
   if(!name || !contact || !items || !budget){
     showValidationPopup();
     return;
   }
 
-  openWhatsAppGroup();
+  openWhatsAppGroup(); // only runs if valid
 }
-
-function showValidationPopup(){
-  const popup = qs('validationPopup');
-  if(popup) popup.style.display = 'flex';
-}
-
-function closeValidationPopup(){
-  const popup = qs('validationPopup');
-  if(popup) popup.style.display = 'none';
-}
+  
+/* ============================
+   Attach Send Button Click
+   ============================ */
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('sendBtn');
+  if(btn){
+    btn.addEventListener('click', validateBeforeSend);
+  }
+});
 </script>
 </body>
 </html>
