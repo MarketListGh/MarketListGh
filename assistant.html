@@ -252,70 +252,111 @@ function sendMessage() {
   }, 800);
 }
 
+/* ============================
+   AI Response Logic (Improved)
+   ============================ */
 function getAIResponse(msg){
   let q = msg.toLowerCase();
 
-  if (q.includes("order")) {
+  // 🛒 ORDER INTENT
+  if (
+    q.includes("order") || 
+    q.includes("buy") || 
+    q.includes("shop") ||
+    q.includes("purchase")
+  ) {
     orderMode = true;
-    appendMessage("Great! Let's place your order. 🛒\nAre you buying from Market or Mall?");
+    appendMessage("Great! Let's place your order 🛒\nAre you buying from a Market or Mall?");
     return "";
-}
+  }
 
-  if(q.includes("how work")) return "Tell us your list ➜ We shop ➜ We deliver 🚚✅";
-  if(q.includes("delivery")) return "Delivery starts from ₵20 depending on distance.";
-  if(q.includes("payment")) return "We support Mobile Money & Paystack.";
-  if(q.includes("market")) return "We shop from Makola, Kaneshie, Madina, Agbogbloshie & malls.";
+  // 👋 GREETING
+  if(q.includes("hello") || q.includes("hi") || q.includes("hey")){
+    return "👋 Hello! How can I assist you today?";
+  }
+
+  // ⚙️ HOW IT WORKS
+  if(q.includes("how") && q.includes("work")){
+    return "🛒 You send your list ➜ We shop ➜ We deliver to your doorstep 🚚";
+  }
+
+  // 🚚 DELIVERY
+  if(q.includes("delivery") || q.includes("fee") || q.includes("cost")){
+    return "🚚 Delivery starts from ₵20 depending on your distance.";
+  }
+
+  // 💳 PAYMENT
+  if(q.includes("payment") || q.includes("pay") || q.includes("money")){
+    return "💳 We accept Mobile Money & Paystack.";
+  }
+
+  // 🏬 MARKETS
+  if(q.includes("market") || q.includes("where") || q.includes("location")){
+    return "📍 We shop from Makola, Kaneshie, Madina, Agbogbloshie & malls.";
+  }
+
+  // ❓ FALLBACK
+  return "🤖 I can help you place orders, check delivery fees, or answer questions!";
+}
   
-  return "I'm here to help with shopping, delivery, payments & more 😄";
-}
-
-/* Order Collection Flow */
+/* ============================
+   Order Collection Flow (Fixed)
+   ============================ */
 function handleOrderFlow(text) {
 
-  // Step 1: Market or Mall Name
+  // STEP 1: Market Name
   if (!orderData["Market or Mall Name"]) {
     orderData["Market or Mall Name"] = text;
-    return appendMessage("🛍️ What would you like to order?");
+    return appendMessage("📍 Enter the market or mall location:");
   }
 
-  // Step 2: Items
-  if (!orderData.items) {
-    orderData.items = text;
-    return appendMessage("📍 Please enter your delivery location:");
-  }
-
-  // Step 3: Market or Mall Location
+  // STEP 2: Market Location
   if (!orderData["Market or Mall Location"]) {
     orderData["Market or Mall Location"] = text;
+    return appendMessage("🏠 Enter your delivery location:");
+  }
+
+  // STEP 3: USER LOCATION ✅ (FIXED)
+  if (!orderData.location) {
+    orderData.location = text;
+    return appendMessage("🛒 List your items with prices (e.g. Rice - ₵120, Oil - ₵50):");
+  }
+
+  // STEP 4: ITEMS
+  if (!orderData.items) {
+    orderData.items = text;
     return appendMessage("💰 What is your budget?");
   }
 
-  // Step 4: Budget
+  // STEP 5: BUDGET
   if (!orderData.Budget) {
     orderData.Budget = text;
     return appendMessage("📞 Enter your phone number:");
   }
 
-  // Step 5: Phone
+  // STEP 6: PHONE
   if (!orderData.Phone) {
     orderData.Phone = text;
 
-    // Create order summary
+    // ✅ ORDER SUMMARY (IMPROVED)
     const message = `🛒 NEW ORDER
-Market or Mall Name: ${orderData["Market or Mall Name"]}
-Market or Mall Location: ${orderData["Market or Mall Location"]}
+Market Name: ${orderData["Market or Mall Name"]}
+Market Location: ${orderData["Market or Mall Location"]}
+Your Location: ${orderData.location}
 Items: ${orderData.items}
-Location: ${orderData.location}
 Budget: ${orderData.Budget}
 Phone: ${orderData.Phone}`;
 
+    appendMessage("📋 Order Summary:");
+    appendMessage(message);
+
     appendMessage("✅ Order received! Please join our WhatsApp group to confirm and track your order.");
 
-    // Open WhatsApp group directly
+    // Open WhatsApp
     const groupLink = "https://chat.whatsapp.com/Jo5uZfGZmvh9sf0v8adw22";
     window.open(groupLink, "_blank");
 
-    // Reset orderData
+    // RESET
     orderMode = false;
     orderData = {
       "Market or Mall Name": "",
