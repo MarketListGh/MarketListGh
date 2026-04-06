@@ -429,22 +429,45 @@ html, body, #map {
       }
     }
     map.on('zoomend', refreshPlaceVisibility);
-        // ----------------- GEOAPIFY AUTOCOMPLETE (detailed + emoji) -----------------
-    async function geoapifyAutocomplete(query, limit=AUTOCOMPLETE_LIMIT){
-      if(!query || !query.trim()) return [];
-      // Bias to current map center for relevance
+    
+       // ----------------- GEOAPIFY AUTOCOMPLETE (FIXED) -----------------
+async function geoapifyAutocomplete(query, limit=AUTOCOMPLETE_LIMIT){
+  if(!query || !query.trim()) return [];
+
+  let lat = 0;
+  let lng = 0;
+
+  try {
+    if (map && map.getCenter) {
       const center = map.getCenter();
-      try {
-        const resp = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&limit=${limit}&bias=proximity:${center.lat},${center.lng}&apiKey=${API_KEY_GEOAPIFY}`);
-        if(!resp.ok) return [];
-        const j = await resp.json();
-        if(!j.features) return [];
-        return j.features.map(f => f);
-      } catch(e){
-        console.warn('Geoapify autocomplete failed', e);
-        return [];
-      }
+      lat = center.lat;
+      lng = center.lng;
     }
+  } catch(e){
+    console.warn("Map not ready, using default coords");
+  }
+
+  try {
+    const resp = await fetch(
+      `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&limit=${limit}&bias=proximity:${lat},${lng}&apiKey=${API_KEY_GEOAPIFY}`
+    );
+
+    if(!resp.ok){
+      console.error("Autocomplete API error:", resp.status);
+      return [];
+    }
+
+    const j = await resp.json();
+
+    if(!j.features) return [];
+
+    return j.features.map(f => f);
+
+  } catch(e){
+    console.warn('Geoapify autocomplete failed', e);
+    return [];
+  }
+}
 
     function classifyGeoapifyFeature(feat){
       const p = feat.properties || {};
