@@ -345,15 +345,15 @@ function handleOrderFlow(text) {
   if (!orderData.Phone) {
     orderData.Phone = text;
 
-    const message = `🛒 NEW ORDER
-1. Name: ${orderData.fullName}
-2. Market Name: ${orderData["Market or Mall Name"]}
-3. Market Location: ${orderData["Market or Mall Location"]}
+const message = `🛒 NEW ORDER
+1. USER Full Name: ${orderData.fullName}
+2. Market or Mall Name: ${orderData["Market or Mall Name"]}
+3. Market or Mall Location: ${orderData["Market or Mall Location"]}
 4. User Location: ${orderData.location}
 5. Items: ${orderData.items}
 6. Budget: ${orderData.Budget}
 7. Phone: ${orderData.Phone}`;
-
+    
     appendMessage("📋 Order Summary:");
     appendMessage(message);
 
