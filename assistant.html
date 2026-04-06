@@ -214,6 +214,7 @@ const micBtn = document.getElementById("micBtn");
 let orderMode = false;
 
 let orderData = {
+  fullName: "",
   "Market or Mall Name": "",
   "Market or Mall Location": "",
   items: "",
@@ -300,46 +301,53 @@ function getAIResponse(msg){
 }
   
 /* ============================
-   Order Collection Flow (Fixed)
+   Order Collection Flow (With Name)
    ============================ */
 function handleOrderFlow(text) {
 
-  // STEP 1: Market Name
+  // STEP 1: FULL NAME ✅
+  if (!orderData.fullName) {
+    orderData.fullName = text;
+    return appendMessage("🏬 Enter the market or mall name:");
+  }
+
+  // STEP 2: Market Name
   if (!orderData["Market or Mall Name"]) {
     orderData["Market or Mall Name"] = text;
     return appendMessage("📍 Enter the market or mall location:");
   }
 
-  // STEP 2: Market Location
+  // STEP 3: Market Location
   if (!orderData["Market or Mall Location"]) {
     orderData["Market or Mall Location"] = text;
     return appendMessage("🏠 Enter your delivery location:");
   }
 
-  // STEP 3: USER LOCATION ✅ (FIXED)
+  // STEP 4: USER LOCATION
   if (!orderData.location) {
     orderData.location = text;
     return appendMessage("🛒 List your items with prices (e.g. Rice - ₵120, Oil - ₵50):");
   }
 
-  // STEP 4: ITEMS
+  // STEP 5: ITEMS
   if (!orderData.items) {
     orderData.items = text;
     return appendMessage("💰 What is your budget?");
   }
 
-  // STEP 5: BUDGET
+  // STEP 6: BUDGET
   if (!orderData.Budget) {
     orderData.Budget = text;
     return appendMessage("📞 Enter your phone number:");
   }
 
-  // STEP 6: PHONE
+  // STEP 7: PHONE
   if (!orderData.Phone) {
     orderData.Phone = text;
 
-    // ✅ ORDER SUMMARY (IMPROVED)
+    // ✅ ORDER SUMMARY
     const message = `🛒 NEW ORDER
+Name: ${orderData.fullName}
 Market Name: ${orderData["Market or Mall Name"]}
 Market Location: ${orderData["Market or Mall Location"]}
 Your Location: ${orderData.location}
@@ -359,6 +367,7 @@ Phone: ${orderData.Phone}`;
     // RESET
     orderMode = false;
     orderData = {
+      fullName: "",
       "Market or Mall Name": "",
       "Market or Mall Location": "",
       items: "",
