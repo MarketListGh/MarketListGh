@@ -301,70 +301,66 @@ function getAIResponse(msg){
 }
   
 /* ============================
-   Order Collection Flow (With Name)
+   Order Collection Flow (Correct Logic)
    ============================ */
 function handleOrderFlow(text) {
 
-  // STEP 1: FULL NAME ✅
+  // STEP 1: USER FULL NAME
   if (!orderData.fullName) {
     orderData.fullName = text;
+    return appendMessage("👤 Enter your full name:");
+  }
+
+  // STEP 2: MARKET / MALL NAME
+  if (!orderData["Market or Mall Name"]) {
+    orderData["Market or Mall Name"] = text;
     return appendMessage("🏬 Enter the market or mall name:");
   }
 
-  // STEP 2: Market Name
-  if (!orderData["Market or Mall Name"]) {
-    orderData["Market or Mall Name"] = text;
-    return appendMessage("📍 Enter the market or mall location:");
-  }
-
-  // STEP 3: Market Location
+  // STEP 3: MARKET / MALL LOCATION
   if (!orderData["Market or Mall Location"]) {
     orderData["Market or Mall Location"] = text;
-    return appendMessage("🏠 Enter your delivery location:");
+    return appendMessage("📍 Enter the market or mall location:");
   }
 
   // STEP 4: USER LOCATION
   if (!orderData.location) {
     orderData.location = text;
-    return appendMessage("🛒 List your items with prices (e.g. Rice - ₵120, Oil - ₵50):");
+    return appendMessage("🏠 Enter your delivery location:");
   }
 
   // STEP 5: ITEMS
   if (!orderData.items) {
     orderData.items = text;
-    return appendMessage("💰 What is your budget?");
+    return appendMessage("🛒 List your items with prices (e.g. Rice - ₵120, Oil - ₵50):");
   }
 
   // STEP 6: BUDGET
   if (!orderData.Budget) {
     orderData.Budget = text;
-    return appendMessage("📞 Enter your phone number:");
+    return appendMessage("💰 What is your budget?");
   }
 
   // STEP 7: PHONE
   if (!orderData.Phone) {
     orderData.Phone = text;
 
-    // ✅ ORDER SUMMARY
     const message = `🛒 NEW ORDER
-Name: ${orderData.fullName}
-Market Name: ${orderData["Market or Mall Name"]}
-Market Location: ${orderData["Market or Mall Location"]}
-Your Location: ${orderData.location}
-Items: ${orderData.items}
-Budget: ${orderData.Budget}
-Phone: ${orderData.Phone}`;
+1. Name: ${orderData.fullName}
+2. Market Name: ${orderData["Market or Mall Name"]}
+3. Market Location: ${orderData["Market or Mall Location"]}
+4. User Location: ${orderData.location}
+5. Items: ${orderData.items}
+6. Budget: ${orderData.Budget}
+7. Phone: ${orderData.Phone}`;
 
     appendMessage("📋 Order Summary:");
     appendMessage(message);
 
     appendMessage("✅ Order received! Please join our WhatsApp group to confirm and track your order.");
 
-    // Open WhatsApp
-    const groupLink = "https://chat.whatsapp.com/Jo5uZfGZmvh9sf0v8adw22";
-    window.open(groupLink, "_blank");
+    window.open("https://chat.whatsapp.com/Jo5uZfGZmvh9sf0v8adw22", "_blank");
 
-    // RESET
     orderMode = false;
     orderData = {
       fullName: "",
@@ -377,7 +373,7 @@ Phone: ${orderData.Phone}`;
     };
   }
 }
-
+  
 /* Voice Input */
 const recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (recognition){
