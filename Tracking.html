@@ -103,20 +103,29 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
 </style>
 </head>
 <body>
-
+  
+<!-- ============================
+     Headerbar (MATCH INDEX)
+============================ -->
 <header class="headerbar">
   <div class="inner">
+
+    <!-- Brand -->
     <div class="brand" onclick="window.location.href='index.html'">
-      <img src="logo.png" alt="MarketList Logo">
-      <span class="title">MarketList</span>
+      <img src="logo.png" alt="logo">
+      <div class="title">MarketList</div>
     </div>
+
+    <!-- Navigation -->
     <nav>
       <a href="index.html">Home</a>
-      <a href="about.html" class="active">About</a>
-      <a href="reviews.html">Reviews</a>
+      <a href="#">About</a>
+      <a href="#">Reviews</a>
       <a href="assistant.html">Assistant</a>
-       <a href="FAQ.html">FAQ</a>
+      <a href="tracking.html" class="active">Track Order</a>
+      <a href="#">FAQ</a>
     </nav>
+
   </div>
 </header>
 <head>
@@ -254,6 +263,11 @@ footer.footer { text-align:center; padding:15px; background:#eee; margin-top:40p
   </div>
 
 <script>
+.headerbar .inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 (function(){
   // ---------- utilities ----------
   const $ = id => document.getElementById(id);
