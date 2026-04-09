@@ -539,7 +539,7 @@ sheetAction.addEventListener('click', () => {
         }
       }
     } catch(e){}
-  })();
+  });
 
   // prefill last viewed if present
   (function tryPrefillLast(){
@@ -554,7 +554,7 @@ sheetAction.addEventListener('click', () => {
         startCustomerAutoRefresh();
       }
     } catch(e){}
-  })();
+  });
 
   // ---------- auto-refresh for customer view ----------
   function startCustomerAutoRefresh(){
@@ -591,7 +591,7 @@ sheetAction.addEventListener('click', () => {
         saveStoredOrders(sample);
       }
     } catch(e){}
-  })();
+  });
 
   // ---------- keyboard accessibility: open sheets via Enter/Space ----------
   customerCard.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter' || ev.key===' ') { openSheetFor('customer'); } });
@@ -600,7 +600,7 @@ sheetAction.addEventListener('click', () => {
   // ---------- click handlers ----------
   customerCard.addEventListener('click', ()=> openSheetFor('customer'));
   delivererCard.addEventListener('click', ()=> openSheetFor('deliverer'));
-})();
+});
 
   window.addEventListener('load', () => {
   orderArea.innerHTML = `
