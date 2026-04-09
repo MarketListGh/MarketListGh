@@ -137,7 +137,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   // ---------- utilities ----------
-  const $ = id => document.getElementById(id);
+  const $ = id => document.getElementById(id) || null;
   function nowHuman(ts){ try { return new Date(ts).toLocaleString(); } catch(e) { return ''; } }
   function formatGhs(n){ return '₵' + (Number(n||0).toFixed(2)); }
 
