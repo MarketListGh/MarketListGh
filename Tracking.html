@@ -135,7 +135,7 @@
   </div>
 
 <script>
-(function(){
+document.addEventListener('DOMContentLoaded', function(){
   // ---------- utilities ----------
   const $ = id => document.getElementById(id);
   function nowHuman(ts){ try { return new Date(ts).toLocaleString(); } catch(e) { return ''; } }
